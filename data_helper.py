@@ -355,6 +355,7 @@ class DataHelper:
             return image
 
     def categorize_valence(self, orig_val):
+        print('orig_:' + str(orig_val))
         if orig_val <= -0.5:
             val = 0
         elif -0.5 < orig_val <= 0.0:
