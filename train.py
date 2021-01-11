@@ -78,7 +78,8 @@ class Train:
             # with summary_writer.as_default():
             #     tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
             '''save weights'''
-            model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '_' + str(loss_eval) + '.h5')
+            model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '.h5')
+            # model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '_' + str(loss_eval) + '.h5')
             # model.save_weights(
             #     './models/fer_weight_' + '_' + str(epoch) + self.dataset_name + '_' + str(loss_eval) + '.h5')
 
