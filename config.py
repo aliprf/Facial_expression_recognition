@@ -21,10 +21,11 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 50
-    # batch_size = 5
+    # batch_size = 50
+    batch_size = 5
     epochs = 200
     velocity_output_len = 6 # we generated five classes
+    expression_output_len = 8 # we generated five classes
 
 
 class InputDataSize:
@@ -32,8 +33,8 @@ class InputDataSize:
 
 
 class AffectnetConf:
-    _prefix_path = '/media/data2/alip/FER/affectNet'  # --> Atlas
-    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    # _prefix_path = '/media/data2/alip/FER/affectNet'  # --> Atlas
+    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_img_path_prefix = '/media/data2/alip/FER/affectNet/orig/images/'
     orig_csv_train_path = _prefix_path + '/orig/training.csv'

@@ -36,7 +36,7 @@ class Train:
             "./train_logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
 
         '''making models'''
-        _lr = 1e-3
+        _lr = 1e-1
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -61,28 +61,30 @@ class Train:
                     y_train_filenames=y_train_filenames, img_path=self.img_path, annotation_path=self.annotation_path)
                 '''convert to tensor'''
                 images = tf.cast(images, tf.float32)
-                anno_val = tf.cast(anno_val, tf.float32)
+                anno_val = tf.cast(anno_val, tf.int8)
+                anno_exp = tf.cast(anno_exp, tf.int8)
                 '''train step'''
                 self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch, images=images,
-                                model=model, anno_val=anno_val, optimizer=optimizer, c_loss=c_loss,
+                                model=model, anno_val=anno_val, anno_exp=anno_exp, optimizer=optimizer, c_loss=c_loss,
                                 summary_writer=summary_writer, mode=mode)
             '''evaluating part'''
-            eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch = \
-                dhp.create_evaluation_batch(
-                    x_eval_filenames=x_val_filenames,
-                    y_eval_filenames=y_val_filenames,
-                    img_path=self.img_path,
-                    annotation_path=self.annotation_path, mode=mode)
-            loss_eval = self._eval_model(eval_img_batch, eval_val_batch, model, mode)
-            with summary_writer.as_default():
-                tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
+            # eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch = \
+            #     dhp.create_evaluation_batch(
+            #         x_eval_filenames=x_val_filenames,
+            #         y_eval_filenames=y_val_filenames,
+            #         img_path=self.img_path,
+            #         annotation_path=self.annotation_path, mode=mode)
+            # loss_eval = self._eval_model(eval_img_batch, eval_val_batch, model, mode)
+            # with summary_writer.as_default():
+            #     tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
             '''save weights'''
             model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '_' + str(loss_eval) + '.h5')
             # model.save_weights(
             #     './models/fer_weight_' + '_' + str(epoch) + self.dataset_name + '_' + str(loss_eval) + '.h5')
+
             '''calculate Learning rate'''
-            _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=1e-2)
-            optimizer = self._get_optimizer(lr=_lr)
+            # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=1e-2)
+            # optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         '''reducing triangle'''
@@ -97,13 +99,16 @@ class Train:
         print('LR is: ' + str(lr))
         return lr
 
-    def train_step(self, epoch, step, total_steps, images, model, anno_val, optimizer, summary_writer, c_loss, mode):
+    def train_step(self, epoch, step, total_steps, images, model, anno_val,anno_exp, optimizer, summary_writer, c_loss, mode):
         with tf.GradientTape() as tape:
             '''create annotation_predicted'''
-            annotation_predicted = model(images, training=True)
+            # annotation_predicted = model(images, training=True)
+            val_pr, exp_pr = model(images, training=True)
             '''calculate loss'''
             if mode == 0:
-                loss_total = c_loss.cross_entropy_loss(y_pr=annotation_predicted, y_gt=anno_val)
+                loss_val = c_loss.cross_entropy_loss(y_pr=val_pr, y_gt=anno_val)
+                loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
+                loss_total = loss_val + loss_exp
             else:
                 loss_total = c_loss.regressor_loss(y_pr=annotation_predicted, y_gt=anno_val)
         '''calculate gradient'''
@@ -111,9 +116,12 @@ class Train:
         '''apply Gradients:'''
         optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
-        tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps), ' -> : LOSS: ', loss_total)
+        tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps), ' -> : LOSS: ', loss_total,
+                 ' -> : Loss-EXP: ', loss_exp, ' -> : Loss-Val: ', loss_val)
         with summary_writer.as_default():
             tf.summary.scalar('LOSS', loss_total, step=epoch)
+            tf.summary.scalar('Loss-EXP', loss_exp, step=epoch)
+            tf.summary.scalar('Loss-Val', loss_val, step=epoch)
 
     def _eval_model(self, img_batch_eval, pn_batch_eval, model, mode):
         predictions = model(img_batch_eval)

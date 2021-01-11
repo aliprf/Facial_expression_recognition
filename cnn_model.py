@@ -73,8 +73,9 @@ class CNNModel:
         '''revise model'''
         eff_net.layers.pop()
         x = eff_net.get_layer('top_dropout').output
-        # o_velocity = Dense(LearningConfig.velocity_output_len, name='O_Velocity')(x)
-        o_velocity = Dense(1, name='O_Velocity_reg')(x)
+        o_velocity = Dense(LearningConfig.velocity_output_len, name='O_Velocity')(x)
+        o_expression = Dense(LearningConfig.expression_output_len, name='O_Expression')(x)
+        # o_velocity = Dense(1, name='O_Velocity_reg')(x)
 
         # x = GlobalAveragePooling2D()(x)
         # x = Dropout(0.2)(x)
@@ -91,7 +92,7 @@ class CNNModel:
         # o_category = Dense(output_len, name='O_Category')(x)
 
         inp = eff_net.input
-        revised_model = Model(inp, [o_velocity])
+        revised_model = Model(inp, [o_velocity, o_expression])
         # revised_model = Model(inp, [o_velocity, o_category])
         revised_model.summary()
         '''save json'''

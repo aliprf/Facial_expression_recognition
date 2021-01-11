@@ -252,11 +252,11 @@ class DataHelper:
                   batch_index * LearningConfig.batch_size:(batch_index + 1) * LearningConfig.batch_size]
         '''create img and annotations'''
         img_batch = np.array([self._do_random_aug(imread(img_path + file_name)) for file_name in batch_x])/ 255.0
-        exp_batch = np.array([load(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
+        exp_batch = np.array([int(load(pn_tr_path + file_name[:-8] + "_exp.npy")) for file_name in batch_y])
         if mode==0:
             val_batch = np.array([self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
         else:
-            val_batch = np.array([float(load(pn_tr_path + file_name)) for file_name in batch_y])
+            val_batch = np.array([int(load(pn_tr_path + file_name)) for file_name in batch_y])
 
         lnd_batch = 0
         lnd_avg_batch = 0
@@ -355,62 +355,62 @@ class DataHelper:
             return image
 
     def categorize_valence(self, orig_val):
-        print('orig_:' + str(orig_val))
-        if orig_val <= -0.5:
-            val = 0
-        elif -0.5 < orig_val <= 0.0:
-            val = 1
-        elif 0.0 < orig_val <= 0.5:
-            val = 2
-        elif 0.5 < orig_val:
-            val = 3
-        return val
-
-        # if -1.0 <= orig_val <= -0.66:
+        # print('orig_:' + str(orig_val))
+        # if orig_val <= -0.5:
         #     val = 0
-        # elif -0.66 < orig_val <= -0.33:
+        # elif -0.5 < orig_val <= 0.0:
         #     val = 1
-        # elif -0.33 < orig_val <= 0.0:
+        # elif 0.0 < orig_val <= 0.5:
         #     val = 2
-        # elif 0.0 < orig_val <= 0.33:
+        # elif 0.5 < orig_val:
         #     val = 3
-        # elif 0.33 < orig_val <= 0.66:
-        #     val = 4
-        # elif 0.66 < orig_val <= 1.0:
-        #     val = 5
-        # else:
-        #     print('INCORRECT VALENCE')
-        #     raise 0
         # return val
+
+        if -1.0 <= orig_val <= -0.66:
+            val = 0
+        elif -0.66 < orig_val <= -0.33:
+            val = 1
+        elif -0.33 < orig_val <= 0.0:
+            val = 2
+        elif 0.0 < orig_val <= 0.33:
+            val = 3
+        elif 0.33 < orig_val <= 0.66:
+            val = 4
+        elif 0.66 < orig_val <= 1.0:
+            val = 5
+        else:
+            print('INCORRECT VALENCE')
+            raise 0
+        return val
 
     def load_and_categorize_valence(self, valence_path):
         orig_val = float(load(valence_path))
-        if -1.0 <= orig_val <= -0.5:
-            val = 0
-        elif -0.5 < orig_val <= 0.0:
-            val = 1
-        elif 0.0 < orig_val <= 0.5:
-            val = 2
-        elif 0.5 < orig_val <= 1:
-            val = 3
-        return val
-
-        # if -1.0 <= orig_val <= -0.66:
+        # if -1.0 <= orig_val <= -0.5:
         #     val = 0
-        # elif -0.66 < orig_val <= -0.33:
+        # elif -0.5 < orig_val <= 0.0:
         #     val = 1
-        # elif -0.33 < orig_val <= 0.0:
+        # elif 0.0 < orig_val <= 0.5:
         #     val = 2
-        # elif 0.0 < orig_val <= 0.33:
+        # elif 0.5 < orig_val <= 1:
         #     val = 3
-        # elif 0.33 < orig_val <= 0.66:
-        #     val = 4
-        # elif 0.66 < orig_val <= 1.0:
-        #     val = 5
-        # else:
-        #     print('INCORRECT VALENCE')
-        #     raise 0
         # return val
+
+        if -1.0 <= orig_val <= -0.66:
+            val = 0
+        elif -0.66 < orig_val <= -0.33:
+            val = 1
+        elif -0.33 < orig_val <= 0.0:
+            val = 2
+        elif 0.0 < orig_val <= 0.33:
+            val = 3
+        elif 0.33 < orig_val <= 0.66:
+            val = 4
+        elif 0.66 < orig_val <= 1.0:
+            val = 5
+        else:
+            print('INCORRECT VALENCE')
+            return 0
+        return val
 
     def _create_image_and_labels_name(self, img_path, annotation_path):
         img_filenames = []
