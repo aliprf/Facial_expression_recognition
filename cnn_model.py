@@ -59,12 +59,12 @@ class CNNModel:
 
     def _create_efficientNet(self):
         initializer = tf.keras.initializers.glorot_uniform()
-        eff_net = efn.EfficientNetB0(include_top=True,
+        eff_net = efn.EfficientNetB3(include_top=True,
                                      weights=None,
                                      input_tensor=None,
                                      input_shape=[InputDataSize.image_input_size, InputDataSize.image_input_size, 3],
                                      pooling=None,
-                                     classes=LearningConfig.velocity_output_len)  # or weights='noisy-student'
+                                     classes=LearningConfig.expression_output_len_shrunk)  # or weights='noisy-student'
         '''save json'''
         # model_json = eff_net.to_json()
         #
@@ -73,8 +73,8 @@ class CNNModel:
         '''revise model'''
         eff_net.layers.pop()
         x = eff_net.get_layer('top_dropout').output
-        o_velocity = Dense(LearningConfig.velocity_output_len, name='O_Velocity')(x)
-        o_expression = Dense(LearningConfig.expression_output_len, name='O_Expression')(x)
+        # o_velocity = Dense(LearningConfig.velocity_output_len, name='O_Velocity')(x)
+        o_expression = Dense(LearningConfig.expression_output_len_shrunk, name='O_Expression_sh')(x)
         # o_velocity = Dense(1, name='O_Velocity_reg')(x)
 
         # x = GlobalAveragePooling2D()(x)
@@ -92,7 +92,8 @@ class CNNModel:
         # o_category = Dense(output_len, name='O_Category')(x)
 
         inp = eff_net.input
-        revised_model = Model(inp, [o_velocity, o_expression])
+        revised_model = Model(inp, [o_expression])
+        # revised_model = Model(inp, [o_velocity, o_expression])
         # revised_model = Model(inp, [o_velocity, o_category])
         revised_model.summary()
         '''save json'''

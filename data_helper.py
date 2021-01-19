@@ -107,7 +107,10 @@ class DataHelper:
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.uncertain or \
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
                 continue
-            else:
+            elif int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.happy or\
+                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.sad or \
+                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.neutral or\
+                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.anger:
                 '''crop, resize, augment image'''
                 self.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
                                          save_img_name=save_img_path + str(i) + '.jpg',

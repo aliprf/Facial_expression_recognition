@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 class CustomLosses:
     # def __init__(self):
     #     pass
