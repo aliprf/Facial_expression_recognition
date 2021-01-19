@@ -100,7 +100,8 @@ class DataHelper:
     def create_affectnet(self, load_img_path, save_img_path, save_anno_path, img_path_arr, bbox_arr, landmarks_arr,
                          expression_lbl_arr, valence_arr, arousal_arr, FLD_model_file_name, do_aug):
 
-        model = tf.keras.models.load_model(FLD_model_file_name)
+        # model = tf.keras.models.load_model(FLD_model_file_name)
+        model = None
 
         for i in tqdm(range(len(img_path_arr))):
             if int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.none or \
