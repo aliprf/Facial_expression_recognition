@@ -36,7 +36,7 @@ class Train:
             "./train_logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
 
         '''making models'''
-        _lr = 1e-1
+        _lr = 1e-3
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -104,12 +104,14 @@ class Train:
         with tf.GradientTape() as tape:
             '''create annotation_predicted'''
             # annotation_predicted = model(images, training=True)
-            val_pr, exp_pr = model(images, training=True)
+            # val_pr, exp_pr = model(images, training=True)
+            exp_pr = model(images, training=True)
             '''calculate loss'''
             if mode == 0:
-                loss_val = c_loss.cross_entropy_loss(y_pr=val_pr, y_gt=anno_val)
+                # loss_val = c_loss.cross_entropy_loss(y_pr=val_pr, y_gt=anno_val)
                 loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
-                loss_total = loss_val + loss_exp
+                loss_total = loss_exp
+                # loss_total = loss_val + loss_exp
             else:
                 loss_total = c_loss.regressor_loss(y_pr=annotation_predicted, y_gt=anno_val)
         '''calculate gradient'''
@@ -118,11 +120,12 @@ class Train:
         optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps), ' -> : LOSS: ', loss_total,
-                 ' -> : Loss-EXP: ', loss_exp, ' -> : Loss-Val: ', loss_val)
+                 ' -> : Loss-EXP: ', loss_exp)
+                 # ' -> : Loss-EXP: ', loss_exp, ' -> : Loss-Val: ', loss_val)
         with summary_writer.as_default():
             tf.summary.scalar('LOSS', loss_total, step=epoch)
-            tf.summary.scalar('Loss-EXP', loss_exp, step=epoch)
-            tf.summary.scalar('Loss-Val', loss_val, step=epoch)
+            # tf.summary.scalar('Loss-EXP', loss_exp, step=epoch)
+            # tf.summary.scalar('Loss-Val', loss_val, step=epoch)
 
     def _eval_model(self, img_batch_eval, pn_batch_eval, model, mode):
         predictions = model(img_batch_eval)
