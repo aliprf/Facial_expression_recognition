@@ -68,15 +68,14 @@ class Train:
                                 model=model, anno_exp=anno_exp, optimizer=optimizer, c_loss=c_loss,
                                 summary_writer=summary_writer, mode=mode)
             '''evaluating part'''
-            # eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch = \
-            #     dhp.create_evaluation_batch(
-            #         x_eval_filenames=x_val_filenames,
-            #         y_eval_filenames=y_val_filenames,
-            #         img_path=self.img_path,
-            #         annotation_path=self.annotation_path, mode=mode)
-            # loss_eval = self._eval_model(eval_img_batch, eval_val_batch, model, mode)
-            # with summary_writer.as_default():
-            #     tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
+            eval_img_batch, eval_exp_batch = dhp.create_evaluation_batch(
+                    x_eval_filenames=x_val_filenames,
+                    y_eval_filenames=y_val_filenames,
+                    img_path=self.img_path,
+                    annotation_path=self.annotation_path, mode=mode)
+            loss_eval = self._eval_model(eval_img_batch, eval_exp_batch, model, mode)
+            with summary_writer.as_default():
+                tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
             '''save weights'''
             model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '.h5')
             # model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '_' + str(loss_eval) + '.h5')
@@ -133,13 +132,13 @@ class Train:
 
     def _eval_model(self, img_batch_eval, pn_batch_eval, model, mode):
         predictions = model(img_batch_eval)
-        if mode ==0:
-            scores = np.array([tf.nn.softmax(predictions[i]) for i in range(len(pn_batch_eval))])
-            predicted_lbls = np.array([np.argmax(scores[i]) for i in range(len(pn_batch_eval))])
+        # if mode ==0:
+        scores = np.array([tf.nn.softmax(predictions[i]) for i in range(len(pn_batch_eval))])
+        predicted_lbls = np.array([np.argmax(scores[i]) for i in range(len(pn_batch_eval))])
 
-            acc = accuracy_score(pn_batch_eval, predicted_lbls)
-        else:
-            acc = np.array(tf.reduce_mean(tf.abs(pn_batch_eval - predictions)))
+        acc = accuracy_score(pn_batch_eval, predicted_lbls)
+        # else:
+        #     acc = np.array(tf.reduce_mean(tf.abs(pn_batch_eval - predictions)))
         return acc
 
     def make_model(self, arch, w_path):

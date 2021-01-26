@@ -235,16 +235,17 @@ class DataHelper:
         batch_y = y_eval_filenames[0:LearningConfig.batch_size]
         '''create img and annotations'''
         eval_img_batch = np.array([imread(img_path + file_name) for file_name in batch_x]) / 255.0
-        eval_exp_batch = np.array([load(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
-        if mode == 0:
-            eval_val_batch = np.array(
-                [self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
-        else:
-            eval_val_batch = np.array([float(load(pn_tr_path + file_name)) for file_name in batch_y])
+        eval_exp_batch = np.array([self.load_and_relable(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
+        # if mode == 0:
+        #     eval_val_batch = np.array(
+        #         [self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
+        # else:
+        #     eval_val_batch = np.array([float(load(pn_tr_path + file_name)) for file_name in batch_y])
 
-        eval_lnd_batch = 0
-        eval_lnd_avg_batch = 0
-        return eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch
+        # eval_lnd_batch = 0
+        # eval_lnd_avg_batch = 0
+        return eval_img_batch, eval_exp_batch
+        # return eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch
 
     def get_batch_sample(self, batch_index, x_train_filenames, y_train_filenames, img_path, annotation_path, mode):
         img_path = img_path
