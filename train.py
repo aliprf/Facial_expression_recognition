@@ -62,7 +62,7 @@ class Train:
                 '''convert to tensor'''
                 images = tf.cast(images, tf.float32)
                 # anno_val = tf.cast(anno_val, tf.int8)
-                anno_exp = tf.cast(anno_exp, tf.float32)
+                anno_exp = tf.cast(anno_exp, tf.uint8)
                 '''train step'''
                 self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch, images=images,
                                 model=model, anno_exp=anno_exp, optimizer=optimizer, c_loss=c_loss,
