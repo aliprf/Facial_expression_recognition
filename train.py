@@ -109,10 +109,10 @@ class Train:
             '''calculate loss'''
             # if mode == 0:
             # loss_val = c_loss.cross_entropy_loss(y_pr=val_pr, y_gt=anno_val)
-            print('======exp_pr=======')
-            tf.print(exp_pr)
-            print('======anno_exp=======')
-            tf.print(anno_exp)
+            # print('======exp_pr=======')
+            # tf.print(exp_pr)
+            # print('======anno_exp=======')
+            # tf.print(anno_exp)
             loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
             # loss_total = loss_exp
                 # loss_total = loss_val + loss_exp
