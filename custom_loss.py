@@ -10,6 +10,6 @@ class CustomLosses:
 
     def cross_entropy_loss(self, y_gt, y_pr):
         # loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-        loss_object = tf.keras.losses.categorical_crossentropy(from_logits=True)
+        loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         loss = loss_object(y_gt, y_pr)
         return loss
