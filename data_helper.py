@@ -50,6 +50,7 @@ class DataHelper:
                                   expression_lbl_arr=expression_lbl_arr, valence_arr=valence_arr,
                                   arousal_arr=arousal_arr, FLD_model_file_name=FLD_model_file_name, do_aug=do_aug)
         return 0
+
     def create_mean_faces(self, img_path, anno_path):
         labels = [0, 1, 2, 3, 4, 5, 6, 7]
         landmarks = []
@@ -70,10 +71,8 @@ class DataHelper:
 
         for lbl in labels:
             lnd_array = landmarks[lbl]
-            lbl_mean = lnd_array[0]#np.mean(lnd_array, axis=0)
-            self.test_image_print(img_name=str(lbl), img=np.zeros([224,224,3]), landmarks=lbl_mean)
-
-
+            lbl_mean = lnd_array[0]  # np.mean(lnd_array, axis=0)
+            self.test_image_print(img_name=str(lbl), img=np.zeros([224, 224, 3]), landmarks=lbl_mean)
 
     def decode_affectnet(self, csv_data):
         img_path_arr = []
@@ -108,9 +107,9 @@ class DataHelper:
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.uncertain or \
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
                 continue
-            elif int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.happy or\
+            elif int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.happy or \
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.sad or \
-                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.neutral or\
+                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.neutral or \
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.anger:
                 '''crop, resize, augment image'''
                 self.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
@@ -159,7 +158,7 @@ class DataHelper:
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)
         '''synthesize lnd'''
-        anno_Pre = 0 #self.de_normalized(annotation_norm=model.predict(np.expand_dims(resized_img, axis=0))[0])
+        anno_Pre = 0  # self.de_normalized(annotation_norm=model.predict(np.expand_dims(resized_img, axis=0))[0])
 
         '''test print'''
         # self.test_image_print(img_name=save_img_name + '_synth', img=resized_img, landmarks=anno_Pre)
@@ -237,8 +236,9 @@ class DataHelper:
         '''create img and annotations'''
         eval_img_batch = np.array([imread(img_path + file_name) for file_name in batch_x]) / 255.0
         eval_exp_batch = np.array([load(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
-        if mode==0:
-            eval_val_batch = np.array([self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
+        if mode == 0:
+            eval_val_batch = np.array(
+                [self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
         else:
             eval_val_batch = np.array([float(load(pn_tr_path + file_name)) for file_name in batch_y])
 
@@ -255,8 +255,8 @@ class DataHelper:
         batch_y = y_train_filenames[
                   batch_index * LearningConfig.batch_size:(batch_index + 1) * LearningConfig.batch_size]
         '''create img and annotations'''
-        img_batch = np.array([self._do_random_aug(imread(img_path + file_name)) for file_name in batch_x])/ 255.0
-        exp_batch = np.array([int(load(pn_tr_path + file_name[:-8] + "_exp.npy")) for file_name in batch_y])
+        img_batch = np.array([self._do_random_aug(imread(img_path + file_name)) for file_name in batch_x]) / 255.0
+        exp_batch = np.array([self.load_and_relable(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
         # if mode==0:
         #     val_batch = np.array([self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
         # else:
@@ -358,6 +358,12 @@ class DataHelper:
             return out
         else:
             return image
+
+    def load_and_relable(self, file_name):
+        lbl = int(load(file_name))
+        if lbl == 6:
+            lbl = 3
+        return lbl
 
     def categorize_valence(self, orig_val):
         # print('orig_:' + str(orig_val))
