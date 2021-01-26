@@ -36,7 +36,7 @@ class Train:
             "./train_logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
 
         '''making models'''
-        _lr = 1e-3
+        _lr = 1e-5
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -62,7 +62,7 @@ class Train:
                 '''convert to tensor'''
                 images = tf.cast(images, tf.float32)
                 # anno_val = tf.cast(anno_val, tf.int8)
-                anno_exp = tf.cast(anno_exp, tf.int8)
+                anno_exp = tf.cast(anno_exp, tf.float32)
                 '''train step'''
                 self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch, images=images,
                                 model=model, anno_exp=anno_exp, optimizer=optimizer, c_loss=c_loss,

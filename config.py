@@ -21,7 +21,7 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 40
+    batch_size = 25
     # batch_size = 5
     epochs = 200
     velocity_output_len = 6 # we generated five classes
