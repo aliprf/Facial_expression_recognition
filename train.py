@@ -119,7 +119,7 @@ class Train:
             # else:
             #     loss_total = c_loss.regressor_loss(y_pr=annotation_predicted, y_gt=anno_val)
         '''calculate gradient'''
-        gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
+        gradients_of_model = tape.gradient(loss_exp, model.trainable_variables)
         '''apply Gradients:'''
         optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
