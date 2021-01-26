@@ -99,7 +99,7 @@ class CNNModel:
         '''save json'''
         model_json = revised_model.to_json()
 
-        with open("./model_archs/ef_b0.json", "w") as json_file:
+        with open("./model_archs/ef_b3.json", "w") as json_file:
             json_file.write(model_json)
 
         return revised_model

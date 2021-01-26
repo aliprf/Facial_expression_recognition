@@ -257,20 +257,21 @@ class DataHelper:
         '''create img and annotations'''
         img_batch = np.array([self._do_random_aug(imread(img_path + file_name)) for file_name in batch_x])/ 255.0
         exp_batch = np.array([int(load(pn_tr_path + file_name[:-8] + "_exp.npy")) for file_name in batch_y])
-        if mode==0:
-            val_batch = np.array([self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
-        else:
-            val_batch = np.array([int(load(pn_tr_path + file_name)) for file_name in batch_y])
+        # if mode==0:
+        #     val_batch = np.array([self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
+        # else:
+        #     val_batch = np.array([int(load(pn_tr_path + file_name)) for file_name in batch_y])
 
-        lnd_batch = 0
-        lnd_avg_batch = 0
+        # lnd_batch = 0
+        # lnd_avg_batch = 0
 
         # '''test: print'''
 
         # for i in range(LearningConfig.batch_size):
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer', img_batch[i], [])
 
-        return img_batch, val_batch, exp_batch, lnd_batch, lnd_avg_batch
+        return img_batch, exp_batch
+        # return img_batch, val_batch, exp_batch, lnd_batch, lnd_avg_batch
 
     def _do_random_aug(self, image):
         try:
