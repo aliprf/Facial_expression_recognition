@@ -74,7 +74,7 @@ class CNNModel:
         eff_net.layers.pop()
         x = eff_net.get_layer('top_dropout').output
         # o_velocity = Dense(LearningConfig.velocity_output_len, name='O_Velocity')(x)
-        o_expression = Dense(LearningConfig.expression_output_len_shrunk, name='O_Expression_sh')(x)
+        o_expression = Dense(LearningConfig.expression_output_len_shrunk,activation='linear', name='O_Expression_sh')(x)
         # o_velocity = Dense(1, name='O_Velocity_reg')(x)
 
         # x = GlobalAveragePooling2D()(x)
