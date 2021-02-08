@@ -395,6 +395,12 @@ class DataHelper:
             raise 0
         return val
 
+    def load_and_relabel_exp(self, valence_path):
+        orig_val = float(load(valence_path))
+        if orig_val == 6:
+            orig_val = 3
+        return orig_val
+
     def load_and_categorize_valence(self, valence_path):
         orig_val = float(load(valence_path))
         # if -1.0 <= orig_val <= -0.5:
@@ -430,7 +436,7 @@ class DataHelper:
 
         for file in os.listdir(img_path):
             if file.endswith(".jpg") or file.endswith(".png"):
-                val_lbl_file = str(file)[:-4] + "_val.npy"  # just name
+                val_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
                 if os.path.exists(annotation_path + val_lbl_file):
                     img_filenames.append(str(file))
                     lbls_filenames.append(val_lbl_file)

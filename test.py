@@ -30,6 +30,7 @@ class Test:
         # self.img_path = AffectnetConf.revised_train_img_path
         # self.annotation_path = AffectnetConf.revised_train_annotation_path
 
+
     def test_reg(self, model_file):
         dhp = DataHelper()
         model = tf.keras.models.load_model(model_file)
@@ -78,7 +79,8 @@ class Test:
 
         for i, file_name in tqdm(enumerate(img_filenames)):
             img = np.expand_dims(np.array(imread(self.img_path + file_name)) / 255.0, axis=0)
-            gt_lbls.append(dhl.load_and_categorize_valence(self.annotation_path + labels_filenames[i]))
+            gt_lbls.append(dhl.load_and_relabel_exp(self.annotation_path + labels_filenames[i]))
+            # gt_lbls.append(dhl.load_and_categorize_valence(self.annotation_path + labels_filenames[i]))
             prediction = model(img)[0]
             score = tf.nn.softmax(prediction)
             pr_lbls.append(np.argmax(score))
