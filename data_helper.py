@@ -396,7 +396,7 @@ class DataHelper:
         return val
 
     def load_and_relabel_exp(self, valence_path):
-        orig_val = float(load(valence_path))
+        orig_val = int(load(valence_path))
         if orig_val == 6:
             orig_val = 3
         return orig_val
