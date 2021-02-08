@@ -78,7 +78,7 @@ class Test:
         pr_lbls = []
         i =0
         for file_name in tqdm(img_filenames):
-            lbl = int(load(self.annotation_path + labels_filenames[i]))
+            lbl = float(load(self.annotation_path + labels_filenames[i]))
 
             print(lbl)
             print(type(lbl))
