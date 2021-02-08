@@ -15,5 +15,5 @@ if __name__ == '__main__':
 
     tester = Test(dataset_name=DatasetName.affectnet)
 
-    tester.test('./media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5')
+    tester.test('/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5')
     # tester.test_reg('./models/fer_model_37_affectnet_0.4.h5')
