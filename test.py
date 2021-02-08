@@ -80,8 +80,8 @@ class Test:
         for i, file_name in tqdm(enumerate(img_filenames)):
             lbl = int(load(self.annotation_path + labels_filenames[i]))
 
-            print(lbl)
-            print(type(lbl))
+            # print(lbl)
+            # print(type(lbl))
             if lbl == 0 or lbl == 1 or lbl == 2 or lbl == 6:
                 img = np.expand_dims(np.array(imread(self.img_path + file_name)) / 255.0, axis=0)
                 gt_lbls.append(dhl.load_and_relabel_exp(self.annotation_path + labels_filenames[i]))
