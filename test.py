@@ -79,17 +79,16 @@ class Test:
 
         for i, file_name in tqdm(enumerate(img_filenames)):
             lbl = float(load(self.annotation_path + labels_filenames[i]))
-            print(lbl)
-            print(type(lbl))
-            if lbl != 0.0 or lbl != 1.0 or lbl != 2.0 or lbl != 6.0: continue
-
-            img = np.expand_dims(np.array(imread(self.img_path + file_name)) / 255.0, axis=0)
-            gt_lbls.append(dhl.load_and_relabel_exp(self.annotation_path + labels_filenames[i]))
-            # gt_lbls.append(dhl.load_and_categorize_valence(self.annotation_path + labels_filenames[i]))
-            prediction = model(img)[0]
-            score = tf.nn.softmax(prediction)
-            pr_lbls.append(np.argmax(score))
-            print('Gt => ' + str(gt_lbls[i]) + ' : ' + str(pr_lbls[i]) + ' <= Pr')
+            # print(lbl)
+            # print(type(lbl))
+            if lbl == 0.0 or lbl == 1.0 or lbl == 2.0 or lbl == 6.0:
+                img = np.expand_dims(np.array(imread(self.img_path + file_name)) / 255.0, axis=0)
+                gt_lbls.append(dhl.load_and_relabel_exp(self.annotation_path + labels_filenames[i]))
+                # gt_lbls.append(dhl.load_and_categorize_valence(self.annotation_path + labels_filenames[i]))
+                prediction = model(img)[0]
+                score = tf.nn.softmax(prediction)
+                pr_lbls.append(np.argmax(score))
+                print('Gt => ' + str(gt_lbls[i]) + ' : ' + str(pr_lbls[i]) + ' <= Pr')
 
         print(confusion_matrix(gt_lbls, pr_lbls))
         acc = accuracy_score(gt_lbls, pr_lbls)
