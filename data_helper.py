@@ -152,14 +152,14 @@ class DataHelper:
         y_2 = y + height
 
         ''''''
-        landmark = list(map(float, landmark))
+        landmark = [] #list(map(float, landmark))
 
         # croped_img = img[x_1:x_2, y_1:y_2]
         croped_img = img
         annotation_new = []
-        for i in range(0, len(landmark), 2):
-            annotation_new.append(landmark[i] - x)
-            annotation_new.append(landmark[i + 1] - y)
+        # for i in range(0, len(landmark), 2):
+        #     annotation_new.append(landmark[i] - x)
+        #     annotation_new.append(landmark[i + 1] - y)
 
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)
@@ -174,8 +174,8 @@ class DataHelper:
         im = Image.fromarray((resized_img * 255).astype(np.uint8))
 
         im.save(save_img_name)
-        save(save_anno_name, annotation_resized)
-        save(synth_save_anno_name, anno_Pre)
+        # save(save_anno_name, annotation_resized)
+        # save(synth_save_anno_name, anno_Pre)
 
         return 0
 
@@ -185,16 +185,17 @@ class DataHelper:
 
         resized_img = resize(img, (InputDataSize.image_input_size, InputDataSize.image_input_size, 3),
                              anti_aliasing=True)
-        dims = img.shape
-        height = dims[0]
-        width = dims[1]
-        scale_factor_y = InputDataSize.image_input_size / height
-        scale_factor_x = InputDataSize.image_input_size / width
-
-        '''rescale and retrieve landmarks'''
-        landmark_arr_xy, landmark_arr_x, landmark_arr_y = self.create_landmarks(landmarks=annotation,
-                                                                                scale_factor_x=scale_factor_x,
-                                                                                scale_factor_y=scale_factor_y)
+        # dims = img.shape
+        # height = dims[0]
+        # width = dims[1]
+        # scale_factor_y = InputDataSize.image_input_size / height
+        # scale_factor_x = InputDataSize.image_input_size / width
+        #
+        landmark_arr_xy = []
+        # '''rescale and retrieve landmarks'''
+        # landmark_arr_xy, landmark_arr_x, landmark_arr_y = self.create_landmarks(landmarks=annotation,
+        #                                                                         scale_factor_x=scale_factor_x,
+        #                                                                         scale_factor_y=scale_factor_y)
         return resized_img, landmark_arr_xy
 
     def create_landmarks(self, landmarks, scale_factor_x, scale_factor_y):
