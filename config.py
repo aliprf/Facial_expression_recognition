@@ -18,6 +18,7 @@ class ExpressionCodesAffectnet:
 class DatasetType:
     train = 0
     eval = 1
+    test = 2
 
 
 class LearningConfig:
@@ -38,14 +39,19 @@ class AffectnetConf:
     # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_img_path_prefix = '/media/data2/alip/FER/affectNet/orig/images/'
+    orig_img_path_prefix = '/media/data2/alip/FER/affectNet/test_set_images/'
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'
+    orig_csv_test_path = _prefix_path + '/orig/test_set_list.csv'
 
     revised_train_img_path = _prefix_path + '/train_set/images/'
     revised_train_annotation_path = _prefix_path + '/train_set/annotations/'
 
     revised_eval_img_path = _prefix_path + '/eval_set/images/'
     revised_eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+
+    revised_eval_img_path = _prefix_path + '/test_set/images/'
+    revised_eval_annotation_path = _prefix_path + '/test_set/annotations/'
 
 
 
