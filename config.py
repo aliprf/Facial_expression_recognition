@@ -48,8 +48,8 @@ class AffectnetConf:
     revised_train_img_path = _prefix_path + '/train_set/images/'
     revised_train_annotation_path = _prefix_path + '/train_set/annotations/'
 
-    revised_eval_img_path = _prefix_path + '/eval_set/images/'
-    revised_eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+    revised_test_img_path = _prefix_path + '/eval_set/images/'
+    revised_test_annotation_path = _prefix_path + '/eval_set/annotations/'
 
     revised_eval_img_path = _prefix_path + '/test_set/images/'
     revised_eval_annotation_path = _prefix_path + '/test_set/annotations/'

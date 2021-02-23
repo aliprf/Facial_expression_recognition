@@ -40,7 +40,7 @@ class DataHelper:
             elif ds_type == DatasetType.test:
                 csv_path = AffectnetConf.orig_csv_test_path
                 load_img_path = AffectnetConf.orig_img_path_prefix
-                save_img_path = AffectnetConf.revised_eval_img_path
+                save_img_path = AffectnetConf.
                 save_anno_path = AffectnetConf.revised_eval_annotation_path
                 do_aug = False
 
