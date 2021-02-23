@@ -1,4 +1,4 @@
-from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig
+from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, DatasetType
 from cnn_model import CNNModel
 from custom_loss import CustomLosses
 from data_helper import DataHelper
@@ -19,11 +19,15 @@ from sklearn.metrics import accuracy_score
 
 
 class Train:
-    def __init__(self, dataset_name):
+    def __init__(self, dataset_name, ds_type):
         self.dataset_name = dataset_name
         if dataset_name == DatasetName.affectnet:
-            self.img_path = AffectnetConf.revised_train_img_path
-            self.annotation_path = AffectnetConf.revised_train_annotation_path
+            if ds_type == DatasetType.train:
+                self.img_path = AffectnetConf.revised_train_img_path
+                self.annotation_path = AffectnetConf.revised_train_annotation_path
+            else:
+                self.img_path = AffectnetConf.revised_test_img_path
+                self.annotation_path = AffectnetConf.revised_test_annotation_path
 
     def train(self, arch, weight_path, mode):
         """"""
@@ -36,7 +40,7 @@ class Train:
             "./train_logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
 
         '''making models'''
-        _lr = 1e-3
+        _lr = 1e-4
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
