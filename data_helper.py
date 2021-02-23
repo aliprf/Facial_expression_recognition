@@ -146,16 +146,16 @@ class DataHelper:
         img = np.array(Image.open(load_img_name))
         ''''''
         x, y, width, height = list(map(int, bbox))
-        x_1 = int(x + 0.05 * width)  # max(0, x-0.1*width)
-        y_1 = y  # max(0, y-0.1*height)
-        x_2 = int(min(x + width + 0.15 * width, img.shape[0]))  # min(x+width+0.1*width, img.shape[0])
-        y_2 = y + height  # int(min(y + height + 0.2 * height, img.shape[1]))
-        # print(x_1, x_2, y_1, y_2)
+        x_1 = int(x + 0.05 * width)
+        y_1 = y
+        x_2 = int(min(x + width + 0.15 * width, img.shape[0]))
+        y_2 = y + height
+
         ''''''
         landmark = list(map(float, landmark))
 
-        # croped_img = img[x:x+width, y:y+height]
-        croped_img = img[x_1:x_2, y_1:y_2]
+        # croped_img = img[x_1:x_2, y_1:y_2]
+        croped_img = img
         annotation_new = []
         for i in range(0, len(landmark), 2):
             annotation_new.append(landmark[i] - x)
