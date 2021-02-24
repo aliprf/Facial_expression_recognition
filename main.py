@@ -5,13 +5,13 @@ from data_helper import DataHelper
 if __name__ == '__main__':
     """pre-process data:"""
     dhl = DataHelper()
-    # dhl.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.test, FLD_model_file_name='./ds_136_ef.h5')
+    dhl.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.test, FLD_model_file_name='./ds_136_ef.h5')
     # dhl.create_mean_faces(img_path=AffectnetConf.revised_train_img_path, anno_path=AffectnetConf.revised_train_annotation_path)
 
     """train"""
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.test)
-    trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',
-                  mode=0) # 0-> categorical, 1->regression
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.test)
+    # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',
+    #               mode=0) # 0-> categorical, 1->regression
 
     # trainer.train(arch='mobileNetV2', weight_path=None)
 
