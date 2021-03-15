@@ -125,7 +125,7 @@ class DataHelper:
                                      synth_save_anno_name=save_anno_path + str(i) + '_slnd',
                                      model=model, do_aug=do_aug)
             '''save annotation: exp_lbl, valence, arousal, landmark '''
-            print(str(int(expression_lbl_arr[i])-1))
+            # print(str(int(expression_lbl_arr[i])))
             # save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])-1))
             save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])))
             save(save_anno_path + str(i) + '_val', valence_arr[i])
