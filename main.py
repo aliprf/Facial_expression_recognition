@@ -5,7 +5,8 @@ from data_helper import DataHelper
 if __name__ == '__main__':
     """pre-process data:"""
     dhl = DataHelper()
-    dhl.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.test, FLD_model_file_name='./ds_136_ef.h5')
+    dhl.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.train, FLD_model_file_name='./ds_136_ef.h5')
+    # dhl.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.test, FLD_model_file_name='./ds_136_ef.h5')
     # dhl.create_mean_faces(img_path=AffectnetConf.revised_train_img_path, anno_path=AffectnetConf.revised_train_annotation_path)
 
     """train"""

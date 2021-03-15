@@ -113,22 +113,23 @@ class DataHelper:
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.uncertain or \
                     int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
                 continue
-            elif int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.happy or \
-                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.sad or \
-                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.neutral or \
-                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.anger:
-                '''crop, resize, augment image'''
-                self.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
-                                         save_img_name=save_img_path + str(i) + '.jpg',
-                                         bbox=bbox_arr[i], landmark=landmarks_arr[i],
-                                         save_anno_name=save_anno_path + str(i) + '_lnd',
-                                         synth_save_anno_name=save_anno_path + str(i) + '_slnd',
-                                         model=model, do_aug=do_aug)
-                '''save annotation: exp_lbl, valence, arousal, landmark '''
-                print(str(int(expression_lbl_arr[i])-1))
-                save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])-1))
-                save(save_anno_path + str(i) + '_val', valence_arr[i])
-                save(save_anno_path + str(i) + '_aro', arousal_arr[i])
+            # elif int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.happy or \
+            #         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.sad or \
+            #         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.neutral or \
+            #         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.anger:
+            '''crop, resize, augment image'''
+            self.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
+                                     save_img_name=save_img_path + str(i) + '.jpg',
+                                     bbox=bbox_arr[i], landmark=landmarks_arr[i],
+                                     save_anno_name=save_anno_path + str(i) + '_lnd',
+                                     synth_save_anno_name=save_anno_path + str(i) + '_slnd',
+                                     model=model, do_aug=do_aug)
+            '''save annotation: exp_lbl, valence, arousal, landmark '''
+            print(str(int(expression_lbl_arr[i])-1))
+            # save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])-1))
+            save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])))
+            save(save_anno_path + str(i) + '_val', valence_arr[i])
+            save(save_anno_path + str(i) + '_aro', arousal_arr[i])
 
     # def predict_fl_and_save(self, model_file_name, img_path, annotation_save_path):
     #     model = tf.keras.models.load_model(model_file_name)
