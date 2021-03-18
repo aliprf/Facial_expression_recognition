@@ -154,9 +154,9 @@ class DataHelper:
         img = np.array(Image.open(load_img_name))
         ''''''
         x, y, width, height = list(map(int, bbox))
-        x_1 = int(x + 0.05 * width)
+        x_1 = x  #int(x + 0.05 * width)
         y_1 = y
-        x_2 = int(min(x + width + 0.15 * width, img.shape[0]))
+        x_2 = x + width # int(min(x + width + 0.15 * width, img.shape[0]))
         y_2 = y + height
 
         ''''''
