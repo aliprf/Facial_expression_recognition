@@ -155,7 +155,7 @@ class DataHelper:
         annotation_x = []
         annotation_y = []
         for i in range(0, len(landmark), 2):
-            annotation_y.append(landmark[i])
+            annotation_x.append(landmark[i])
             annotation_y.append(landmark[i + 1])
 
         ''''''
