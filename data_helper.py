@@ -170,10 +170,10 @@ class DataHelper:
         x_2 = x + width
         y_2 = y + height
 
-        _xmin = max(0, int(min(x_1, min(annotation_x))))
-        _ymin = max(0, int(min(y_1, min(annotation_y))))
-        _xmax = int(max(x_2, max(annotation_x)))
-        _ymax = int(max(y_2, max(annotation_y)))
+        _xmin = max(0, int(min(x_1, min(annotation_y))))
+        _ymin = max(0, int(min(y_1, min(annotation_x))))
+        _xmax = int(max(x_2, max(annotation_y)))
+        _ymax = int(max(y_2, max(annotation_x)))
         ''''''
         landmark = list(map(float, landmark))
 
