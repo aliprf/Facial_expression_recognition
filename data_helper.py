@@ -152,22 +152,37 @@ class DataHelper:
     def crop_resize_aug_img(self, load_img_name, save_img_name, save_anno_name, bbox, landmark, synth_save_anno_name,
                             model, do_aug):
         img = np.array(Image.open(load_img_name))
+        annotation_x = []
+        annotation_y = []
+        for i in range(0, len(landmark), 2):
+            annotation_y.append(landmark[i])
+            annotation_y.append(landmark[i + 1])
+
         ''''''
         x, y, width, height = list(map(int, bbox))
-        x_1 = x  #int(x + 0.05 * width)
+        # x_1 = x  #int(x + 0.05 * width)
+        # y_1 = y
+        # x_2 = x + width # int(min(x + width + 0.15 * width, img.shape[0]))
+        # y_2 = y + height
+
+        x_1 = x
         y_1 = y
-        x_2 = x + width # int(min(x + width + 0.15 * width, img.shape[0]))
+        x_2 = x + width
         y_2 = y + height
 
+        _xmin = max(0, int(min(x_1, min(annotation_x))))
+        _ymin = max(0, int(min(y_1, min(annotation_y))))
+        _xmax = int(max(x_2, max(annotation_x)))
+        _ymax = int(max(y_2, max(annotation_y)))
         ''''''
         landmark = list(map(float, landmark))
 
-        croped_img = img[x_1:x_2, y_1:y_2]
+        croped_img = img[_xmin:_xmax, _ymin:_ymax]
         # croped_img = img
         annotation_new = []
         for i in range(0, len(landmark), 2):
-            annotation_new.append(landmark[i] - x)
-            annotation_new.append(landmark[i + 1] - y)
+            annotation_new.append(landmark[i] - x_1)
+            annotation_new.append(landmark[i + 1] - y_1)
 
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)
