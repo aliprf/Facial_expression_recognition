@@ -160,14 +160,14 @@ class DataHelper:
         y_2 = y + height
 
         ''''''
-        landmark = [] #list(map(float, landmark))
+        landmark = list(map(float, landmark))
 
-        # croped_img = img[x_1:x_2, y_1:y_2]
-        croped_img = img
+        croped_img = img[x_1:x_2, y_1:y_2]
+        # croped_img = img
         annotation_new = []
-        # for i in range(0, len(landmark), 2):
-        #     annotation_new.append(landmark[i] - x)
-        #     annotation_new.append(landmark[i + 1] - y)
+        for i in range(0, len(landmark), 2):
+            annotation_new.append(landmark[i] - x)
+            annotation_new.append(landmark[i + 1] - y)
 
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)
