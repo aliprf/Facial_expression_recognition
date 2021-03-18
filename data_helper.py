@@ -155,8 +155,8 @@ class DataHelper:
         annotation_x = []
         annotation_y = []
         for i in range(0, len(landmark), 2):
-            annotation_x.append(int(landmark[i]))
-            annotation_y.append(int(landmark[i + 1]))
+            annotation_x.append(float(landmark[i]))
+            annotation_y.append(float(landmark[i + 1]))
 
         ''''''
         x, y, width, height = list(map(int, bbox))
