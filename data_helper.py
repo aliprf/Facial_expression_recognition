@@ -23,7 +23,7 @@ import cv2 as cv
 
 class DataHelper:
 
-    def read_csv(self, ds_name, ds_type, FLD_model_file_name):
+    def read_csv(self, ds_name, ds_type, FLD_model_file_name, is_7=False):
         if ds_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
                 csv_path = AffectnetConf.orig_csv_train_path
@@ -37,6 +37,20 @@ class DataHelper:
                 save_img_path = AffectnetConf.revised_eval_img_path
                 save_anno_path = AffectnetConf.revised_eval_annotation_path
                 do_aug = False
+
+            elif ds_type == DatasetType.train_7:
+                csv_path = AffectnetConf.orig_csv_train_path
+                load_img_path = AffectnetConf.orig_img_path_prefix
+                save_img_path = AffectnetConf.revised_train_img_path_7
+                save_anno_path = AffectnetConf.revised_train_annotation_path_7
+                do_aug = True
+            elif ds_type == DatasetType.eval_7:
+                csv_path = AffectnetConf.orig_csv_evaluate_path
+                load_img_path = AffectnetConf.orig_img_path_prefix
+                save_img_path = AffectnetConf.revised_eval_img_path_7
+                save_anno_path = AffectnetConf.revised_eval_annotation_path_7
+                do_aug = False
+
             elif ds_type == DatasetType.test:
                 csv_path = AffectnetConf.orig_csv_test_path
                 load_img_path = AffectnetConf.orig_test_path_prefix
@@ -54,7 +68,8 @@ class DataHelper:
                                   save_anno_path=save_anno_path,
                                   img_path_arr=img_path_arr, bbox_arr=bbox_arr, landmarks_arr=landmarks_arr,
                                   expression_lbl_arr=expression_lbl_arr, valence_arr=valence_arr,
-                                  arousal_arr=arousal_arr, FLD_model_file_name=FLD_model_file_name, do_aug=do_aug)
+                                  arousal_arr=arousal_arr, FLD_model_file_name=FLD_model_file_name, do_aug=do_aug,
+                                  is_7=is_7)
         return 0
 
     def create_mean_faces(self, img_path, anno_path):
@@ -103,26 +118,30 @@ class DataHelper:
         return img_path_arr, bbox_arr, landmarks_arr, expression_lbl_arr, valence_arr, arousal_arr
 
     def create_affectnet(self, load_img_path, save_img_path, save_anno_path, img_path_arr, bbox_arr, landmarks_arr,
-                         expression_lbl_arr, valence_arr, arousal_arr, FLD_model_file_name, do_aug):
+                         expression_lbl_arr, valence_arr, arousal_arr, FLD_model_file_name, do_aug, is_7):
 
         # model = tf.keras.models.load_model(FLD_model_file_name)
         model = None
-
+        if is_7:
+            print('++++++++++++++++++++++++++++++++++++')
+            print('++++++++++++| 7 labels |++++++++++++')
+            print('++++++++++++++++++++++++++++++++++++')
 
         print('len(img_path_arr)')
         print(len(img_path_arr))
 
-        # return 0
-
         for i in tqdm(range(len(img_path_arr))):
-            if int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.none or \
-                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.uncertain or \
-                    int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
-                continue
-            # elif int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.happy or \
-            #         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.sad or \
-            #         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.neutral or \
-            #         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.anger:
+            if is_7:
+                if int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.none or \
+                        int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.uncertain or \
+                        int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.contempt or \
+                        int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
+                    continue
+            else:
+                if int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.none or \
+                        int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.uncertain or \
+                        int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
+                    continue
             '''crop, resize, augment image'''
             self.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
                                      save_img_name=save_img_path + str(i) + '.jpg',
@@ -170,19 +189,18 @@ class DataHelper:
         x_2 = x + width
         y_2 = y + height
 
-        _xmin = max(0, int(min(x_1, min(annotation_y))))
-        _ymin = max(0, int(min(y_1, min(annotation_x))))
-        _xmax = int(max(x_2, max(annotation_y)))
-        _ymax = int(max(y_2, max(annotation_x)))
+        fix_pad = 5
+        _xmin = max(0, int(min(x_1, min(annotation_y) - fix_pad)))
+        _ymin = max(0, int(min(y_1, min(annotation_x) - fix_pad)))
+        _xmax = int(max(x_2, max(annotation_y) + fix_pad))
+        _ymax = int(max(y_2, max(annotation_x) + fix_pad))
         ''''''
         landmark = list(map(float, landmark))
-
         croped_img = img[_xmin:_xmax, _ymin:_ymax]
-        # croped_img = img
         annotation_new = []
         for i in range(0, len(landmark), 2):
-            annotation_new.append(landmark[i] - x_1)
-            annotation_new.append(landmark[i + 1] - y_1)
+            annotation_new.append(landmark[i] - _xmin)
+            annotation_new.append(landmark[i + 1] - _ymin)
 
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)

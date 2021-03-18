@@ -29,8 +29,10 @@ class ExpressionCodesAffectnet:
 
 class DatasetType:
     train = 0
-    eval = 1
-    test = 2
+    train_7 = 1
+    eval = 2
+    eval_7 = 3
+    test = 4
 
 
 class LearningConfig:
@@ -48,6 +50,9 @@ class InputDataSize:
 
 class AffectnetConf:
     # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/images /media/data2/alip/FER/affectNet/orig/images/
+    # sshfs user1 @ 130.253.217.32: / home / user1 / ExpressionNet / Manually_Annotated_Images / media / data2 / alip / FER / affectNet / orig / images /
+
+
     _prefix_path = '/media/data3/ali/FER/affectNet'  # --> Atlas
     # _prefix_path = '/media/data2/alip/FER/affectNet'  # --> Atlas
     # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
@@ -61,14 +66,21 @@ class AffectnetConf:
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'
     orig_csv_test_path = '/media/data2/alip/affectNet/test_set_list.csv'
 
+    '''8 labels'''
     revised_train_img_path = _prefix_path + '/train_set/images/'
     revised_train_annotation_path = _prefix_path + '/train_set/annotations/'
-
+    revised_eval_img_path = _prefix_path + '/eval_set/images/'
+    revised_eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+    '''7 labels'''
+    revised_train_img_path_7 = _prefix_path + '/train_set_7/images/'
+    revised_train_annotation_path_7 = _prefix_path + '/train_set_7/annotations/'
+    revised_eval_img_path_7 = _prefix_path + '/eval_set_7/images/'
+    revised_eval_annotation_path_7 = _prefix_path + '/eval_set_7/annotations/'
+    '''------'''
     revised_test_img_path = _prefix_path + '/test_set/images/'
     revised_test_annotation_path = _prefix_path + '/test_set/annotations/'
 
-    revised_eval_img_path = _prefix_path + '/eval_set/images/'
-    revised_eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+
 
 
 
