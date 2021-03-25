@@ -3,29 +3,30 @@ class DatasetName:
 
 
 class ExpressionCodesAffectnet:
-    neutral = 1
-    happy = 2
-    sad = 3
-    surprise = 4
-    fear = 5
-    disgust = 6
-    anger = 7
-    contempt = 8
-    none = 9
-    uncertain = 10
-    noface = 11
+    '''this is for test. NEVER use it'''
+    # neutral = 1
+    # happy = 2
+    # sad = 3
+    # surprise = 4
+    # fear = 5
+    # disgust = 6
+    # anger = 7
+    # contempt = 8
+    # none = 9
+    # uncertain = 10
+    # noface = 11
 
-    # neutral = 0
-    # happy = 1
-    # sad = 2
-    # surprise = 3
-    # fear = 4
-    # disgust = 5
-    # anger = 6
-    # contempt = 7
-    # none = 8
-    # uncertain = 9
-    # noface = 10
+    neutral = 0
+    happy = 1
+    sad = 2
+    surprise = 3
+    fear = 4
+    disgust = 5
+    anger = 6
+    contempt = 7
+    none = 8
+    uncertain = 9
+    noface = 10
 
 class DatasetType:
     train = 0
@@ -49,8 +50,12 @@ class InputDataSize:
 
 
 class AffectnetConf:
-    # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/images /media/data2/alip/FER/affectNet/orig/images/
-    # sshfs user1 @ 130.253.217.32: / home / user1 / ExpressionNet / Manually_Annotated_Images / media / data2 / alip / FER / affectNet / orig / images /
+    """"""
+    '''atlas'''
+    # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/Manually_Annotated_Images /media/data2/alip/FER/affectNet/orig/images/
+    '''Zeus'''
+    # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/Manually_Annotated_Images /media/data3/ali/FER/affectNet/orig/images/
+
 
 
     _prefix_path = '/media/data3/ali/FER/affectNet'  # --> Atlas

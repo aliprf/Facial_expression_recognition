@@ -123,9 +123,13 @@ class DataHelper:
         # model = tf.keras.models.load_model(FLD_model_file_name)
         model = None
         if is_7:
-            print('++++++++++++++++++++++++++++++++++++')
+            print('777777777777777777777777777777777777')
             print('++++++++++++| 7 labels |++++++++++++')
-            print('++++++++++++++++++++++++++++++++++++')
+            print('777777777777777777777777777777777777')
+        else:
+            print('888888888888888888888888888888888888')
+            print('++++++++++++| 8 labels |++++++++++++')
+            print('888888888888888888888888888888888888')
 
         print('len(img_path_arr)')
         print(len(img_path_arr))
@@ -205,17 +209,17 @@ class DataHelper:
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)
         '''synthesize lnd'''
-        anno_Pre = 0  # self.de_normalized(annotation_norm=model.predict(np.expand_dims(resized_img, axis=0))[0])
+        # anno_Pre = 0  # self.de_normalized(annotation_norm=model.predict(np.expand_dims(resized_img, axis=0))[0])
 
         '''test print'''
         # self.test_image_print(img_name=save_img_name + '_synth', img=resized_img, landmarks=anno_Pre)
-        # self.test_image_print(img_name=save_img_name + 'orig', img=resized_img, landmarks=annotation_resized)
+        self.test_image_print(img_name=save_img_name + 'orig', img=resized_img, landmarks=annotation_resized)
 
         '''save'''
         im = Image.fromarray((resized_img * 255).astype(np.uint8))
 
         im.save(save_img_name)
-        # save(save_anno_name, annotation_resized)
+        save(save_anno_name, annotation_resized)
         # save(synth_save_anno_name, anno_Pre)
 
         return 0
