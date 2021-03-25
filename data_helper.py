@@ -221,7 +221,7 @@ class DataHelper:
 
         '''test print'''
         # self.test_image_print(img_name=save_img_name + '_synth', img=resized_img, landmarks=anno_Pre)
-        self.test_image_print(img_name=save_img_name + 'orig', img=resized_img, landmarks=annotation_resized)
+        # self.test_image_print(img_name=save_img_name + 'orig', img=resized_img, landmarks=annotation_resized)
 
         '''save'''
         im = Image.fromarray((resized_img * 255).astype(np.uint8))
@@ -550,7 +550,7 @@ class DataHelper:
             landmarks_y.append(landmarks[i + 1])
 
         for i in range(len(landmarks_x)):
-            plt.annotate(str(i), (landmarks_x[i], landmarks_y[i]), fontsize=15, color='red')
+            plt.annotate(str(i), (landmarks_x[i], landmarks_y[i]), fontsize=9, color='red')
 
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#000000', s=15)
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#fddb3a', s=8)
