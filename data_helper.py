@@ -175,6 +175,7 @@ class DataHelper:
     def crop_resize_aug_img(self, load_img_name, save_img_name, save_anno_name, bbox, landmark, synth_save_anno_name,
                             model, do_aug):
         img = np.array(Image.open(load_img_name))
+        print(landmark)
         annotation_x = []
         annotation_y = []
         for i in range(0, len(landmark), 2):
@@ -200,6 +201,9 @@ class DataHelper:
         _ymax = int(max(y_2, max(annotation_x) + fix_pad))
         ''''''
         landmark = list(map(float, landmark))
+        print('2222landmark')
+        print(landmark)
+
         croped_img = img[_xmin:_xmax, _ymin:_ymax]
         annotation_new = []
         for i in range(0, len(landmark), 2):
@@ -547,6 +551,6 @@ class DataHelper:
 
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#000000', s=15)
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#fddb3a', s=8)
-        plt.savefig('print_' + img_name + '.png')
+        plt.savefig(img_name + '.png')
         # plt.show()
         plt.clf()
