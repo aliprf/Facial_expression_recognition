@@ -177,8 +177,8 @@ class DataHelper:
         img = np.array(Image.open(load_img_name))
 
         landmark = list(map(float, landmark))
-        print('2222landmark')
-        print(landmark)
+        # print('2222landmark')
+        # print(landmark)
 
         annotation_x = []
         annotation_y = []
@@ -211,8 +211,8 @@ class DataHelper:
             annotation_new.append(landmark[i] - _xmin)
             annotation_new.append(landmark[i + 1] - _ymin)
 
-        print('annotation_new')
-        print(annotation_new)
+        # print('annotation_new')
+        # print(annotation_new)
 
         '''resize'''
         resized_img, annotation_resized = self.resize_image(img=croped_img, annotation=annotation_new)
@@ -238,17 +238,16 @@ class DataHelper:
 
         resized_img = resize(img, (InputDataSize.image_input_size, InputDataSize.image_input_size, 3),
                              anti_aliasing=True)
-        # dims = img.shape
-        # height = dims[0]
-        # width = dims[1]
-        # scale_factor_y = InputDataSize.image_input_size / height
-        # scale_factor_x = InputDataSize.image_input_size / width
-        #
-        landmark_arr_xy = []
-        # '''rescale and retrieve landmarks'''
-        # landmark_arr_xy, landmark_arr_x, landmark_arr_y = self.create_landmarks(landmarks=annotation,
-        #                                                                         scale_factor_x=scale_factor_x,
-        #                                                                         scale_factor_y=scale_factor_y)
+        dims = img.shape
+        height = dims[0]
+        width = dims[1]
+        scale_factor_y = InputDataSize.image_input_size / height
+        scale_factor_x = InputDataSize.image_input_size / width
+
+        '''rescale and retrieve landmarks'''
+        landmark_arr_xy, landmark_arr_x, landmark_arr_y = self.create_landmarks(landmarks=annotation,
+                                                                                scale_factor_x=scale_factor_x,
+                                                                                scale_factor_y=scale_factor_y)
         return resized_img, landmark_arr_xy
 
     def create_landmarks(self, landmarks, scale_factor_x, scale_factor_y):
@@ -543,7 +542,7 @@ class DataHelper:
             plt.scatter(x=bb_x[:], y=bb_y[:], c='red', s=15)
 
         ''''''
-        print(landmarks)
+        # print(landmarks)
         landmarks_x = []
         landmarks_y = []
         for i in range(0, len(landmarks), 2):
