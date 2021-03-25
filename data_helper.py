@@ -535,6 +535,7 @@ class DataHelper:
             plt.scatter(x=bb_x[:], y=bb_y[:], c='red', s=15)
 
         ''''''
+        print(landmarks)
         landmarks_x = []
         landmarks_y = []
         for i in range(0, len(landmarks), 2):
@@ -542,10 +543,10 @@ class DataHelper:
             landmarks_y.append(landmarks[i + 1])
 
         for i in range(len(landmarks_x)):
-            plt.annotate(str(i), (landmarks_x[i], landmarks_y[i]), fontsize=9, color='red')
+            plt.annotate(str(i), (landmarks_x[i], landmarks_y[i]), fontsize=15, color='red')
 
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#000000', s=15)
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#fddb3a', s=8)
-        plt.savefig(img_name + '.png')
+        plt.savefig('print_' + img_name + '.png')
         # plt.show()
         plt.clf()
