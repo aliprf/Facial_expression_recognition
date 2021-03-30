@@ -18,7 +18,9 @@ from PIL import Image
 from skimage.transform import resize
 import tensorflow as tf
 import random
-import cv2 as cv
+import cv2
+from skimage.feature import hog
+from skimage import data, exposure
 
 
 class DataHelper:
@@ -294,7 +296,8 @@ class DataHelper:
         batch_y = y_eval_filenames[0:LearningConfig.batch_size]
         '''create img and annotations'''
         eval_img_batch = np.array([imread(img_path + file_name) for file_name in batch_x]) / 255.0
-        eval_exp_batch = np.array([self.load_and_relable(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
+        eval_exp_batch = np.array(
+            [self.load_and_relable(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
         # if mode == 0:
         #     eval_val_batch = np.array(
         #         [self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
@@ -343,19 +346,35 @@ class DataHelper:
             print(e)
         return image
 
-    def _blur(self, image):
+    def _blur(self, image, _do=False):
         do_or_not = random.randint(0, 100)
-        if do_or_not % 2 == 0:
+        if _do or do_or_not % 2 == 0:
             try:
                 # image = image * 255.0
                 image = np.float32(image)
-                image = cv.medianBlur(image, 5)
+                image = cv2.medianBlur(image, 5)
                 # image = image / 255.0
             except Exception as e:
                 print(str(e))
                 pass
             return image
 
+        return image
+
+    def _reverse_gamma(self, image):
+        try:
+            image = image * 255
+            image = np.int8(image)
+            gamma = 3.5
+            invGamma = 1.0 / gamma
+            table = np.array([((i / 255.0) ** invGamma) * 255
+                              for i in np.arange(0, 256)]).astype("uint8")
+            image = cv2.LUT(image, table)
+            image = image / 255.0
+            return image
+        except Exception as e:
+            print(str(e))
+            pass
         return image
 
     def _adjust_gamma(self, image):
@@ -373,7 +392,7 @@ class DataHelper:
                 invGamma = 1.0 / gamma
                 table = np.array([((i / 255.0) ** invGamma) * 255
                                   for i in np.arange(0, 256)]).astype("uint8")
-                image = cv.LUT(image, table)
+                image = cv2.LUT(image, table)
                 # image = image / 255.0
                 return image
             except Exception as e:
@@ -530,11 +549,14 @@ class DataHelper:
             annotation.append(y_center - annotation_norm[p + 1] * height)
         return annotation
 
-    def test_image_print(self, img_name, img, landmarks, bbox_me=None):
+    def test_image_print(self, img_name, img, landmarks, bbox_me=None, cmap=None):
         # print(img_name)
         # print(landmarks)
         plt.figure()
-        plt.imshow(img)
+        if cmap is not None:
+            plt.imshow(img, cmap=cmap)
+        else:
+            plt.imshow(img)
         ''''''
         if bbox_me is not None:
             bb_x = [bbox_me[0], bbox_me[2], bbox_me[4], bbox_me[6]]
@@ -554,6 +576,141 @@ class DataHelper:
 
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#000000', s=15)
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#fddb3a', s=8)
-        plt.savefig(img_name + '.png')
+        plt.axis('off')
+        plt.tight_layout(pad=0)
+        plt.savefig('z_' + img_name + '.png')
         # plt.show()
         plt.clf()
+
+    def create_synthesized_landmarks(self,  ds_name, ds_type, model_file):
+        model = tf.keras.models.load_model('./ds_300w_ef_100.h5')
+        if ds_name == DatasetName.affectnet:
+            if ds_type == DatasetType.train:
+                img_path = AffectnetConf.revised_train_img_path
+                anno_path = AffectnetConf.revised_train_annotation_path
+            elif ds_type == DatasetType.train_7:
+                img_path = AffectnetConf.revised_train_img_path_7
+                anno_path = AffectnetConf.revised_train_annotation_path_7
+
+        for i, file in tqdm(enumerate(os.listdir(img_path))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                landmark_name = anno_path, file[:-4] + "_slnd.npy"
+                img = np.float32(Image.open(os.path.join(img_path, file))) / 255.0
+                '''synthesize landmark'''
+                anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])
+                np.save(landmark_name, anno_Pre)
+                # self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=anno_Pre)
+
+    def create_inner_mask(self, ds_name, ds_type):
+        if ds_name == DatasetName.affectnet:
+            if ds_type == DatasetType.train:
+                img_path = AffectnetConf.revised_train_img_path
+                anno_path = AffectnetConf.revised_train_annotation_path
+            elif ds_type == DatasetType.train_7:
+                img_path = AffectnetConf.revised_train_img_path_7
+                anno_path = AffectnetConf.revised_train_annotation_path_7
+
+        for i, file in tqdm(enumerate(os.listdir(img_path))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                if os.path.exists(os.path.join(anno_path, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(anno_path, file[:-4] + "_lnd.npy")):
+
+                    exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
+                    lnd = np.load(os.path.join(anno_path, file[:-4] + "_lnd.npy"))
+                    img_file_name = os.path.join(img_path, file)
+                    img = np.float32(Image.open(img_file_name)) / 255.0
+
+                    '''synthesize landmark'''
+                    '''calculate gt_dif and normalize by 224'''
+                    anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])
+
+                    '''create mask'''
+                    self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=anno_Pre)
+
+    def inner_mask(self, image, landmarks):
+        """"""
+        ''''''
+        pass
+
+    def create_HoG(self, ds_name, ds_type):
+        if ds_name == DatasetName.affectnet:
+            if ds_type == DatasetType.train:
+                img_path = AffectnetConf.revised_train_img_path
+                anno_path = AffectnetConf.revised_train_annotation_path
+            elif ds_type == DatasetType.train_7:
+                img_path = AffectnetConf.revised_train_img_path_7
+                anno_path = AffectnetConf.revised_train_annotation_path_7
+
+        for i, file in tqdm(enumerate(os.listdir(img_path))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                if os.path.exists(os.path.join(anno_path, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(anno_path, file[:-4] + "_lnd.npy")):
+                    exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
+                    lnd = np.load(os.path.join(anno_path, file[:-4] + "_lnd.npy"))
+                    img_file_name = os.path.join(img_path, file)
+                    img = np.float32(Image.open(img_file_name)) / 255.0
+
+                    '''HoG'''
+                    # hog_image_rescaled = self._hog(image=img)
+
+                    img_eq = exposure.equalize_hist(img)
+                    # img_eq = np.mean(np.array(img_eq), axis=-1)
+
+                    gx, gy, mag = self._hog(image=img)
+
+                    img_mean = np.mean(np.array(img), axis=-1)
+                    gx = np.abs(np.mean(np.array(gx), axis=-1))
+                    gy = np.abs(np.mean(np.array(gy), axis=-1))
+                    mag = np.abs(np.mean(np.array(mag), axis=-1))
+
+                    # mask_mag = (img_mean * mag + img_mean * gx + img_mean * gy)/3.0
+                    # mask_mag = np.stack([0.99 * img_mean * mag, 0.99 * img_mean * gx, 0.99 * img_mean * gy], axis=-1)
+
+                    # mask_mag = np.mean(np.stack([mag * gx * 10.0, mag * gy * 10.0], axis=-1), -1)
+                    # mask_mag = np.stack([mag * gx, mag * gy, mag * (gx + gy)], axis=-1)
+
+                    # mask_mag = np.stack([img_mean * mag * gx, img_mean * mag * gy], axis=-1)
+                    # mask_mag = np.stack([0.99 * img_mean * mag, 0.99 * img_mean * gx, 0.99 * img_mean * gy], axis=-1)
+                    # mask_mag = 0.1*img_mean + 0.9*(mag + gx + gy)
+                    mask_mag = mag * (gx + gy)
+                    mask_mag = exposure.rescale_intensity(mask_mag, in_range=(0, 10))
+
+                    # mask_mag = 0.3 * (img_mean) + (0.7 * mag)
+                    # mask_mag = 0.1 * img + (0.9 * mag)
+                    # mask_mag = (1 - img_eq) * np.stack([mask_mag, mask_mag, mask_mag], axis=-1)
+                    # mask_mag = (1 - img_eq) * mask_mag
+
+                    # mask_gx = 0.1 * img_mean + (0.9 * gx)
+                    # mask_gy = 0.1 * img_mean + (0.9 * gy)
+
+                    '''HoG mask'''
+                    # img_mean = np.mean(np.array(img), axis=-1)
+                    # hog_image_rescaled = np.array(hog_image_rescaled)
+                    # mask = img_mean * (hog_image_rescaled)
+
+                    self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=[])
+                    self.test_image_print(img_name=str(i) + '_mag', img=mask_mag, landmarks=[], cmap='gray')
+
+                    # self.test_image_print(img_name=str(i) + '_mask_gx', img=mask_mag[:, :, 0], landmarks=[], cmap='gray')
+                    # self.test_image_print(img_name=str(i) + '_mask_gy', img=mask_mag[:, :, 1], landmarks=[], cmap='gray')
+                    # self.test_image_print(img_name=str(i) + '_mask_mag', img=mask_mag[:, :, 2], landmarks=[], cmap='gray')
+
+                    # self.test_image_print(img_name=str(i) + '_mask_gx', img=mask_gx, landmarks=[], cmap=plt.cm.gray)
+                    # self.test_image_print(img_name=str(i) + '_mask_gy', img=mask_gy, landmarks=[], cmap=plt.cm.gray)
+                    # self.test_image_print(img_name=str(i) + '_gx', img=gx, landmarks=[])
+                    # self.test_image_print(img_name=str(i) + '_gy', img=gy, landmarks=[])
+                    # self.test_image_print(img_name=str(i) + '_mag', img=mag, landmarks=[])
+                    # self.test_image_print(img_name=str(i) + '_hog', img=hog_image_rescaled, landmarks=[], cmap=plt.cm.gray)
+                    # self.test_image_print(img_name=str(i) + '_mask', img=mask, landmarks=[], cmap=plt.cm.gray)
+
+    def _hog(self, image):
+        """"""
+        # fd, hog_image = hog(image, orientations=8, pixels_per_cell=(16, 16),
+        #                     cells_per_block=(1, 1), visualize=True, multichannel=True)
+        # hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
+        # return hog_image_rescaled
+        '''cv2 version'''
+        gx = cv2.Sobel(image, cv2.CV_32F, 1, 0, ksize=1)
+        gy = cv2.Sobel(image, cv2.CV_32F, 0, 1, ksize=1)
+        mag, angle = cv2.cartToPolar(gx, gy, angleInDegrees=True)
+        return gx, gy, mag
