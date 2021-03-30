@@ -594,7 +594,7 @@ class DataHelper:
 
         for i, file in tqdm(enumerate(os.listdir(img_path))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                landmark_name = anno_path, file[:-4] + "_slnd.npy"
+                landmark_name = anno_path + file[:-4] + "_slnd.npy"
                 img = np.float32(Image.open(os.path.join(img_path, file))) / 255.0
                 '''synthesize landmark'''
                 anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])

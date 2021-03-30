@@ -7,7 +7,7 @@ if __name__ == '__main__':
     dhl = DataHelper()
     '''pre-processing'''
 
-    dhl.create_synthesized_landmarks(ds_name=DatasetName.affectnet, ds_type=DatasetType.train, model_file='./ds_300w_ef_100.h5')
+    dhl.create_synthesized_landmarks(ds_name=DatasetName.affectnet, ds_type=DatasetType.train, model_file='./ds_136_ef.h5')
 
     # dhl.create_HoG(ds_name=DatasetName.affectnet, ds_type=DatasetType.train)
     # dhl.create_inner_mask(ds_name=DatasetName.affectnet, ds_type=DatasetType.train)
