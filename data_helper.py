@@ -583,7 +583,7 @@ class DataHelper:
         plt.clf()
 
     def create_synthesized_landmarks(self,  ds_name, ds_type, model_file):
-        model = tf.keras.models.load_model('./ds_300w_ef_100.h5')
+        model = tf.keras.models.load_model(model_file)
         if ds_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
                 img_path = AffectnetConf.revised_train_img_path
