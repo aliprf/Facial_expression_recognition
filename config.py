@@ -56,11 +56,9 @@ class AffectnetConf:
     '''Zeus'''
     # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/Manually_Annotated_Images /media/data3/ali/FER/affectNet/orig/images/
 
-
-
-    # _prefix_path = '/media/data3/ali/FER/affectNet'  # --> Atlas
-    # _prefix_path = '/media/data2/alip/FER/affectNet'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    # _prefix_path = '/media/data3/ali/FER/affectNet'  # --> zeue
+    _prefix_path = '/media/data2/alip/FER/affectNet'  # --> Atlas
+    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     # orig_img_path_prefix = '/media/data2/alip/FER/affectNet/orig/images/'
     orig_img_path_prefix = '/media/data3/ali/FER/affectNet/orig/images/'
