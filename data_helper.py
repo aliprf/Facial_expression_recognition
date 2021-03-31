@@ -21,6 +21,7 @@ import random
 import cv2
 from skimage.feature import hog
 from skimage import data, exposure
+from matplotlib.path import Path
 
 
 class DataHelper:
@@ -597,9 +598,11 @@ class DataHelper:
                 landmark_name = anno_path + file[:-4] + "_slnd.npy"
                 img = np.float32(Image.open(os.path.join(img_path, file))) / 255.0
                 '''synthesize landmark'''
-                anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])
+                try:
+                    anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])
+                except Exception as e:
+                    anno_Pre = np.load(anno_path + file[:-4] + "_lnd.npy")
                 np.save(landmark_name, anno_Pre)
-                # self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=anno_Pre)
 
     def create_inner_mask(self, ds_name, ds_type):
         if ds_name == DatasetName.affectnet:
@@ -616,21 +619,53 @@ class DataHelper:
                         and os.path.exists(os.path.join(anno_path, file[:-4] + "_lnd.npy")):
 
                     exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
-                    lnd = np.load(os.path.join(anno_path, file[:-4] + "_lnd.npy"))
+                    lnd = np.load(os.path.join(anno_path, file[:-4] + "_slnd.npy"))
                     img_file_name = os.path.join(img_path, file)
                     img = np.float32(Image.open(img_file_name)) / 255.0
 
-                    '''synthesize landmark'''
-                    '''calculate gt_dif and normalize by 224'''
-                    anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])
-
                     '''create mask'''
-                    self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=anno_Pre)
+                    i_mask = self._inner_mask(image=img, landmarks=lnd, inx=i)
+                    img_mean = np.mean(img, axis=-1)
+                    fused_img = 0.2 * img_mean + 0.8 * (i_mask*img_mean)
+                    '''test mask '''
+                    self.test_image_print(img_name=str(i) + '_fused_img', img=fused_img, landmarks=lnd, cmap='gray')
 
-    def inner_mask(self, image, landmarks):
+    def _inner_mask(self, image, landmarks, inx):
         """"""
-        ''''''
-        pass
+        '''define mask points'''
+        mask_anchors_location = np.array([(landmarks[2*17], landmarks[2*17+1]),
+                                 (landmarks[2*19], landmarks[2*19+1]),
+                                 (landmarks[2*24], landmarks[2*24+1]),
+                                 (landmarks[2*26], landmarks[2*26+1]),
+                                 (0.5*(landmarks[2*46] + landmarks[2*14]), 0.5*(landmarks[2*46+1] + landmarks[2*14+1])),
+                                 (0.5*(landmarks[2*29] + landmarks[2*14]), 0.5*(landmarks[2*29+1] + landmarks[2*14+1])),
+                                 (0.5*(landmarks[2*54] + landmarks[2*12]), 0.5*(landmarks[2*54+1] + landmarks[2*12+1])),
+                                 (0.5*(landmarks[2*55] + landmarks[2*10]), 0.5*(landmarks[2*55+1] + landmarks[2*10+1])),
+                                 (0.5*(landmarks[2*57] + landmarks[2*8]), 0.5*(landmarks[2*57+1] + landmarks[2*8+1])),
+                                 (0.5*(landmarks[2*59] + landmarks[2*6]), 0.5*(landmarks[2*59+1] + landmarks[2*6+1])),
+                                 (0.5*(landmarks[2*4] + landmarks[2*48]), 0.5*(landmarks[2*4+1] + landmarks[2*48+1])),
+                                 (0.5*(landmarks[2*2] + landmarks[2*29]), 0.5*(landmarks[2*2+1] + landmarks[2*29+1])),
+                                 (0.5*(landmarks[2*2] + landmarks[2*41]), 0.5*(landmarks[2*2+1] + landmarks[2*41+1])),
+                                          ])
+        # plt.figure()
+        # plt.imshow(image)
+        # plt.fill(mask_anchors_location[:,0], mask_anchors_location[:,1], alpha=0.5, color='#ffe268')
+        # plt.axis('off')
+        # plt.savefig('zz_i_mask' + str(inx), pad_inches=0, bbox_inches='tight', dpi=200)
+
+        nx, ny = InputDataSize.image_input_size, InputDataSize.image_input_size
+
+        x, y = np.meshgrid(np.arange(nx), np.arange(ny))
+        x, y = x.flatten(), y.flatten()
+
+        points = np.vstack((x, y)).T
+
+        path = Path(mask_anchors_location)
+        grid = path.contains_points(points)
+        grid = np.array(grid.reshape((ny, nx)))
+        # plt.imsave('zz_i_mask' + str(inx)+'.png', grid)
+
+        return grid
 
     def create_HoG(self, ds_name, ds_type):
         if ds_name == DatasetName.affectnet:
@@ -646,7 +681,7 @@ class DataHelper:
                 if os.path.exists(os.path.join(anno_path, file[:-4] + "_exp.npy")) \
                         and os.path.exists(os.path.join(anno_path, file[:-4] + "_lnd.npy")):
                     exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
-                    lnd = np.load(os.path.join(anno_path, file[:-4] + "_lnd.npy"))
+                    lnd = np.load(os.path.join(anno_path, file[:-4] + "_slnd.npy"))
                     img_file_name = os.path.join(img_path, file)
                     img = np.float32(Image.open(img_file_name)) / 255.0
 
@@ -688,7 +723,7 @@ class DataHelper:
                     # hog_image_rescaled = np.array(hog_image_rescaled)
                     # mask = img_mean * (hog_image_rescaled)
 
-                    self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=[])
+                    self.test_image_print(img_name=str(i) + '_orig', img=img, landmarks=lnd)
                     self.test_image_print(img_name=str(i) + '_mag', img=mask_mag, landmarks=[], cmap='gray')
 
                     # self.test_image_print(img_name=str(i) + '_mask_gx', img=mask_mag[:, :, 0], landmarks=[], cmap='gray')
