@@ -9,16 +9,7 @@ if __name__ == '__main__':
 
     '''<><><><><><><>AffectNet<><><><><><><>'''
     affect_net = AffectNet(ds_type=DatasetType.train)
-    '''create synthesized landmarks'''
-    # affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
-    '''upsampling'''
-    # affect_net.upsample_data()
-    '''pre-processing'''
-    # affect_net.create_derivative_mask()
-    # affect_net.create_au_mask()
-    # affect_net.create_spatial_masks()
-
-
+    '''create from the original data'''
     '''7 labels'''
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.train_7, FLD_model_file_name='./ds_136_ef.h5', is_7=True)
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.eval_7, FLD_model_file_name='./ds_136_ef.h5', is_7=True)
@@ -26,13 +17,22 @@ if __name__ == '__main__':
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.train, FLD_model_file_name='./ds_136_ef.h5')
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.eval, FLD_model_file_name='./ds_136_ef.h5')
 
+    '''create synthesized landmarks'''
+    # affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
+
+    '''upsampling'''
+    # affect_net.upsample_data()
+
+    '''pre-processing'''
+    # affect_net.create_derivative_mask()
+    # affect_net.create_au_mask()
+    # affect_net.create_spatial_masks()
+    ''''''
+
+
     '''<><><><><><><>RAF-DB<><><><><><><>'''
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
-
-    '''test'''
-    # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.test, FLD_model_file_name='./ds_136_ef.h5')
-    # dhl.create_mean_faces(img_path=AffectnetConf.revised_train_img_path, anno_path=AffectnetConf.revised_train_annotation_path)
 
     """train"""
     # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.test)
@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     # trainer.train(arch='mobileNetV2', weight_path=None)
 
+    '''test'''
     # tester = Test(dataset_name=DatasetName.affectnet)
     # tester.test('/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5')
     # tester.test_reg('./models/fer_model_37_affectnet_0.4.h5')
