@@ -6,8 +6,6 @@ from tensorflow import keras
 from skimage.transform import resize
 from keras.models import Model
 
-from tensorflow.keras.applications import mobilenet_v3
-
 from keras.applications import mobilenet_v2, mobilenet, resnet50, densenet
 from keras.layers import Dense, MaxPooling2D, Conv2D, Flatten, \
     BatchNormalization, Activation, GlobalAveragePooling2D, DepthwiseConv2D, \
