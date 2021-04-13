@@ -221,7 +221,7 @@ class DataHelper:
             filenames_shuffled, y_labels_shuffled, test_size=LearningConfig.batch_size, random_state=1)
         return x_train_filenames, x_val_filenames, y_train, y_val
 
-    def create_evaluation_batch(self, x_eval_filenames, y_eval_filenames, img_path, annotation_path, mode):
+    def create_evaluation_batch(self, x_eval_filenames, y_eval_filenames, img_path, annotation_path):
         img_path = img_path
         pn_tr_path = annotation_path
         '''create batch data and normalize images'''
@@ -242,7 +242,7 @@ class DataHelper:
         return eval_img_batch, eval_exp_batch
         # return eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch
 
-    def get_batch_sample(self, batch_index, x_train_filenames, y_train_filenames, img_path, annotation_path, mode):
+    def get_batch_sample(self, batch_index, x_train_filenames, y_train_filenames, img_path, annotation_path):
         img_path = img_path
         pn_tr_path = annotation_path
         '''create batch data and normalize images'''

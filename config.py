@@ -33,7 +33,6 @@ class DatasetType:
     train_7 = 1
     eval = 2
     eval_7 = 3
-    test = 4
 
 
 class LearningConfig:
@@ -43,6 +42,7 @@ class LearningConfig:
     velocity_output_len = 6 # we generated five classes
     # expression_output_len = 8 # we generated five classes
     expression_output_len_shrunk = 4 # we generated five classes
+    embedding_size = 256
 
 
 class InputDataSize:
@@ -55,13 +55,14 @@ class AffectnetConf:
     '''Zeus'''
     # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/Manually_Annotated_Images /media/data3/ali/FER/affectNet/orig/images/
 
-    # _prefix_path = '/media/data3/ali/FER/affectNet'  # --> zeue
-    # _prefix_path = '/media/data2/alip/FER/affectNet'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    # _prefix_path = 'media/data3/ali/FER_DS/affectNet'  # --> zeue
+    _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
+    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     # orig_img_path_prefix = '/media/data2/alip/FER/affectNet/orig/images/'
-    orig_img_path_prefix = '/media/data3/ali/FER/affectNet/orig/images/'
-    orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
+    # orig_img_path_prefix = '/media/data3/ali/FER/affectNet/orig/images/'
+
+    # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
@@ -83,7 +84,6 @@ class AffectnetConf:
     revised_test_annotation_path = _prefix_path + '/test_set/annotations/'
 
     augmentation_factor = 2
-
 
 
 

@@ -25,11 +25,13 @@ class Train:
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.revised_train_img_path
                 self.annotation_path = AffectnetConf.revised_train_annotation_path
-            else:
-                self.img_path = AffectnetConf.revised_test_img_path
-                self.annotation_path = AffectnetConf.revised_test_annotation_path
+                self.num_of_classes = 8
+            elif ds_type == DatasetType.train_7:
+                self.img_path = AffectnetConf.revised_train_img_path_7
+                self.annotation_path = AffectnetConf.revised_train_annotation_path_7
+                self.num_of_classes = 7
 
-    def train(self, arch, weight_path, mode):
+    def train(self, arch, weight_path):
         """"""
 
         '''create loss'''
@@ -40,7 +42,7 @@ class Train:
             "./train_logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
 
         '''making models'''
-        _lr = 1e-4
+        _lr = 5e-3
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -61,7 +63,7 @@ class Train:
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
                 images, anno_exp = dhp.get_batch_sample(
-                    batch_index=batch_index, x_train_filenames=x_train_filenames, mode=mode,
+                    batch_index=batch_index, x_train_filenames=x_train_filenames,
                     y_train_filenames=y_train_filenames, img_path=self.img_path, annotation_path=self.annotation_path)
                 '''convert to tensor'''
                 images = tf.cast(images, tf.float32)
@@ -70,14 +72,14 @@ class Train:
                 '''train step'''
                 self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch, images=images,
                                 model=model, anno_exp=anno_exp, optimizer=optimizer, c_loss=c_loss,
-                                summary_writer=summary_writer, mode=mode)
+                                summary_writer=summary_writer)
             '''evaluating part'''
             eval_img_batch, eval_exp_batch = dhp.create_evaluation_batch(
                     x_eval_filenames=x_val_filenames,
                     y_eval_filenames=y_val_filenames,
                     img_path=self.img_path,
-                    annotation_path=self.annotation_path, mode=mode)
-            loss_eval = self._eval_model(eval_img_batch, eval_exp_batch, model, mode)
+                    annotation_path=self.annotation_path)
+            loss_eval = self._eval_model(eval_img_batch, eval_exp_batch, model)
             with summary_writer.as_default():
                 tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
             '''save weights'''
@@ -103,12 +105,12 @@ class Train:
         print('LR is: ' + str(lr))
         return lr
 
-    def train_step(self, epoch, step, total_steps, images, model,anno_exp, optimizer, summary_writer, c_loss, mode):
+    def train_step(self, epoch, step, total_steps, images, model,anno_exp, optimizer, summary_writer, c_loss):
         with tf.GradientTape() as tape:
             '''create annotation_predicted'''
             # annotation_predicted = model(images, training=True)
             # val_pr, exp_pr = model(images, training=True)
-            exp_pr = model(images, training=True)
+            exp_pr = model([images,images,images,images], training=True) #todo
             '''calculate loss'''
             # if mode == 0:
             # loss_val = c_loss.cross_entropy_loss(y_pr=val_pr, y_gt=anno_val)
@@ -147,7 +149,7 @@ class Train:
 
     def make_model(self, arch, w_path):
         cnn = CNNModel()
-        model = cnn.get_model(arch=arch)
+        model = cnn.get_model(arch=arch, num_of_classes=self.num_of_classes)
         if w_path is not None:
             model.load_weights(w_path)
         return model
