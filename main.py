@@ -24,9 +24,9 @@ if __name__ == '__main__':
     affect_net.upsample_data()
 
     '''pre-processing'''
-    # affect_net.create_derivative_mask()
-    # affect_net.create_au_mask()
-    # affect_net.create_spatial_masks()
+    affect_net.create_derivative_mask()
+    affect_net.create_au_mask()
+    affect_net.create_spatial_masks()
     ''''''
 
 
@@ -35,8 +35,8 @@ if __name__ == '__main__':
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train"""
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
 
 
     # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',

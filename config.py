@@ -54,34 +54,41 @@ class AffectnetConf:
     # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/Manually_Annotated_Images /media/data2/alip/FER/affectNet/orig/images/
     '''Zeus'''
     # sshfs user1@130.253.217.32:/home/user1/ExpressionNet/Manually_Annotated_Images /media/data3/ali/FER/affectNet/orig/images/
-
-    # _prefix_path = 'media/data3/ali/FER_DS/affectNet'  # --> zeue
-    _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
-    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
-
     # orig_img_path_prefix = '/media/data2/alip/FER/affectNet/orig/images/'
     # orig_img_path_prefix = '/media/data3/ali/FER/affectNet/orig/images/'
 
     # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
+    # _prefix_path = 'media/data3/ali/FER_DS/affectNet'  # --> zeue
+    _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
+    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'
     orig_csv_test_path = '/media/data2/alip/affectNet/test_set_list.csv'
 
     '''8 labels'''
-    revised_train_img_path = _prefix_path + '/train_set/images/'
-    revised_train_annotation_path = _prefix_path + '/train_set/annotations/'
-    revised_eval_img_path = _prefix_path + '/eval_set/images/'
-    revised_eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+    no_aug_train_img_path = _prefix_path + '/train_set/images/'
+    no_aug_train_annotation_path = _prefix_path + '/train_set/annotations/'
+
+    aug_train_img_path = _prefix_path + '/train_set_aug/images/'
+    aug_train_annotation_path = _prefix_path + '/train_set_aug/annotations/'
+    eval_img_path = _prefix_path + '/eval_set/images/'
+    eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+
     '''7 labels'''
-    revised_train_img_path_7 = _prefix_path + '/train_set_7/images/'
-    revised_train_annotation_path_7 = _prefix_path + '/train_set_7/annotations/'
-    revised_eval_img_path_7 = _prefix_path + '/eval_set_7/images/'
-    revised_eval_annotation_path_7 = _prefix_path + '/eval_set_7/annotations/'
+    no_aug_train_img_path_7 = _prefix_path + '/train_set_7/images/'
+    no_aug_train_annotation_path_7 = _prefix_path + '/train_set_7/annotations/'
+
+    aug_train_img_path_7 = _prefix_path + '/train_set_7_aug/images/'
+    aug_train_annotation_path_7 = _prefix_path + '/train_set_7_aug/annotations/'
+    eval_img_path_7 = _prefix_path + '/eval_set_7/images/'
+    eval_annotation_path_7 = _prefix_path + '/eval_set_7/annotations/'
+
     '''------'''
-    revised_test_img_path = _prefix_path + '/test_set/images/'
-    revised_test_annotation_path = _prefix_path + '/test_set/annotations/'
+    # revised_test_img_path = _prefix_path + '/test_set/images/'
+    # revised_test_annotation_path = _prefix_path + '/test_set/annotations/'
 
     augmentation_factor = 2
 

@@ -23,12 +23,12 @@ class Train:
         self.dataset_name = dataset_name
         if dataset_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
-                self.img_path = AffectnetConf.revised_train_img_path
-                self.annotation_path = AffectnetConf.revised_train_annotation_path
+                self.img_path = AffectnetConf.aug_train_img_path
+                self.annotation_path = AffectnetConf.aug_train_annotation_path
                 self.num_of_classes = 8
             elif ds_type == DatasetType.train_7:
-                self.img_path = AffectnetConf.revised_train_img_path_7
-                self.annotation_path = AffectnetConf.revised_train_annotation_path_7
+                self.img_path = AffectnetConf.aug_train_img_path_7
+                self.annotation_path = AffectnetConf.aug_train_annotation_path_7
                 self.num_of_classes = 7
 
     def train(self, arch, weight_path):

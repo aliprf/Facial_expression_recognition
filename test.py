@@ -24,8 +24,8 @@ class Test:
     def __init__(self, dataset_name):
         self.dataset_name = dataset_name
         if dataset_name == DatasetName.affectnet:
-            self.img_path = AffectnetConf.revised_eval_img_path
-            self.annotation_path = AffectnetConf.revised_eval_annotation_path
+            self.img_path = AffectnetConf.eval_img_path
+            self.annotation_path = AffectnetConf.eval_annotation_path
 
         # self.img_path = AffectnetConf.revised_train_img_path
         # self.annotation_path = AffectnetConf.revised_train_annotation_path

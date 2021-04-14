@@ -32,24 +32,28 @@ class AffectNet:
         """
         self.ds_type = ds_type
         if ds_type == DatasetType.train:
-            self.img_path = AffectnetConf.revised_train_img_path
-            self.anno_path = AffectnetConf.revised_train_annotation_path
+            self.img_path = AffectnetConf.no_aug_train_img_path
+            self.anno_path = AffectnetConf.no_aug_train_annotation_path
+            self.img_path_aug = AffectnetConf.aug_train_img_path
+            self.anno_path_aug = AffectnetConf.aug_train_annotation_path
 
         elif ds_type == DatasetType.eval:
-            self.img_path = AffectnetConf.revised_eval_img_path
-            self.anno_path = AffectnetConf.revised_eval_annotation_path
+            self.img_path = AffectnetConf.eval_img_path
+            self.anno_path = AffectnetConf.eval_annotation_path
 
         elif ds_type == DatasetType.train_7:
-            self.img_path = AffectnetConf.revised_train_img_path_7
-            self.anno_path = AffectnetConf.revised_train_annotation_path_7
+            self.img_path = AffectnetConf.no_aug_train_img_path_7
+            self.anno_path = AffectnetConf.no_aug_train_annotation_path_7
+            self.img_path_aug = AffectnetConf.aug_train_img_path_7
+            self.anno_path_aug = AffectnetConf.aug_train_annotation_path_7
 
         elif ds_type == DatasetType.eval_7:
-            self.img_path = AffectnetConf.revised_eval_img_path_7
-            self.anno_path = AffectnetConf.revised_eval_annotation_path_7
+            self.img_path = AffectnetConf.eval_img_path_7
+            self.anno_path = AffectnetConf.eval_annotation_path_7
 
-        elif ds_type == DatasetType.test:
-            self.img_path = AffectnetConf.revised_test_img_path
-            self.anno_path = AffectnetConf.revised_test_annotation_path
+        # elif ds_type == DatasetType.test:
+        #     self.img_path = AffectnetConf.revised_test_img_path
+        #     self.anno_path = AffectnetConf.revised_test_annotation_path
 
     def upsample_data(self):
         """we generate some samples so that all classes will have equal number of training samples"""
@@ -67,6 +71,8 @@ class AffectNet:
             anno_addr_by_class = [[] for i in range(7)]
             lnd_addr_by_class = [[] for i in range(7)]
 
+        """"""
+        print("counting classes:")
         for i, file in tqdm(enumerate(os.listdir(self.anno_path))):
             if file.endswith("_exp.npy"):
                 exp = int(np.load(os.path.join(self.anno_path, file)))
@@ -90,9 +96,11 @@ class AffectNet:
                                   anno_addrs=anno_addr_by_class[i],
                                   lnd_addrs=lnd_addr_by_class[i],
                                   aug_factor=int(aug_factor_by_class[i]),
-                                  aug_factor_freq=int(aug_factor_by_class_freq[i]))
-
-
+                                  aug_factor_freq=int(aug_factor_by_class_freq[i]),
+                                  img_save_path=self.img_path_aug,
+                                  anno_save_path=self.anno_path_aug,
+                                  class_index=i
+                                  )
 
     def create_synthesized_landmarks(self, model_file):
         dhl = DataHelper()
@@ -104,57 +112,57 @@ class AffectNet:
 
     def create_derivative_mask(self):
         dhl = DataHelper()
-        for i, file in tqdm(enumerate(os.listdir(self.img_path))):
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path, file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path, file[:-4] + "_lnd.npy")):
-                    dhl.create_derivative_path(img_path=self.img_path,
-                                        anno_path=self.anno_path, file=file, test_print=True)
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    dhl.create_derivative_path(img_path=self.img_path_aug,
+                                               anno_path=self.anno_path_aug, file=file, test_print=False)
 
     def create_au_mask(self):
         dhl = DataHelper()
-        for i, file in tqdm(enumerate(os.listdir(self.img_path))):
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path, file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path, file[:-4] + "_lnd.npy")):
-                    dhl.create_AU_mask_path(img_path=self.img_path,
-                                               anno_path=self.anno_path, file=file, test_print=True)
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    dhl.create_AU_mask_path(img_path=self.img_path_aug,
+                                            anno_path=self.anno_path_aug, file=file, test_print=False)
 
     def create_spatial_masks(self):
         dhl = DataHelper()
-        for i, file in tqdm(enumerate(os.listdir(self.img_path))):
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path, file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path, file[:-4] + "_lnd.npy")):
-                    dhl.create_spatial_mask_path(img_path=self.img_path,
-                                                 anno_path=self.anno_path, file=file, test_print=True)
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    dhl.create_spatial_mask_path(img_path=self.img_path_aug,
+                                                 anno_path=self.anno_path_aug, file=file, test_print=False)
 
     def read_csv(self, ds_name, ds_type, FLD_model_file_name, is_7=False):
         if ds_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
                 csv_path = AffectnetConf.orig_csv_train_path
                 load_img_path = AffectnetConf.orig_img_path_prefix
-                save_img_path = AffectnetConf.revised_train_img_path
-                save_anno_path = AffectnetConf.revised_train_annotation_path
+                save_img_path = AffectnetConf.aug_train_img_path
+                save_anno_path = AffectnetConf.aug_train_annotation_path
                 do_aug = True
             elif ds_type == DatasetType.eval:
                 csv_path = AffectnetConf.orig_csv_evaluate_path
                 load_img_path = AffectnetConf.orig_img_path_prefix
-                save_img_path = AffectnetConf.revised_eval_img_path
-                save_anno_path = AffectnetConf.revised_eval_annotation_path
+                save_img_path = AffectnetConf.eval_img_path
+                save_anno_path = AffectnetConf.eval_annotation_path
                 do_aug = False
 
             elif ds_type == DatasetType.train_7:
                 csv_path = AffectnetConf.orig_csv_train_path
                 load_img_path = AffectnetConf.orig_img_path_prefix
-                save_img_path = AffectnetConf.revised_train_img_path_7
-                save_anno_path = AffectnetConf.revised_train_annotation_path_7
+                save_img_path = AffectnetConf.aug_train_img_path_7
+                save_anno_path = AffectnetConf.aug_train_annotation_path_7
                 do_aug = True
             elif ds_type == DatasetType.eval_7:
                 csv_path = AffectnetConf.orig_csv_evaluate_path
                 load_img_path = AffectnetConf.orig_img_path_prefix
-                save_img_path = AffectnetConf.revised_eval_img_path_7
-                save_anno_path = AffectnetConf.revised_eval_annotation_path_7
+                save_img_path = AffectnetConf.eval_img_path_7
+                save_anno_path = AffectnetConf.eval_annotation_path_7
                 do_aug = False
 
             elif ds_type == DatasetType.test:

@@ -32,7 +32,8 @@ from skimage.draw import line, set_color
 
 class DataHelper:
 
-    def do_random_augment(self, img_addrs, anno_addrs, lnd_addrs, aug_factor, aug_factor_freq):
+    def do_random_augment(self, img_addrs, anno_addrs, lnd_addrs, aug_factor, aug_factor_freq,
+                          img_save_path, anno_save_path, class_index):
         for i in tqdm(range(len(img_addrs))):
             if os.path.exists(anno_addrs[i]):
 
@@ -47,6 +48,12 @@ class DataHelper:
                 else:
                     _aug_factor = aug_factor
 
+                '''save original images:'''
+                im = Image.fromarray(np.round(img_orig).astype(np.uint8))
+                im.save(img_save_path + str(class_index) + '_' + str(i) + '_0' + '.jpg')
+                np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_exp', exp)
+                np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
+
                 if _aug_factor == 1: continue
 
                 for aug_inx in range(_aug_factor):
@@ -56,23 +63,27 @@ class DataHelper:
 
                     '''flipping image'''
                     if aug_inx % 2 == 0:
-                        img_f, landmark_f = self._flip_and_relabel(img, landmark)
-                        img, landmark = self._rotate_image_and_lnds(img_f, landmark_f)
+                        img, landmark = self._flip_and_relabel(img, landmark)
 
-                        '''contras and color modification '''
-                        img = self._adjust_gamma(img)
-                        img = self._noisy(img)
-                        img = self._blur(img)
-                        # img = self._add_occlusion(img)
+                    img, landmark = self._rotate_image_and_lnds(img, landmark)
+                    '''contras and color modification '''
+                    img = self._adjust_gamma(img)
+                    # img = self._noisy(img)
+                    img = self._blur(img)
+                    # img = self._add_occlusion(img)
 
-                        '''save image and landmarks'''
+                    '''save image and landmarks'''
+                    im = Image.fromarray(np.round(img*255.0).astype(np.uint8))
+                    im.save(img_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx+1) + '.jpg')
+                    np.save(anno_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx+1) + '_exp', exp)
+                    np.save(anno_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx+1) + '_slnd', landmark)
 
-                        # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'orig',
-                        #                       img=img_orig, landmarks=landmark_orig)
-                        # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'flip',
-                        #                       img=img_f, landmarks=landmark_f)
-                        self.test_image_print(img_name=str(exp) + '_' + str(i) + 'aug',
-                                              img=img, landmarks=landmark)
+                    # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'orig',
+                    #                       img=img_orig, landmarks=landmark_orig)
+                    # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'flip',
+                    #                       img=img_f, landmarks=landmark_f)
+                    # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'aug',
+                    #                       img=img, landmarks=landmark)
 
 
 
@@ -297,15 +308,17 @@ class DataHelper:
 
     def _add_occlusion(self, image):
         try:
-            for i in range(5):
-                do_or_not = random.randint(0, 10)
-                if do_or_not % 2 == 0:
-                    start = (random.randint(0, 170), random.randint(0, 170))
-                    extent = (random.randint(10, 50), random.randint(10, 50))
-                    rr, cc = rectangle(start, extent=extent, shape=image.shape)
-                    color = (np.random.uniform(0, 1), random.randint(0, 1), random.randint(0, 1))
-                    set_color(image, (rr, cc), color, alpha=1.0)
-                    # image[rr, cc] = 1.0
+            do_or_not = random.randint(0, 10)
+            if do_or_not % 2 == 0:
+                for i in range(5):
+                    do_or_not = random.randint(0, 10)
+                    if do_or_not % 2 == 0:
+                        start = (random.randint(0, 170), random.randint(0, 170))
+                        extent = (random.randint(10, 50), random.randint(10, 50))
+                        rr, cc = rectangle(start, extent=extent, shape=image.shape)
+                        color = (np.random.uniform(0, 1), random.randint(0, 1), random.randint(0, 1))
+                        set_color(image, (rr, cc), color, alpha=1.0)
+                        # image[rr, cc] = 1.0
         except Exception as e:
             print('_add_occlusion:: ' + str(e))
         return image
@@ -590,16 +603,20 @@ class DataHelper:
         # img_eq = exposure.equalize_hist(img)
         # img_eq = np.mean(np.array(img_eq), axis=-1)
         img_mean = np.mean(np.array(img), axis=-1)
-        lnd_mask = self._landmark_mask(img_mean, lnd)
-
-        fused_img = lnd_mask * img_mean  # this mask is hard
+        # lnd_mask = self._landmark_mask(img_mean, lnd)
+        # fused_img = lnd_mask * img_mean  # this mask is hard
 
         # gx, gy, mag = self._hog(image=img)
-        gx, gy, mag = self._hog(image=fused_img)
+        gx, gy, mag = self._hog(image=img_mean)
 
         gx = abs(gx)
         gy = abs(gy)
         mag = abs(mag)
+
+        lnd_mask = self._landmark_mask(img_mean, lnd)
+        gx = lnd_mask * gx  # this mask is hard
+        gy = lnd_mask * gy  # this mask is hard
+        mag = lnd_mask * mag  # this mask is hard
 
         gx = self._normalize_image(gx)
         gy = self._normalize_image(gy)
@@ -639,32 +656,26 @@ class DataHelper:
         # img_mean = np.mean(np.array(img), axis=-1)
         # hog_image_rescaled = np.array(hog_image_rescaled)
         # mask = img_mean * (hog_image_rescaled)
+
         '''save hog mask'''
-        gx_mask_name = os.path.join(anno_path, file[:-4] + "_hog_gx.npy")
-        gy_mask_name = os.path.join(anno_path, file[:-4] + "_hog_gy.npy")
-        mag_mask_name = os.path.join(anno_path, file[:-4] + "_hog_mg.npy")
-        np.save(gx_mask_name, gx)
-        np.save(gy_mask_name, gy)
+        gx_mask_name = os.path.join(anno_path, file[:-4] + "_dgx.npy")
+        gy_mask_name = os.path.join(anno_path, file[:-4] + "_dgy.npy")
+        mag_mask_name = os.path.join(anno_path, file[:-4] + "_dmg.npy")
+
+        # np.save(gx_mask_name, gx)
+        # np.save(gy_mask_name, gy)
         np.save(mag_mask_name, mag)
 
         if test_print:
-            self.test_image_print(img_name='z_HOG_' + str(file) + '_orig', img=fused_img, landmarks=lnd)
+            # self.test_image_print(img_name='z_HOG_' + str(file) + '_orig', img=fused_img, landmarks=lnd)
             # self.test_image_print(img_name=str(i) + '_mag', img=mask_mag, landmarks=[], cmap='gray')
 
             self.test_image_print(img_name='z_HOG_' + str(file) + '_mask_mag', img=mag, landmarks=[],
                                   cmap='gray')
-            self.test_image_print(img_name='z_HOG_' + str(file) + '_mask_gx', img=gx, landmarks=[],
-                                  cmap='gray')
-            self.test_image_print(img_name='z_HOG_' + str(file) + '_mask_gy', img=gy, landmarks=[],
-                                  cmap='gray')
-
-        # self.test_image_print(img_name=str(i) + '_mask_gx', img=mask_gx, landmarks=[], cmap=plt.cm.gray)
-        # self.test_image_print(img_name=str(i) + '_mask_gy', img=mask_gy, landmarks=[], cmap=plt.cm.gray)
-        # self.test_image_print(img_name=str(i) + '_gx', img=gx, landmarks=[])
-        # self.test_image_print(img_name=str(i) + '_gy', img=gy, landmarks=[])
-        # self.test_image_print(img_name=str(i) + '_mag', img=mag, landmarks=[])
-        # self.test_image_print(img_name=str(i) + '_hog', img=hog_image_rescaled, landmarks=[], cmap=plt.cm.gray)
-        # self.test_image_print(img_name=str(i) + '_mask', img=mask, landmarks=[], cmap=plt.cm.gray)
+            # self.test_image_print(img_name='z_HOG_' + str(file) + '_mask_gx', img=gx, landmarks=[],
+            #                       cmap='gray')
+            # self.test_image_print(img_name='z_HOG_' + str(file) + '_mask_gy', img=gy, landmarks=[],
+            #                       cmap='gray')
 
     def _spatial_masks(self, landmarks, img):
         """"""
