@@ -16,6 +16,7 @@ import csv
 from skimage.io import imread
 import pickle
 from sklearn.metrics import accuracy_score
+import os
 
 
 class Train:
@@ -25,10 +26,14 @@ class Train:
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.aug_train_img_path
                 self.annotation_path = AffectnetConf.aug_train_annotation_path
+                self.val_img_path = AffectnetConf.eval_img_path
+                self.val_annotation_path = AffectnetConf.eval_annotation_path
                 self.num_of_classes = 8
             elif ds_type == DatasetType.train_7:
                 self.img_path = AffectnetConf.aug_train_img_path_7
                 self.annotation_path = AffectnetConf.aug_train_annotation_path_7
+                self.val_img_path = AffectnetConf.eval_img_path_7
+                self.val_annotation_path = AffectnetConf.eval_annotation_path_7
                 self.num_of_classes = 7
 
     def train(self, arch, weight_path):
@@ -40,6 +45,7 @@ class Train:
         '''create summary writer'''
         summary_writer = tf.summary.create_file_writer(
             "./train_logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
+        start_train_date = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         '''making models'''
         _lr = 5e-3
@@ -47,24 +53,58 @@ class Train:
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
 
+        '''create save path'''
+
+        if self.dataset_name == DatasetName.affectnet:
+            save_path = AffectnetConf.weight_save_path + start_train_date + '/'
+        # elif self.dataset_name == DatasetName.:
+        #     save_path = '/media/data2/alip/HM_WEIGHTs/wflw/efn_1d/11_april/'
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
         '''create sample generator'''
         dhp = DataHelper()
+        '''     Train   Generator'''
+        img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
+        up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
+            img_path=self.img_path, annotation_path=self.annotation_path)
 
-        x_train_filenames, x_val_filenames, y_train_filenames, y_val_filenames = dhp.create_generators(
-            dataset_name=self.dataset_name, img_path=self.img_path, annotation_path=self.annotation_path)
+        # '''     Validation   Generator'''
+        # val_img_filenames, val_exp_filenames, val_lnd_filenames, val_dr_mask_filenames, \
+        # val_au_mask_filenames, val_up_mask_filenames, val_md_mask_filenames, \
+        # val_bo_mask_filenames = dhp.create_generators_with_mask(
+        #     img_path=self.val_img_path,
+        #     annotation_path=self.val_annotation_path)
+
+        # accuracy, confusion_matrix = self._eval_model(model, val_img_filenames, val_exp_filenames,
+        #                                               val_lnd_filenames, val_dr_mask_filenames,
+        #                                               val_au_mask_filenames, val_up_mask_filenames,
+        #                                               val_md_mask_filenames, val_bo_mask_filenames)
 
         '''create train configuration'''
-        step_per_epoch = len(x_train_filenames) // LearningConfig.batch_size
-
+        step_per_epoch = len(img_filenames) // LearningConfig.batch_size
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            x_train_filenames, y_train_filenames = dhp.shuffle_data(filenames=x_train_filenames,
-                                                                    labels=y_train_filenames)
+            img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
+            up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.shuffle_data(img_filenames,
+                                                                                       exp_filenames, lnd_filenames,
+                                                                                       dr_mask_filenames,
+                                                                                       au_mask_filenames,
+                                                                                       up_mask_filenames,
+                                                                                       md_mask_filenames,
+                                                                                       bo_mask_filenames)
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
-                images, anno_exp = dhp.get_batch_sample(
-                    batch_index=batch_index, x_train_filenames=x_train_filenames,
-                    y_train_filenames=y_train_filenames, img_path=self.img_path, annotation_path=self.annotation_path)
+                images, anno_exp = dhp.get_batch_sample(batch_index=batch_index, img_path=self.img_path,
+                                                        annotation_path=self.annotation_path,
+                                                        img_filenames=img_filenames,
+                                                        exp_filenames=exp_filenames,
+                                                        lnd_filenames=lnd_filenames,
+                                                        dr_mask_filenames=dr_mask_filenames,
+                                                        au_mask_filenames=au_mask_filenames,
+                                                        up_mask_filenames=up_mask_filenames,
+                                                        md_mask_filenames=md_mask_filenames,
+                                                        bo_mask_filenames=bo_mask_filenames)
                 '''convert to tensor'''
                 images = tf.cast(images, tf.float32)
                 # anno_val = tf.cast(anno_val, tf.int8)
@@ -73,20 +113,17 @@ class Train:
                 self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch, images=images,
                                 model=model, anno_exp=anno_exp, optimizer=optimizer, c_loss=c_loss,
                                 summary_writer=summary_writer)
+
             '''evaluating part'''
-            eval_img_batch, eval_exp_batch = dhp.create_evaluation_batch(
-                    x_eval_filenames=x_val_filenames,
-                    y_eval_filenames=y_val_filenames,
-                    img_path=self.img_path,
-                    annotation_path=self.annotation_path)
-            loss_eval = self._eval_model(eval_img_batch, eval_exp_batch, model)
+            accuracy, confusion_matrix = self._eval_model(model, val_img_filenames, val_exp_filenames,
+                                                          val_lnd_filenames, val_dr_mask_filenames,
+                                                          val_au_mask_filenames, val_up_mask_filenames,
+                                                          val_md_mask_filenames, val_bo_mask_filenames)
             with summary_writer.as_default():
-                tf.summary.scalar('Eval-LOSS', loss_eval, step=epoch)
+                tf.summary.scalar('Eval-LOSS', accuracy, step=epoch)
+
             '''save weights'''
-            model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '.h5')
-            # model.save('./models/fer_model_' + str(epoch) + '_' + self.dataset_name + '_' + str(loss_eval) + '.h5')
-            # model.save_weights(
-            #     './models/fer_weight_' + '_' + str(epoch) + self.dataset_name + '_' + str(loss_eval) + '.h5')
+            model.save(save_path + '_' + str(epoch) + '_' + self.dataset_name + '_' + str(accuracy) + '.h5')
 
             '''calculate Learning rate'''
             # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=1e-2)
@@ -105,12 +142,12 @@ class Train:
         print('LR is: ' + str(lr))
         return lr
 
-    def train_step(self, epoch, step, total_steps, images, model,anno_exp, optimizer, summary_writer, c_loss):
+    def train_step(self, epoch, step, total_steps, images, model, anno_exp, optimizer, summary_writer, c_loss):
         with tf.GradientTape() as tape:
             '''create annotation_predicted'''
             # annotation_predicted = model(images, training=True)
             # val_pr, exp_pr = model(images, training=True)
-            exp_pr = model([images,images,images,images], training=True) #todo
+            exp_pr = model([images, images, images, images], training=True)  # todo
             '''calculate loss'''
             # if mode == 0:
             # loss_val = c_loss.cross_entropy_loss(y_pr=val_pr, y_gt=anno_val)
@@ -120,7 +157,7 @@ class Train:
             # tf.print(anno_exp)
             loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
             # loss_total = loss_exp
-                # loss_total = loss_val + loss_exp
+            # loss_total = loss_val + loss_exp
             # else:
             #     loss_total = c_loss.regressor_loss(y_pr=annotation_predicted, y_gt=anno_val)
         '''calculate gradient'''
@@ -129,23 +166,40 @@ class Train:
         optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps), ' -> : LOSS: ', loss_exp)
-                 # ' -> : Loss-EXP: ', loss_exp)
-                 # ' -> : Loss-EXP: ', loss_exp, ' -> : Loss-Val: ', loss_val)
+        # ' -> : Loss-EXP: ', loss_exp)
+        # ' -> : Loss-EXP: ', loss_exp, ' -> : Loss-Val: ', loss_val)
         with summary_writer.as_default():
             tf.summary.scalar('LOSS', loss_exp, step=epoch)
             # tf.summary.scalar('Loss-EXP', loss_exp, step=epoch)
             # tf.summary.scalar('Loss-Val', loss_val, step=epoch)
 
-    def _eval_model(self, img_batch_eval, pn_batch_eval, model, mode):
-        predictions = model(img_batch_eval)
-        # if mode ==0:
-        scores = np.array([tf.nn.softmax(predictions[i]) for i in range(len(pn_batch_eval))])
-        predicted_lbls = np.array([np.argmax(scores[i]) for i in range(len(pn_batch_eval))])
+    def _eval_model(self, model, val_img_filenames, val_exp_filenames, val_lnd_filenames, val_dr_mask_filenames,
+                    val_au_mask_filenames, val_up_mask_filenames, val_md_mask_filenames, val_bo_mask_filenames):
+        """
+        :param model:
+        :param val_img_filenames:
+        :param val_exp_filenames:
+        :param val_lnd_filenames:
+        :param val_dr_mask_filenames:
+        :param val_au_mask_filenames:
+        :param val_up_mask_filenames:
+        :param val_md_mask_filenames:
+        :param val_bo_mask_filenames:
+        :return: accuracy,
+        :return: confusion matrix #todo
+        """
+        '''first we need to create the 4 bunch here: '''
 
-        acc = accuracy_score(pn_batch_eval, predicted_lbls)
-        # else:
-        #     acc = np.array(tf.reduce_mean(tf.abs(pn_batch_eval - predictions)))
-        return acc
+        '''for Affectnet, we need to calculate accuracy of each label and then total avg accuracy:'''
+        if self.dataset_name == DatasetName.affectnet:
+            pass  # todo
+        else:
+            predictions = model(img_batch_eval)
+            scores = np.array([tf.nn.softmax(predictions[i]) for i in range(len(pn_batch_eval))])
+            predicted_lbls = np.array([np.argmax(scores[i]) for i in range(len(pn_batch_eval))])
+
+            acc = accuracy_score(pn_batch_eval, predicted_lbls)
+        return acc, 0
 
     def make_model(self, arch, w_path):
         cnn = CNNModel()

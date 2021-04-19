@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
 
     '''upsampling'''
-    affect_net.upsample_data()
+    # affect_net.upsample_data()
 
     '''pre-processing'''
     affect_net.create_derivative_mask()
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     """train"""
     # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
     # trainer.train(arch='mobileNetV2', weight_path=None)
-
+    #
 
     # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',
     #               mode=0) # 0-> categorical, 1->regression

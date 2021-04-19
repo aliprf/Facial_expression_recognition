@@ -36,9 +36,9 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 25
-    # batch_size = 5
-    epochs = 200
+    # batch_size = 25
+    batch_size = 5
+    epochs = 250
     velocity_output_len = 6 # we generated five classes
     # expression_output_len = 8 # we generated five classes
     expression_output_len_shrunk = 4 # we generated five classes
@@ -91,6 +91,8 @@ class AffectnetConf:
     # revised_test_annotation_path = _prefix_path + '/test_set/annotations/'
 
     augmentation_factor = 2
+
+    weight_save_path = _prefix_path + '/weight_saving_path/'
 
 
 
