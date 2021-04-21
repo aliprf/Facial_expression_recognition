@@ -61,8 +61,8 @@ class AffectnetConf:
     # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
-    # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
-    _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
+    _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
+    # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
     # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_csv_train_path = _prefix_path + '/orig/training.csv'

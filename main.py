@@ -24,9 +24,9 @@ if __name__ == '__main__':
     # affect_net.upsample_data()
 
     '''pre-processing'''
-    affect_net.create_derivative_mask()
-    affect_net.create_au_mask()
-    affect_net.create_spatial_masks()
+    # affect_net.create_derivative_mask()
+    # affect_net.create_au_mask()
+    # affect_net.create_spatial_masks()
     ''''''
 
 
