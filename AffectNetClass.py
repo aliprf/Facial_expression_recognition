@@ -24,6 +24,8 @@ from skimage import data, exposure
 from matplotlib.path import Path
 from scipy import ndimage, misc
 from data_helper import DataHelper
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 
 
 class AffectNet:
@@ -250,3 +252,83 @@ class AffectNet:
             save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])))
             save(save_anno_path + str(i) + '_val', valence_arr[i])
             save(save_anno_path + str(i) + '_aro', arousal_arr[i])
+
+    def test_accuracy(self, model):
+        """"""
+        dhp = DataHelper()
+        ''' we need to get samples by category first. Then, predict accuracy on batch for each class and
+                then calculate the average '''
+        if self.ds_type == DatasetType.eval:
+            num_lbls = 8
+        else:
+            num_lbls = 7
+
+        batch_size = LearningConfig.batch_size
+        exp_pr_glob = []
+        exp_gt_glob = []
+        acc_per_label = []
+        for lbl in range(num_lbls):
+            val_img_filenames, val_exp_filenames, val_lnd_filenames, val_dr_mask_filenames, \
+            val_au_mask_filenames, val_up_mask_filenames, val_md_mask_filenames, \
+            val_bo_mask_filenames = dhp.create_generators_with_mask(
+                img_path=self.img_path,
+                annotation_path=self.anno_path, label=lbl)
+
+            '''create batches'''
+            step_per_epoch = int(len(val_img_filenames) // batch_size)
+            exp_pr_lbl = []
+            exp_gt_lbl = []
+            for batch_index in tqdm(range(step_per_epoch)):
+                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample(
+                    batch_index=batch_index, img_path=self.img_path,
+                    annotation_path=self.anno_path,
+                    img_filenames=val_img_filenames,
+                    exp_filenames=val_exp_filenames,
+                    lnd_filenames=val_lnd_filenames,
+                    dr_mask_filenames=val_dr_mask_filenames,
+                    au_mask_filenames=val_au_mask_filenames,
+                    up_mask_filenames=val_up_mask_filenames,
+                    md_mask_filenames=val_md_mask_filenames,
+                    bo_mask_filenames=val_bo_mask_filenames,
+                    batch_size=batch_size)
+                '''predict on batch'''
+                probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
+                                                                      middle_bunch, bottom_bunch])
+
+                scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+                exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+                '''append to label-global'''
+                exp_gt_lbl += exp_gt_b.tolist()
+                exp_pr_lbl += exp_pr_b.tolist()
+                '''append to label-global'''
+                exp_gt_glob += exp_gt_b.tolist()
+                exp_pr_glob += exp_pr_b.tolist()
+                ''''''
+
+            '''calculate per label acuracy'''
+            acc_per_label.append(accuracy_score(exp_gt_lbl, exp_pr_lbl))
+        '''print per=label accuracy and calculate the average'''
+        avg_accuracy = np.mean(np.array(acc_per_label))
+        '''calculate confusion matrix'''
+        conf_mat = confusion_matrix(exp_gt_glob, exp_pr_glob)
+        '''clean memory '''
+        exp_pr_glob = None
+        exp_gt_glob = None
+        exp_pr_lbl = None
+        exp_gt_lbl = None
+        global_bunch = None
+        upper_bunch = None
+        middle_bunch = None
+        bottom_bunch = None
+        exp_gt_b = None
+        val_img_filenames = None
+        val_exp_filenames = None
+        val_lnd_filenames = None
+        val_dr_mask_filenames = None
+        val_au_mask_filenames = None
+        val_up_mask_filenames = None
+        val_md_mask_filenames = None
+        val_bo_mask_filenames = None
+        scores_b = None
+        '''return'''
+        return avg_accuracy, acc_per_label, conf_mat

@@ -16,16 +16,18 @@ import efficientnet.tfkeras as efn
 class CNNModel:
     def get_model(self, arch, num_of_classes):
         if arch == 'mobileNetV2':
-            model = self._create_MobileNet_with_embedding(num_of_classes)
+            model = self._create_MobileNet_with_embedding(num_of_classes,
+                                                          input_shape=[InputDataSize.image_input_size,
+                                                                       InputDataSize.image_input_size, 5])
         elif arch == 'efficientNet':
             model = self._create_efficientNet()
         return model
 
-    def _create_MobileNet_with_embedding(self, num_of_classes):
+    def _create_MobileNet_with_embedding(self, num_of_classes, input_shape):
         # mnv3 = mobilenet_v3.
 
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
-            input_shape=[InputDataSize.image_input_size, InputDataSize.image_input_size, 3],
+            input_shape=input_shape,
             alpha=1.0,
             include_top=True,
             weights=None,
@@ -35,7 +37,7 @@ class CNNModel:
 
         '''eyes'''
         mobilenet_model_eyes = mobilenet_v2.MobileNetV2(
-            input_shape=[InputDataSize.image_input_size, InputDataSize.image_input_size, 3],
+            input_shape=input_shape,
             alpha=1.0,
             include_top=True,
             weights=None,
@@ -45,7 +47,7 @@ class CNNModel:
 
         '''nose'''
         mobilenet_model_nose = mobilenet_v2.MobileNetV2(
-            input_shape=[InputDataSize.image_input_size, InputDataSize.image_input_size, 3],
+            input_shape=input_shape,
             alpha=1.0,
             include_top=True,
             weights=None,
@@ -55,7 +57,7 @@ class CNNModel:
 
         '''mouth'''
         mobilenet_model_mouth = mobilenet_v2.MobileNetV2(
-            input_shape=[InputDataSize.image_input_size, InputDataSize.image_input_size, 3],
+            input_shape=input_shape,
             alpha=1.0,
             include_top=True,
             weights=None,
@@ -72,7 +74,7 @@ class CNNModel:
         for layer in mobilenet_model_mouth.layers:
             layer._name = 'mouth_' + layer.name
 
-        mobilenet_model_mouth.summary()
+        # mobilenet_model_mouth.summary()
         ''''''
         x_l_face = mobilenet_model_face.get_layer('face_global_average_pooling2d').output  # 1280
         x_l_eyes = mobilenet_model_eyes.get_layer('eyes_global_average_pooling2d_1').output  # 1280
