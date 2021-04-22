@@ -772,7 +772,7 @@ class DataHelper:
         '''save hog mask'''
         # gx_mask_name = os.path.join(anno_path, file[:-4] + "_dgx.npz")
         # gy_mask_name = os.path.join(anno_path, file[:-4] + "_dgy.npz")
-        mag_mask_name = os.path.join(anno_path, file[:-4] + "_dmg.npz")
+        # mag_mask_name = os.path.join(anno_path, file[:-4] + "_dmg.npz")
 
         # np.savez_compressed(gx_mask_name, gx)
         # np.savez_compressed(gy_mask_name, gy)
