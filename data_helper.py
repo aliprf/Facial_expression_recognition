@@ -693,11 +693,11 @@ class DataHelper:
         # np.savez_compressed(bo_mask_name, bot_mask)
 
         im = Image.fromarray(np.round(up_mask * 255.0).astype(np.uint8))
-        im.save(anno_path + file[:-4] + "_spm_up.jpg")
+        im.save(anno_path+'spm/' + file[:-4] + "_spm_up.jpg")
         im = Image.fromarray(np.round(mid_mask * 255.0).astype(np.uint8))
-        im.save(anno_path + file[:-4] + "_spm_md.jpg")
+        im.save(anno_path+'spm/' + file[:-4] + "_spm_md.jpg")
         im = Image.fromarray(np.round(bot_mask * 255.0).astype(np.uint8))
-        im.save(anno_path + file[:-4] + "_spm_bo.jpg")
+        im.save(anno_path +'spm/'+ file[:-4] + "_spm_bo.jpg")
 
         '''test mask '''
         if test_print:
@@ -726,7 +726,7 @@ class DataHelper:
         # np.savez_compressed(i_mask_name, i_mask)
 
         im = Image.fromarray(np.round(i_mask * 255.0).astype(np.uint8))
-        im.save(anno_path + file[:-4] + "_im.jpg")
+        im.save(anno_path +'im/'+ file[:-4] + "_im.jpg")
 
         '''test mask '''
         if test_print:
@@ -779,7 +779,7 @@ class DataHelper:
         # np.savez_compressed(mag_mask_name, mag)
 
         im = Image.fromarray(np.round(mag*255.0).astype(np.uint8))
-        im.save(anno_path+file[:-4] + "_dmg.jpg")
+        im.save(anno_path+'dmg/'+file[:-4] + "_dmg.jpg")
 
         if test_print:
             # self.test_image_print(img_name='z_HOG_' + str(file) + '_orig', img=fused_img, landmarks=lnd)
