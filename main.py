@@ -1,7 +1,9 @@
-from config import DatasetName, DatasetType, AffectnetConf
+from config import DatasetName, DatasetType
 from train import Train
 from test import Test
-from AffectNetClass import  AffectNet
+from AffectNetClass import AffectNet
+from RafdbClass import RafDB
+
 from data_helper import DataHelper
 if __name__ == '__main__':
 
@@ -24,19 +26,21 @@ if __name__ == '__main__':
     # affect_net.upsample_data()
 
     '''pre-processing'''
-    affect_net.create_derivative_mask()
-    affect_net.create_au_mask()
-    affect_net.create_spatial_masks()
+    # affect_net.create_derivative_mask()
+    # affect_net.create_au_mask()
+    # affect_net.create_spatial_masks()
     ''''''
 
-
     '''<><><><><><><>RAF-DB<><><><><><><>'''
+    # raf_db = RafDB(ds_type=DatasetType.train)
+    # raf_db.create_from_orig(ds_type=DatasetType.train)
+
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train"""
-    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    # trainer.train(arch='mobileNetV2', weight_path=None)
+    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    trainer.train(arch='mobileNetV2', weight_path=None)
     #
 
     # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',

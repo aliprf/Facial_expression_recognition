@@ -228,17 +228,6 @@ class DataHelper:
         return img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
-    # def create_test_gen(self, img_path, annotation_path):
-    #     filenames, val_labels = self._create_image_and_labels_name(img_path=img_path, annotation_path=annotation_path)
-    #     return filenames, val_labels
-
-    # def create_generators(self, dataset_name, img_path, annotation_path):
-    #     filenames, val_labels = self._create_image_and_labels_name(img_path=img_path, annotation_path=annotation_path)
-    #     filenames_shuffled, y_labels_shuffled = shuffle(filenames, val_labels)
-    #     x_train_filenames, x_val_filenames, y_train, y_val = train_test_split(
-    #         filenames_shuffled, y_labels_shuffled, test_size=LearningConfig.batch_size, random_state=1)
-    #     return x_train_filenames, x_val_filenames, y_train, y_val
-
     def create_generators_with_mask(self, img_path, annotation_path, label=None):
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
         md_mask_filenames, bo_mask_filenames = self._create_image_and_labels_name(img_path=img_path,
@@ -261,27 +250,6 @@ class DataHelper:
             au_mask_batch = au_mask_batch * spatial_mask_1l
             bunch = np.concatenate((img_batch, dr_mask_batch, au_mask_batch), axis=-1)
         return bunch
-
-    def create_evaluation_batch(self, x_eval_filenames, y_eval_filenames, img_path, annotation_path):
-        img_path = img_path
-        pn_tr_path = annotation_path
-        '''create batch data and normalize images'''
-        batch_x = x_eval_filenames[0:LearningConfig.batch_size]
-        batch_y = y_eval_filenames[0:LearningConfig.batch_size]
-        '''create img and annotations'''
-        eval_img_batch = np.array([imread(img_path + file_name) for file_name in batch_x]) / 255.0
-        eval_exp_batch = np.array(
-            [self.load_and_relable(pn_tr_path + file_name[:-8] + "_exp.npy") for file_name in batch_y])
-        # if mode == 0:
-        #     eval_val_batch = np.array(
-        #         [self.load_and_categorize_valence(pn_tr_path + file_name) for file_name in batch_y])
-        # else:
-        #     eval_val_batch = np.array([float(load(pn_tr_path + file_name)) for file_name in batch_y])
-
-        # eval_lnd_batch = 0
-        # eval_lnd_avg_batch = 0
-        return eval_img_batch, eval_exp_batch
-        # return eval_img_batch, eval_val_batch, eval_exp_batch, eval_lnd_batch, eval_lnd_avg_batch
 
     def get_batch_sample(self, batch_index, img_path, annotation_path, img_filenames, exp_filenames, lnd_filenames,
                          dr_mask_filenames, au_mask_filenames, up_mask_filenames, md_mask_filenames, bo_mask_filenames,
@@ -498,64 +466,6 @@ class DataHelper:
         if lbl == 6:
             lbl = 3
         return lbl
-
-    def categorize_valence(self, orig_val):
-        # print('orig_:' + str(orig_val))
-        # if orig_val <= -0.5:
-        #     val = 0
-        # elif -0.5 < orig_val <= 0.0:
-        #     val = 1
-        # elif 0.0 < orig_val <= 0.5:
-        #     val = 2
-        # elif 0.5 < orig_val:
-        #     val = 3
-        # return val
-
-        if -1.0 <= orig_val <= -0.66:
-            val = 0
-        elif -0.66 < orig_val <= -0.33:
-            val = 1
-        elif -0.33 < orig_val <= 0.0:
-            val = 2
-        elif 0.0 < orig_val <= 0.33:
-            val = 3
-        elif 0.33 < orig_val <= 0.66:
-            val = 4
-        elif 0.66 < orig_val <= 1.0:
-            val = 5
-        else:
-            print('INCORRECT VALENCE')
-            raise 0
-        return val
-
-    def load_and_categorize_valence(self, valence_path):
-        orig_val = float(load(valence_path))
-        # if -1.0 <= orig_val <= -0.5:
-        #     val = 0
-        # elif -0.5 < orig_val <= 0.0:
-        #     val = 1
-        # elif 0.0 < orig_val <= 0.5:
-        #     val = 2
-        # elif 0.5 < orig_val <= 1:
-        #     val = 3
-        # return val
-
-        if -1.0 <= orig_val <= -0.66:
-            val = 0
-        elif -0.66 < orig_val <= -0.33:
-            val = 1
-        elif -0.33 < orig_val <= 0.0:
-            val = 2
-        elif 0.0 < orig_val <= 0.33:
-            val = 3
-        elif 0.33 < orig_val <= 0.66:
-            val = 4
-        elif 0.66 < orig_val <= 1.0:
-            val = 5
-        else:
-            print('INCORRECT VALENCE')
-            return 0
-        return val
 
     def _create_image_and_labels_name(self, img_path, annotation_path, label):
         img_filenames = []

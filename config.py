@@ -33,11 +33,12 @@ class DatasetType:
     train_7 = 1
     eval = 2
     eval_7 = 3
+    test = 4
 
 
 class LearningConfig:
-    # batch_size = 25
-    batch_size = 5
+    batch_size = 40
+    # batch_size = 5
     virtual_batch_size = 10
     epochs = 250
     velocity_output_len = 6 # we generated five classes
@@ -48,6 +49,31 @@ class LearningConfig:
 
 class InputDataSize:
     image_input_size = 224
+
+class RafDBConf:
+    # _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
+    # _prefix_path = '/media/data2/alip/FER_DS/RAF-DB'  # --> Atlas
+    _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
+
+    orig_annotation_txt_path = _prefix_path + '/orig/RAFDB-NEED/list_patition_label.txt'
+    orig_image_path = _prefix_path + '/orig/RAFDB-NEED/aligned/'
+
+    '''only 7 labels'''
+    no_aug_train_img_path = _prefix_path + '/train_set/images/'
+    no_aug_train_annotation_path = _prefix_path + '/train_set/annotations/'
+
+    aug_train_img_path = _prefix_path + '/train_set_aug/images/'
+    aug_train_annotation_path = _prefix_path + '/train_set_aug/annotations/'
+
+    test_img_path = _prefix_path + '/test_set/images/'
+    test_annotation_path = _prefix_path + '/test_set/annotations/'
+
+    augmentation_factor = 10
+
+    weight_save_path = _prefix_path + '/weight_saving_path/'
+
+
+
 
 class AffectnetConf:
     """"""

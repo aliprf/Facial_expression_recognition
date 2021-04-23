@@ -226,6 +226,7 @@ class AffectNet:
                          expression_lbl_arr, valence_arr, arousal_arr, FLD_model_file_name, do_aug, is_7):
 
         # model = tf.keras.models.load_model(FLD_model_file_name)
+        dhl = DataHelper()
         model = None
         if is_7:
             print('777777777777777777777777777777777777')
@@ -252,7 +253,7 @@ class AffectNet:
                         int(expression_lbl_arr[i]) == ExpressionCodesAffectnet.noface:
                     continue
             '''crop, resize, augment image'''
-            self.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
+            dhl.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
                                      save_img_name=save_img_path + str(i) + '.jpg',
                                      bbox=bbox_arr[i], landmark=landmarks_arr[i],
                                      save_anno_name=save_anno_path + str(i) + '_lnd',
@@ -321,6 +322,7 @@ class AffectNet:
             acc_per_label.append(accuracy_score(exp_gt_lbl, exp_pr_lbl))
         '''print per=label accuracy and calculate the average'''
         avg_accuracy = np.mean(np.array(acc_per_label))
+        global_accuracy = accuracy_score(exp_gt_glob, exp_pr_glob)
         '''calculate confusion matrix'''
         conf_mat = confusion_matrix(exp_gt_glob, exp_pr_glob)
         '''clean memory '''
@@ -343,4 +345,4 @@ class AffectNet:
         val_bo_mask_filenames = None
         scores_b = None
         '''return'''
-        return avg_accuracy, acc_per_label, conf_mat
+        return global_accuracy, avg_accuracy, acc_per_label, conf_mat
