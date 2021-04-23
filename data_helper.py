@@ -280,39 +280,39 @@ class DataHelper:
         #     [self._do_online_random_aug(imread(img_path + file_name)) for file_name in batch_img_names]) / 255.0
 
         # exp
-        exp_batch = np.array([load(pn_tr_path + file_name) for file_name in batch_exp_names])
+        exp_batch = np.array([load(pn_tr_path + 'exp_slnd/' + file_name) for file_name in batch_exp_names])
         # images
         img_batch = np.array([imread(img_path + file_name) for file_name in batch_img_names]) / 255.0
         # derivative masks
-        dr_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + file_name), axis=-1)
+        dr_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'dmg/' + file_name), axis=-1)
                                   for file_name in batch_dr_names])/255.0
         # action unit masks
-        au_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + file_name), axis=-1)
+        au_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'im/' + file_name), axis=-1)
                                   for file_name in batch_au_names])/255.0
         # upper
-        up_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + file_name), axis=-1)
+        up_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
                                   for file_name in batch_up_names])/255.0
-        up_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + file_name),
-                                               imread(pn_tr_path + file_name),
-                                               imread(pn_tr_path + file_name)
+        up_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
+                                               imread(pn_tr_path + 'spm/' +file_name),
+                                               imread(pn_tr_path + 'spm/' +file_name)
                                                ],
                                               axis=-1)
                                      for file_name in batch_up_names])/255.0
         # middle
-        md_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + file_name), axis=-1)
+        md_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' +file_name), axis=-1)
                                   for file_name in batch_md_names])/255.0
-        md_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + file_name),
-                                               imread(pn_tr_path + file_name),
-                                               imread(pn_tr_path + file_name)
+        md_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' +file_name),
+                                               imread(pn_tr_path + 'spm/' +file_name),
+                                               imread(pn_tr_path + 'spm/' +file_name)
                                                ],
                                               axis=-1)
                                      for file_name in batch_md_names])/255.0
         # bottom
-        bo_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + file_name), axis=-1)
+        bo_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
                                   for file_name in batch_bo_names])/255.0
-        bo_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + file_name),
-                                               imread(pn_tr_path + file_name),
-                                               imread(pn_tr_path + file_name)
+        bo_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
+                                               imread(pn_tr_path + 'spm/' + file_name),
+                                               imread(pn_tr_path + 'spm/' + file_name)
                                                ],
                                               axis=-1)
                                      for file_name in batch_bo_names])/255.0
