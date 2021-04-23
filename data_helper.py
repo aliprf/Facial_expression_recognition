@@ -51,8 +51,8 @@ class DataHelper:
                 '''save original images:'''
                 im = Image.fromarray(np.round(img_orig).astype(np.uint8))
                 im.save(img_save_path + str(class_index) + '_' + str(i) + '_0' + '.jpg')
-                np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_exp', exp)
-                np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
+                np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_0' + '_exp', exp)
+                np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
 
                 if _aug_factor == 1: continue
 
@@ -75,8 +75,8 @@ class DataHelper:
                     '''save image and landmarks'''
                     im = Image.fromarray(np.round(img * 255.0).astype(np.uint8))
                     im.save(img_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '.jpg')
-                    np.save(anno_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '_exp', exp)
-                    np.save(anno_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '_slnd',
+                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '_exp', exp)
+                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '_slnd',
                             landmark)
 
                     # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'orig',
@@ -487,8 +487,8 @@ class DataHelper:
                 md_mask_lbl_file = str(file)[:-4] + "_spm_md.jpg"  # just name
                 bo_mask_lbl_file = str(file)[:-4] + "_spm_bo.jpg"  # just name
 
-                if os.path.exists(annotation_path + exp_lbl_file):
-                    exp = np.load(annotation_path + exp_lbl_file)
+                if os.path.exists(annotation_path + 'exp_slnd/' + exp_lbl_file):
+                    exp = np.load(annotation_path + 'exp_slnd/' + exp_lbl_file)
                     if label is not None and exp != label:
                         continue
                     img_filenames.append(str(file))
@@ -575,7 +575,7 @@ class DataHelper:
         np.save(landmark_name, anno_Pre)
 
     def create_spatial_mask_path(self, img_path, anno_path, file, test_print=False):
-        lnd = np.load(os.path.join(anno_path, file[:-4] + "_slnd.npy"))
+        lnd = np.load(os.path.join(anno_path + 'exp_slnd/', file[:-4] + "_slnd.npy"))
         img_file_name = os.path.join(img_path, file)
         img = np.float32(Image.open(img_file_name)) / 255.0
         '''create mask'''
@@ -620,7 +620,7 @@ class DataHelper:
 
     def create_AU_mask_path(self, img_path, anno_path, file, test_print=False):
         # exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
-        lnd = np.load(os.path.join(anno_path, file[:-4] + "_slnd.npy"))
+        lnd = np.load(os.path.join(anno_path + 'exp_slnd/', file[:-4] + "_slnd.npy"))
         img_file_name = os.path.join(img_path, file)
         img = np.float32(Image.open(img_file_name)) / 255.0
 
@@ -645,7 +645,7 @@ class DataHelper:
 
     def create_derivative_path(self, img_path, anno_path, file, test_print=False):
         # exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
-        lnd = np.load(os.path.join(anno_path, file[:-4] + "_slnd.npy"))
+        lnd = np.load(os.path.join(anno_path + 'exp_slnd/', file[:-4] + "_slnd.npy"))
         img_file_name = os.path.join(img_path, file)
         img = np.float32(Image.open(img_file_name)) / 255.0
 

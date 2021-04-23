@@ -116,10 +116,10 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
                     # check if we have already created it:
-                    if os.path.exists(os.path.join(self.anno_path_aug+'dmg/', file[:-4] + "_dmg.jpg")) or \
+                    if os.path.exists(os.path.join(self.anno_path_aug + 'dmg/', file[:-4] + "_dmg.jpg")) or \
                             os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_dmg.jpg")): continue
 
                     dhl.create_derivative_path(img_path=self.img_path_aug,
@@ -129,8 +129,8 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                if os.path.exists(os.path.join(self.anno_path_aug+ 'exp_slnd/', file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug+ 'exp_slnd/', file[:-4] + "_slnd.npy")):
                     if os.path.exists(os.path.join(self.anno_path_aug+'im/', file[:-4] + "_im.jpg")) or\
                             os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_im.jpg")): continue
                     dhl.create_AU_mask_path(img_path=self.img_path_aug,
@@ -140,14 +140,11 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
-                    if (os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_up.jpg")) and \
+                if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
+                    if os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_up.jpg")) and \
                             os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_md.jpg")) and \
-                            os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_bo.jpg"))) \
-                            or (os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_spm_up.jpg")) and \
-                            os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_spm_md.jpg")) and \
-                            os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_spm_bo.jpg"))): continue
+                            os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_bo.jpg")): continue
                     dhl.create_spatial_mask_path(img_path=self.img_path_aug,
                                                  anno_path=self.anno_path_aug, file=file, test_print=False)
 
