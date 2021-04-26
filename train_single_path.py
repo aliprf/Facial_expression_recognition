@@ -175,10 +175,11 @@ class TrainSingle:
             '''calculate loss'''
             loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
-            loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
-            loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
-            loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
-            loss_total = 5 * loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
+            # loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
+            # loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
+            # loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
+            # loss_total = 5 * loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
+            loss_total = 5 * loss_exp + loss_face
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
@@ -187,17 +188,17 @@ class TrainSingle:
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
                  ' -> : loss_total: ', loss_total,
                  ' -> : loss_exp: ', loss_exp,
-                 ' -> : loss_face: ', loss_face,
-                 ' -> : loss_eyes: ', loss_eyes,
-                 ' -> : loss_nose: ', loss_nose,
-                 ' -> : loss_mouth: ', loss_mouth)
+                 ' -> : loss_face: ', loss_face)
+                 # ' -> : loss_eyes: ', loss_eyes,
+                 # ' -> : loss_nose: ', loss_nose,
+                 # ' -> : loss_mouth: ', loss_mouth)
         with summary_writer.as_default():
             tf.summary.scalar('loss_total', loss_total, step=epoch)
             tf.summary.scalar('loss_exp', loss_exp, step=epoch)
             tf.summary.scalar('loss_face', loss_face, step=epoch)
-            tf.summary.scalar('loss_eyes', loss_eyes, step=epoch)
-            tf.summary.scalar('loss_nose', loss_nose, step=epoch)
-            tf.summary.scalar('loss_mouth', loss_mouth, step=epoch)
+            # tf.summary.scalar('loss_eyes', loss_eyes, step=epoch)
+            # tf.summary.scalar('loss_nose', loss_nose, step=epoch)
+            # tf.summary.scalar('loss_mouth', loss_mouth, step=epoch)
         return gradients_of_model
 
     def _eval_model(self, model):
