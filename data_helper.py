@@ -235,13 +235,13 @@ class DataHelper:
                                                                                   annotation_path=annotation_path,
                                                                                   label=label,
                                                                                   num_of_samples=num_of_samples)
-        print('shuffle => ')
+        # print('shuffle => ')
         '''shuffle'''
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
         md_mask_filenames, bo_mask_filenames = shuffle(img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames,
                                                        au_mask_filenames, up_mask_filenames, md_mask_filenames,
                                                        bo_mask_filenames)
-        print('<== shuffle ')
+        # print('<== shuffle ')
         return img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
@@ -484,7 +484,11 @@ class DataHelper:
         if num_of_samples is None:
             file_names = os.listdir(img_path)
         else:
-            file_names = [str(i)+'.jpg' for i in range(num_of_samples)]
+            print('reading list -->')
+            file_names = os.listdir(img_path)
+            print('<-')
+            # file_names1 = [str(i)+'.jpg' for i in range(num_of_samples)]
+            # file_names = [str(i)+'.jpg' for i in range(num_of_samples)]
 
         for file in tqdm(file_names):
             if file.endswith(".jpg") or file.endswith(".png"):
