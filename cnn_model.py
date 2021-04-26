@@ -18,7 +18,7 @@ class CNNModel:
         if arch == 'mobileNetV2':
             model = self._create_MobileNet_with_embedding(num_of_classes,
                                                           input_shape=[InputDataSize.image_input_size,
-                                                                       InputDataSize.image_input_size, 5])
+                                                                       InputDataSize.image_input_size, 3])
         elif arch == 'mobileNetV2_single':
             model = self._create_MobileNet_with_embedding_single(num_of_classes,
                                                           input_shape=[InputDataSize.image_input_size,

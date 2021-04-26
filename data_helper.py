@@ -246,6 +246,7 @@ class DataHelper:
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
     def _create_input_bunches(self, img_batch, dr_mask_batch, au_mask_batch, spatial_mask_1l, spatial_mask_3l):
+        img_batch = np.expand_dims(np.mean(img_batch, axis=3), axis=-1)
         if spatial_mask_1l is None:
             bunch = np.concatenate((img_batch, dr_mask_batch, au_mask_batch), axis=-1)
         else:
