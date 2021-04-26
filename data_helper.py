@@ -490,7 +490,7 @@ class DataHelper:
             # file_names1 = [str(i)+'.jpg' for i in range(num_of_samples)]
             # file_names = [str(i)+'.jpg' for i in range(num_of_samples)]
 
-        for file in tqdm(file_names):
+        for file in file_names:
             if file.endswith(".jpg") or file.endswith(".png"):
                 exp_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
                 lnd_lbl_file = str(file)[:-4] + "_slnd.npy"  # just name
