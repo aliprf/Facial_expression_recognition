@@ -52,7 +52,7 @@ class Train:
         start_train_date = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         '''making models'''
-        _lr = 1e-4
+        _lr = 1e-2
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -180,7 +180,7 @@ class Train:
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
-            loss_total = loss_exp
+            loss_total = loss_face + loss_eyes + loss_nose + loss_mouth
             # loss_total = 5 * loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
