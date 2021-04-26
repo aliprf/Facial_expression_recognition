@@ -21,7 +21,7 @@ class CustomLosses:
         return tr_loss
 
     def cross_entropy_loss(self, y_gt, y_pr):
-        y_gt = tf.one_hot(y_gt, depth=3)
+        y_gt = tf.one_hot(y_gt, depth=8)
         loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         loss_cross_entropy = loss_object(y_gt, y_pr)
 
