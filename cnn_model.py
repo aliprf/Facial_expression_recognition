@@ -174,7 +174,8 @@ class CNNModel:
         '''Dropout'''
         x_l = Dropout(rate=0.5)(x_l)
         '''out'''
-        out_categorical = Dense(num_of_classes, kernel_regularizer=tf.keras.regularizers.l2(0.0001),
+        out_categorical = Dense(num_of_classes,
+                                kernel_regularizer=tf.keras.regularizers.l2(0.0001),
                                 activation='sigmoid',
                                 # activation='softmax',
                                 # activation='linear',
