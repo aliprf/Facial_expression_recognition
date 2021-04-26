@@ -45,12 +45,12 @@ if __name__ == '__main__':
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train"""
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     #
     """TrainSingle"""
-    # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    # trainer.train(arch='mobileNetV2_single', weight_path=None)
+    trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    trainer.train(arch='mobileNetV2_single', weight_path=None)
     #
 
     # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',
