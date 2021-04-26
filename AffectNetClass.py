@@ -42,6 +42,8 @@ class AffectNet:
         elif ds_type == DatasetType.eval:
             self.img_path_aug = AffectnetConf.eval_img_path
             self.anno_path_aug = AffectnetConf.eval_annotation_path
+            self.img_path = AffectnetConf.eval_img_path
+            self.anno_path = AffectnetConf.eval_annotation_path
 
         elif ds_type == DatasetType.train_7:
             self.img_path = AffectnetConf.no_aug_train_img_path_7
@@ -50,8 +52,11 @@ class AffectNet:
             self.anno_path_aug = AffectnetConf.aug_train_annotation_path_7
 
         elif ds_type == DatasetType.eval_7:
-            self.img_path_aug = AffectnetConf.eval_img_path
-            self.anno_path_aug = AffectnetConf.eval_annotation_path
+            self.img_path_aug = AffectnetConf.eval_img_path_7
+            self.anno_path_aug = AffectnetConf.eval_annotation_path_7
+            self.img_path = AffectnetConf.eval_img_path_7
+            self.anno_path = AffectnetConf.eval_annotation_path_7
+
 
         # elif ds_type == DatasetType.test:
         #     self.img_path = AffectnetConf.revised_test_img_path
@@ -110,7 +115,7 @@ class AffectNet:
         for i, file in tqdm(enumerate(os.listdir(self.img_path))):
             if file.endswith(".jpg") or file.endswith(".png"):
                 dhl.create_synthesized_landmarks_path(img_path=self.img_path,
-                                                      anno_path=self.anno_path, file=file,
+                                                      anno_path=self.anno_path + 'exp_slnd/', file=file,
                                                       model=model,
                                                       test_print=False)
 
