@@ -54,7 +54,7 @@ class CNNModel:
         x_l = BatchNormalization()(x_l)
         x_l = ReLU()(x_l)
         '''Dropout'''
-        x_l = Dropout(rate=0.5)(x_l)
+        x_l = Dropout(rate=0.2)(x_l)
         '''out'''
         out_categorical = Dense(num_of_classes, kernel_regularizer=tf.keras.regularizers.l2(0.0001),
                                 activation='softmax',
