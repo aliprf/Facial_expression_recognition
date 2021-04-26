@@ -42,7 +42,7 @@ class CNNModel:
         embedding_layer_face = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_face)  # L2 normalize embeddings
         '''FC layer for out'''
-        x_l = Dense(LearningConfig.embedding_size * 2)(embedding_layer_face)
+        x_l = Dense(LearningConfig.embedding_size * 2)(x_l_face)
         x_l = BatchNormalization()(x_l)
         x_l = ReLU()(x_l)
 
