@@ -47,9 +47,9 @@ class InputDataSize:
     image_input_size = 224
 
 class RafDBConf:
-    # _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
+    _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/RAF-DB'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
+    # _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
 
     orig_annotation_txt_path = _prefix_path + '/orig/RAFDB-NEED/list_patition_label.txt'
     orig_image_path = _prefix_path + '/orig/RAFDB-NEED/aligned/'
