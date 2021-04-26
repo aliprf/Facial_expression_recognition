@@ -238,8 +238,8 @@ class Train:
         return model
 
     def _get_optimizer(self, lr=1e-3, beta_1=0.9, beta_2=0.999, decay=1e-6):
-        return tf.keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, decay=decay)
-        # return tf.keras.optimizers.SGD(lr=lr)
+        # return tf.keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, decay=decay)
+        return tf.keras.optimizers.SGD(lr=lr)
 
     def _flat_gradients(self, grads_or_idx_slices):
         if type(grads_or_idx_slices) == tf.IndexedSlices:
