@@ -71,7 +71,7 @@ class Train:
             up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
                 img_path=self.img_path, annotation_path=self.annotation_path)
 
-        # total_acc, per_lbl_acc, conf_matrix = self._eval_model(model=model)
+        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size

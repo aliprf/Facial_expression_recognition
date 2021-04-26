@@ -287,10 +287,10 @@ class AffectNet:
         acc_per_label = []
         for lbl in range(num_lbls):
             val_img_filenames, val_exp_filenames, val_lnd_filenames, val_dr_mask_filenames, \
-            val_au_mask_filenames, val_up_mask_filenames, val_md_mask_filenames, \
-            val_bo_mask_filenames = dhp.create_generators_with_mask(
-                img_path=self.img_path,
-                annotation_path=self.anno_path, label=lbl)
+                val_au_mask_filenames, val_up_mask_filenames, val_md_mask_filenames, \
+                val_bo_mask_filenames = dhp.create_generators_with_mask(
+                    img_path=self.img_path,
+                    annotation_path=self.anno_path, label=lbl)
 
             '''create batches'''
             step_per_epoch = int(len(val_img_filenames) // batch_size)
