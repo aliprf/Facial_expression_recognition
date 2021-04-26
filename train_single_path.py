@@ -20,7 +20,7 @@ import os
 from AffectNetClass import AffectNet
 
 
-class Train:
+class TrainSingle:
     def __init__(self, dataset_name, ds_type):
         self.dataset_name = dataset_name
         self.ds_type = ds_type
@@ -170,9 +170,7 @@ class Train:
             '''create annotation_predicted'''
             # annotation_predicted = model(images, training=True)
             # val_pr, exp_pr = model(images, training=True)
-            exp_pr, emb_face, emb_eyes, emb_nose, emb_mouth = model([global_bunch, upper_bunch,
-                                                                     middle_bunch, bottom_bunch],
-                                                                    training=True)  # todo
+            exp_pr, emb_face = model([global_bunch], training=True)  # todo
 
             '''calculate loss'''
             loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
