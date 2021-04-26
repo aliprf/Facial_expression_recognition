@@ -40,8 +40,8 @@ class AffectNet:
             self.anno_path_aug = AffectnetConf.aug_train_annotation_path
 
         elif ds_type == DatasetType.eval:
-            self.img_path = AffectnetConf.eval_img_path
-            self.anno_path = AffectnetConf.eval_annotation_path
+            self.img_path_aug = AffectnetConf.eval_img_path
+            self.anno_path_aug = AffectnetConf.eval_annotation_path
 
         elif ds_type == DatasetType.train_7:
             self.img_path = AffectnetConf.no_aug_train_img_path_7
@@ -50,8 +50,8 @@ class AffectNet:
             self.anno_path_aug = AffectnetConf.aug_train_annotation_path_7
 
         elif ds_type == DatasetType.eval_7:
-            self.img_path = AffectnetConf.eval_img_path_7
-            self.anno_path = AffectnetConf.eval_annotation_path_7
+            self.img_path_aug = AffectnetConf.eval_img_path
+            self.anno_path_aug = AffectnetConf.eval_annotation_path
 
         # elif ds_type == DatasetType.test:
         #     self.img_path = AffectnetConf.revised_test_img_path
@@ -106,11 +106,13 @@ class AffectNet:
 
     def create_synthesized_landmarks(self, model_file):
         dhl = DataHelper()
+        model = tf.keras.models.load_model(model_file)
         for i, file in tqdm(enumerate(os.listdir(self.img_path))):
             if file.endswith(".jpg") or file.endswith(".png"):
                 dhl.create_synthesized_landmarks_path(img_path=self.img_path,
                                                       anno_path=self.anno_path, file=file,
-                                                      model_file=model_file)
+                                                      model=model,
+                                                      test_print=False)
 
     def create_derivative_mask(self):
         dhl = DataHelper()
@@ -129,9 +131,9 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug+ 'exp_slnd/', file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug+ 'exp_slnd/', file[:-4] + "_slnd.npy")):
-                    if os.path.exists(os.path.join(self.anno_path_aug+'im/', file[:-4] + "_im.jpg")) or\
+                if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
+                    if os.path.exists(os.path.join(self.anno_path_aug + 'im/', file[:-4] + "_im.jpg")) or \
                             os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_im.jpg")): continue
                     dhl.create_AU_mask_path(img_path=self.img_path_aug,
                                             anno_path=self.anno_path_aug, file=file, test_print=False)
@@ -142,9 +144,10 @@ class AffectNet:
             if file.endswith(".jpg") or file.endswith(".png"):
                 if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
                         and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
-                    if os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_up.jpg")) and \
-                            os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_md.jpg")) and \
-                            os.path.exists(os.path.join(self.anno_path_aug+'spm/', file[:-4] + "_spm_bo.jpg")): continue
+                    if os.path.exists(os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_up.jpg")) and \
+                            os.path.exists(os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_md.jpg")) and \
+                            os.path.exists(
+                                os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_bo.jpg")): continue
                     dhl.create_spatial_mask_path(img_path=self.img_path_aug,
                                                  anno_path=self.anno_path_aug, file=file, test_print=False)
 
@@ -251,11 +254,11 @@ class AffectNet:
                     continue
             '''crop, resize, augment image'''
             dhl.crop_resize_aug_img(load_img_name=load_img_path + img_path_arr[i],
-                                     save_img_name=save_img_path + str(i) + '.jpg',
-                                     bbox=bbox_arr[i], landmark=landmarks_arr[i],
-                                     save_anno_name=save_anno_path + str(i) + '_lnd',
-                                     synth_save_anno_name=save_anno_path + str(i) + '_slnd',
-                                     model=model, do_aug=do_aug)
+                                    save_img_name=save_img_path + str(i) + '.jpg',
+                                    bbox=bbox_arr[i], landmark=landmarks_arr[i],
+                                    save_anno_name=save_anno_path + str(i) + '_lnd',
+                                    synth_save_anno_name=save_anno_path + str(i) + '_slnd',
+                                    model=model, do_aug=do_aug)
             '''save annotation: exp_lbl, valence, arousal, landmark '''
             # print(str(int(expression_lbl_arr[i])))
             # save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])-1))

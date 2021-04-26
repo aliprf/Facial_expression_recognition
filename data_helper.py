@@ -568,14 +568,16 @@ class DataHelper:
         plt.savefig('z_' + img_name + '.png')
         plt.clf()
 
-    def create_synthesized_landmarks_path(self, img_path, anno_path, file, model_file):
-        model = tf.keras.models.load_model(model_file)
+    def create_synthesized_landmarks_path(self, img_path, anno_path, file, model, test_print):
         landmark_name = anno_path + file[:-4] + "_slnd.npy"
         img = np.float32(Image.open(os.path.join(img_path, file))) / 255.0
         '''synthesize landmark'''
         anno_Pre = self.de_normalized(annotation_norm=model.predict(np.expand_dims(img, axis=0))[0])
-
         np.save(landmark_name, anno_Pre)
+
+        if test_print:
+            self.test_image_print(img_name='z_' + str(file) + '_img', img=img,
+                                  landmarks=anno_Pre)
 
     def create_spatial_mask_path(self, img_path, anno_path, file, test_print=False):
         lnd = np.load(os.path.join(anno_path + 'exp_slnd/', file[:-4] + "_slnd.npy"))
@@ -901,15 +903,15 @@ class DataHelper:
         landmark = np.copy(_landmark)
 
         fix_pad = InputDataSize.image_input_size * 2
-        img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'wrap')
+        img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'reflect')
         for jj in range(len(landmark)):
             landmark[jj] = landmark[jj] + fix_pad
 
-        scale = (0.75, 1.05)
+        scale = (0.75, 1.25)
         translation = (0, 0)
         shear = 0
 
-        rot = np.random.uniform(-1 * 0.25, 0.25)
+        rot = np.random.uniform(-1 * 0.35, 0.35)
         sx, sy = scale
         t_matrix = np.array([
             [sx * math.cos(rot), -sy * math.sin(rot + shear), 0],

@@ -71,20 +71,77 @@ class RafDB:
             if not line:
                 break
             f_name = line.split(' ')[0]
+            if prefix not in f_name: continue
+
             img_source_address = load_img_path + f_name[:-4] + '_aligned.jpg'
             img_dest_address = save_img_path + f_name
-            exp = int(line.split(' ')[1]) - 1
+            exp = int(line.split(' ')[1])
             '''padd, resize image and save'''
             img = np.array(Image.open(img_source_address))
             # padd
-            fix_pad = InputDataSize.image_input_size * 0.1
-            img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'wrap')
-            # resize
+            # fix_pad = int(InputDataSize.image_input_size * 0.05)
+            # img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'symmetric')
+            '''resize'''
             res_img = resize(img, (InputDataSize.image_input_size, InputDataSize.image_input_size, 3),
                              anti_aliasing=True)
-            im = Image.fromarray(np.round(res_img*255.0).astype(np.uint8))
+            im = Image.fromarray(np.round(res_img * 255.0).astype(np.uint8))
             im.save(img_dest_address)
             '''save annotation'''
-            np.save(save_anno_path + f_name, exp)
+            np.save(save_anno_path + f_name[:-4] + '_exp', exp)
 
         file1.close()
+
+    def create_synthesized_landmarks(self, model_file, test_print=False):
+        dhl = DataHelper()
+        model = tf.keras.models.load_model(model_file)
+        for i, file in tqdm(enumerate(os.listdir(self.img_path))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                dhl.create_synthesized_landmarks_path(img_path=self.img_path,
+                                                      anno_path=self.anno_path, file=file,
+                                                      model=model,
+                                                      test_print=test_print)
+
+    def upsample_data(self):
+        """we generate some samples so that all classes will have equal number of training samples"""
+        dhl = DataHelper()
+
+        '''count samples & categorize their address based on their category'''
+        sample_count_by_class = np.zeros([7])
+        img_addr_by_class = [[] for i in range(7)]
+        anno_addr_by_class = [[] for i in range(7)]
+        lnd_addr_by_class = [[] for i in range(7)]
+
+        """"""
+        print("counting classes:")
+        count = 0
+        for i, file in tqdm(enumerate(os.listdir(self.anno_path))):
+            if file.endswith("_exp.npy"):
+                exp = int(np.load(os.path.join(self.anno_path, file)))
+                sample_count_by_class[exp] += 1
+                '''adding ex'''
+                anno_addr_by_class[exp].append(os.path.join(self.anno_path, file))
+                img_addr_by_class[exp].append(os.path.join(self.img_path, file[:-8] + '.jpg'))
+                lnd_addr_by_class[exp].append(os.path.join(self.anno_path, file[:-8] + '_slnd.npy'))
+                count += 1
+
+        print("sample_count_by_category: ====>>")
+        print(sample_count_by_class)
+        # {Surprise 1290}===={ Fear 281.}===[Disgust 717}===[Happiness 4772]
+        # ==={ Sadness 1982}=={Anger 705}===.[ Neutral 2524}
+
+        '''calculate augmentation factor for each class:'''
+        aug_factor_by_class, aug_factor_by_class_freq = dhl.calculate_augmentation_rate(
+            sample_count_by_class=sample_count_by_class,
+            base_aug_factor=AffectnetConf.augmentation_factor)
+
+        '''after we have calculated those two array, we will augment samples '''
+        for i in range(len(anno_addr_by_class)):
+            dhl.do_random_augment(img_addrs=img_addr_by_class[i],
+                                  anno_addrs=anno_addr_by_class[i],
+                                  lnd_addrs=lnd_addr_by_class[i],
+                                  aug_factor=int(aug_factor_by_class[i]),
+                                  aug_factor_freq=int(aug_factor_by_class_freq[i]),
+                                  img_save_path=self.img_path_aug,
+                                  anno_save_path=self.anno_path_aug,
+                                  class_index=i
+                                  )

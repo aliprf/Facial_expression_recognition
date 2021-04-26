@@ -2,20 +2,16 @@ class DatasetName:
     affectnet = 'affectnet'
 
 
-class ExpressionCodesAffectnet:
-    '''this is for test. NEVER use it'''
-    # neutral = 1
-    # happy = 2
-    # sad = 3
-    # surprise = 4
-    # fear = 5
-    # disgust = 6
-    # anger = 7
-    # contempt = 8
-    # none = 9
-    # uncertain = 10
-    # noface = 11
+class ExpressionCodesRafdb:
+    Surprise = 1
+    Fear = 2
+    Disgust = 3
+    Happiness = 4
+    Sadness = 5
+    Anger = 6
+    Neutral = 7
 
+class ExpressionCodesAffectnet:
     neutral = 0
     happy = 1
     sad = 2
@@ -68,7 +64,7 @@ class RafDBConf:
     test_img_path = _prefix_path + '/test_set/images/'
     test_annotation_path = _prefix_path + '/test_set/annotations/'
 
-    augmentation_factor = 10
+    augmentation_factor = 1
 
     weight_save_path = _prefix_path + '/weight_saving_path/'
 

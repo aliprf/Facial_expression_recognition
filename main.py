@@ -10,7 +10,7 @@ if __name__ == '__main__':
     dhl = DataHelper()
 
     '''<><><><><><><>AffectNet<><><><><><><>'''
-    affect_net = AffectNet(ds_type=DatasetType.train)
+    affect_net = AffectNet(ds_type=DatasetType.eval)
     '''create from the original data'''
     '''7 labels'''
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.train_7, FLD_model_file_name='./ds_136_ef.h5', is_7=True)
@@ -26,21 +26,25 @@ if __name__ == '__main__':
     # affect_net.upsample_data()
 
     '''pre-processing'''
-    # affect_net.create_derivative_mask()
-    # affect_net.create_au_mask()
-    # affect_net.create_spatial_masks()
+    affect_net.create_derivative_mask()
+    affect_net.create_au_mask()
+    affect_net.create_spatial_masks()
     ''''''
 
     '''<><><><><><><>RAF-DB<><><><><><><>'''
+    '''[1290.  281.  717. 4772. 1982.  705. 2524.]'''
     # raf_db = RafDB(ds_type=DatasetType.train)
     # raf_db.create_from_orig(ds_type=DatasetType.train)
+    # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
+    # raf_db.upsample_data()
+
 
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train"""
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     #
 
     # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',
