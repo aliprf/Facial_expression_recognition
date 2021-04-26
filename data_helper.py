@@ -229,7 +229,7 @@ class DataHelper:
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
     def create_generators_with_mask(self, img_path, annotation_path, num_of_samples, label=None):
-        print('read file names =>')
+        # print('read file names =>')
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
         md_mask_filenames, bo_mask_filenames = self._create_image_and_labels_name(img_path=img_path,
                                                                                   annotation_path=annotation_path,
