@@ -17,7 +17,7 @@ from skimage.io import imread
 import pickle
 from sklearn.metrics import accuracy_score
 import os
-from AffectNetClass import  AffectNet
+from AffectNetClass import AffectNet
 
 
 class Train:
@@ -31,12 +31,14 @@ class Train:
                 self.val_img_path = AffectnetConf.eval_img_path
                 self.val_annotation_path = AffectnetConf.eval_annotation_path
                 self.num_of_classes = 8
+                self.num_of_samples = AffectnetConf.num_of_samples_train
             elif ds_type == DatasetType.train_7:
                 self.img_path = AffectnetConf.aug_train_img_path_7
                 self.annotation_path = AffectnetConf.aug_train_annotation_path_7
                 self.val_img_path = AffectnetConf.eval_img_path_7
                 self.val_annotation_path = AffectnetConf.eval_annotation_path_7
                 self.num_of_classes = 7
+                self.num_of_samples = AffectnetConf.num_of_samples_train_7
 
     def train(self, arch, weight_path):
         """"""
@@ -69,7 +71,8 @@ class Train:
         '''     Train   Generator'''
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
             up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
-                img_path=self.img_path, annotation_path=self.annotation_path)
+                img_path=self.img_path, annotation_path=self.annotation_path,
+                num_of_samples=self.num_of_samples)
 
         global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 

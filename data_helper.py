@@ -228,12 +228,13 @@ class DataHelper:
         return img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
-    def create_generators_with_mask(self, img_path, annotation_path, label=None):
+    def create_generators_with_mask(self, img_path, annotation_path, num_of_samples, label=None):
         print('read file names =>')
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
         md_mask_filenames, bo_mask_filenames = self._create_image_and_labels_name(img_path=img_path,
                                                                                   annotation_path=annotation_path,
-                                                                                  label=label)
+                                                                                  label=label,
+                                                                                  num_of_samples=num_of_samples)
         print('shuffle => ')
         '''shuffle'''
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
@@ -470,7 +471,7 @@ class DataHelper:
             lbl = 3
         return lbl
 
-    def _create_image_and_labels_name(self, img_path, annotation_path, label):
+    def _create_image_and_labels_name(self, img_path, annotation_path, label, num_of_samples):
         img_filenames = []
         exp_filenames = []
         lnd_filenames = []
@@ -480,7 +481,12 @@ class DataHelper:
         md_mask_filenames = []
         bo_mask_filenames = []
 
-        for file in os.listdir(img_path):
+        if num_of_samples is None:
+            file_names = os.listdir(img_path)
+        else:
+            file_names = [str(i)+'.jpg' for i in range(num_of_samples)]
+
+        for file in tqdm(file_names):
             if file.endswith(".jpg") or file.endswith(".png"):
                 exp_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
                 lnd_lbl_file = str(file)[:-4] + "_slnd.npy"  # just name
@@ -491,9 +497,11 @@ class DataHelper:
                 bo_mask_lbl_file = str(file)[:-4] + "_spm_bo.jpg"  # just name
 
                 if os.path.exists(annotation_path + 'exp_slnd/' + exp_lbl_file):
-                    exp = np.load(annotation_path + 'exp_slnd/' + exp_lbl_file)
-                    if label is not None and exp != label:
-                        continue
+                    if label is not None:
+                        exp = np.load(annotation_path + 'exp_slnd/' + exp_lbl_file)
+                        if label is not None and exp != label:
+                            continue
+
                     img_filenames.append(str(file))
                     exp_filenames.append(exp_lbl_file)
                     lnd_filenames.append(lnd_lbl_file)

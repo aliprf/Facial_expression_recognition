@@ -117,6 +117,10 @@ class AffectnetConf:
 
     weight_save_path = _prefix_path + '/weight_saving_path/'
 
+    num_of_samples_train = 2420940
+    num_of_samples_train_7 = 0
+    num_of_samples_eval = 3999
+
 
 
 
