@@ -36,9 +36,9 @@ class CNNModel:
             input_tensor=None,
             pooling=None)
         mobilenet_model_face.layers.pop()
-        x_l_face = mobilenet_model_face.get_layer('global_average_pooling2d').output  # 1280
+        global_average_pooling2d = mobilenet_model_face.get_layer('global_average_pooling2d').output  # 1280
         x_l_face = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
-            x_l_face)  # No activation on final dense layer
+            global_average_pooling2d)  # No activation on final dense layer
         embedding_layer_face = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_face)  # L2 normalize embeddings
         '''FC layer for out'''
@@ -54,7 +54,7 @@ class CNNModel:
         # x_l = BatchNormalization()(x_l)
         # x_l = ReLU()(x_l)
         '''Dropout'''
-        x_l = Dropout(rate=0.2)(x_l_face)
+        x_l = Dropout(rate=0.2)(global_average_pooling2d)
         # x_l = Dropout(rate=0.2)(x_l)
         '''out'''
         out_categorical = Dense(num_of_classes,
