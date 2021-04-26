@@ -42,21 +42,23 @@ class CNNModel:
         embedding_layer_face = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_face)  # L2 normalize embeddings
         '''FC layer for out'''
-        x_l = Dense(LearningConfig.embedding_size * 2)(x_l_face)
-        x_l = BatchNormalization()(x_l)
-        x_l = ReLU()(x_l)
-
-        x_l = Dense(LearningConfig.embedding_size)(x_l)
-        x_l = BatchNormalization()(x_l)
-        x_l = ReLU()(x_l)
-
-        x_l = Dense(LearningConfig.embedding_size // 2)(x_l)
-        x_l = BatchNormalization()(x_l)
-        x_l = ReLU()(x_l)
+        # x_l = Dense(LearningConfig.embedding_size * 2)(x_l_face)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = ReLU()(x_l)
+        #
+        # x_l = Dense(LearningConfig.embedding_size)(x_l)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = ReLU()(x_l)
+        #
+        # x_l = Dense(LearningConfig.embedding_size // 2)(x_l)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = ReLU()(x_l)
         '''Dropout'''
-        x_l = Dropout(rate=0.2)(x_l)
+        x_l = Dropout(rate=0.2)(x_l_face)
+        # x_l = Dropout(rate=0.2)(x_l)
         '''out'''
-        out_categorical = Dense(num_of_classes, kernel_regularizer=tf.keras.regularizers.l2(0.0001),
+        out_categorical = Dense(num_of_classes,
+                                # kernel_regularizer=tf.keras.regularizers.l2(0.0001),
                                 activation='softmax',
                                 name='out')(x_l)
 
