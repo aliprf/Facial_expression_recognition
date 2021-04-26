@@ -59,8 +59,8 @@ class CNNModel:
         '''out'''
         out_categorical = Dense(num_of_classes,
                                 # kernel_regularizer=tf.keras.regularizers.l2(0.0001),
-                                # activation='softmax',
-                                activation='linear',
+                                activation='softmax',
+                                # activation='linear',
                                 name='out')(x_l)
 
         inp = [mobilenet_model_face.input]
