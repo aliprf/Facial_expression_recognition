@@ -52,7 +52,7 @@ class Train:
         start_train_date = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         '''making models'''
-        _lr = 1e-2
+        _lr = 1e-4
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -74,7 +74,7 @@ class Train:
                 img_path=self.img_path, annotation_path=self.annotation_path,
                 num_of_samples=self.num_of_samples)
 
-        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
@@ -238,8 +238,8 @@ class Train:
         return model
 
     def _get_optimizer(self, lr=1e-3, beta_1=0.9, beta_2=0.999, decay=1e-6):
-        return tf.keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, decay=decay)
-        # return tf.keras.optimizers.SGD(lr=lr)
+        # return tf.keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, decay=decay)
+        return tf.keras.optimizers.SGD(lr=lr)
 
     def _flat_gradients(self, grads_or_idx_slices):
         if type(grads_or_idx_slices) == tf.IndexedSlices:
