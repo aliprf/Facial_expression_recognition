@@ -128,37 +128,43 @@ class CNNModel:
 
         # mobilenet_model_mouth.summary()
         ''''''
-        x_l_face = mobilenet_model_face.get_layer('face_global_average_pooling2d').output  # 1280
-        x_l_eyes = mobilenet_model_eyes.get_layer('eyes_global_average_pooling2d_1').output  # 1280
-        x_l_nose = mobilenet_model_nose.get_layer('nose_global_average_pooling2d_2').output  # 1280
-        x_l_mouth = mobilenet_model_mouth.get_layer('mouth_global_average_pooling2d_3').output  # 1280
+        g_x_l_face = mobilenet_model_face.get_layer('face_global_average_pooling2d').output  # 1280
+        g_x_l_eyes = mobilenet_model_eyes.get_layer('eyes_global_average_pooling2d_1').output  # 1280
+        g_x_l_nose = mobilenet_model_nose.get_layer('nose_global_average_pooling2d_2').output  # 1280
+        g_x_l_mouth = mobilenet_model_mouth.get_layer('mouth_global_average_pooling2d_3').output  # 1280
 
         '''embedding'''
         x_l_face = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
-            x_l_face)  # No activation on final dense layer
+            g_x_l_face)  # No activation on final dense layer
         embedding_layer_face = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_face)  # L2 normalize embeddings
 
         x_l_eyes = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
-            x_l_eyes)  # No activation on final dense layer
+            g_x_l_eyes)  # No activation on final dense layer
         embedding_layer_eyes = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_eyes)  # L2 normalize embeddings
 
         x_l_nose = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
-            x_l_nose)  # No activation on final dense layer
+            g_x_l_nose)  # No activation on final dense layer
         embedding_layer_nose = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_nose)  # L2 normalize embeddings
 
         x_l_mouth = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
-            x_l_mouth)  # No activation on final dense layer
+            g_x_l_mouth)  # No activation on final dense layer
         embedding_layer_mouth = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
             x_l_mouth)  # L2 normalize embeddings
 
         '''concat'''
-        concat_embeddings = tf.keras.layers.Concatenate(axis=1)([embedding_layer_face,
-                                                                 embedding_layer_eyes,
-                                                                 embedding_layer_nose,
-                                                                 embedding_layer_mouth])
+        # concat_embeddings = tf.keras.layers.Concatenate(axis=1)([embedding_layer_face,
+        #                                                          embedding_layer_eyes,
+        #                                                          embedding_layer_nose,
+        #                                                          embedding_layer_mouth])
+
+        concat_embeddings = tf.keras.layers.Concatenate(axis=1)([g_x_l_face,
+                                                                 g_x_l_eyes,
+                                                                 g_x_l_nose,
+                                                                 g_x_l_mouth])
+
         '''FC layer for out'''
         x_l = Dense(LearningConfig.embedding_size * 2)(concat_embeddings)
         x_l = BatchNormalization()(x_l)
@@ -172,10 +178,10 @@ class CNNModel:
         x_l = BatchNormalization()(x_l)
         x_l = ReLU()(x_l)
         '''Dropout'''
-        x_l = Dropout(rate=0.5)(x_l)
+        x_l = Dropout(rate=0.1)(x_l)
         '''out'''
         out_categorical = Dense(num_of_classes,
-                                kernel_regularizer=tf.keras.regularizers.l2(0.0001),
+                                # kernel_regularizer=tf.keras.regularizers.l2(0.0001),
                                 activation='sigmoid',
                                 # activation='softmax',
                                 # activation='linear',
