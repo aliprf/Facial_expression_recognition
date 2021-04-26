@@ -175,7 +175,8 @@ class CNNModel:
         x_l = Dropout(rate=0.5)(x_l)
         '''out'''
         out_categorical = Dense(num_of_classes, kernel_regularizer=tf.keras.regularizers.l2(0.0001),
-                                activation='softmax',
+                                # activation='softmax',
+                                activation='linear',
                                 name='out')(x_l)
 
         inp = [mobilenet_model_face.input, mobilenet_model_eyes.input,
