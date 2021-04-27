@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.eval, FLD_model_file_name='./ds_136_ef.h5')
 
     '''create synthesized landmarks'''
-    # affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
+    affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
 
     '''upsampling'''
     # affect_net.upsample_data()
