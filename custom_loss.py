@@ -23,7 +23,7 @@ class CustomLosses:
     def cross_entropy_loss(self, y_gt, y_pr):
         y_gt = tf.one_hot(y_gt, depth=8)
 
-        loss_object = tfa.losses.SigmoidFocalCrossEntropy(reduction=tf.keras.losses.Reduction.SUM)
+        loss_object = tfa.losses.SigmoidFocalCrossEntropy(reduction=tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE)
         loss_cross_entropy = loss_object(y_gt, y_pr)
 
         # loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
