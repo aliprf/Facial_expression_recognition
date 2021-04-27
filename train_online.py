@@ -18,9 +18,10 @@ import pickle
 from sklearn.metrics import accuracy_score
 import os
 from AffectNetClass import AffectNet
+from sklearn.utils import shuffle
 
 
-class Train:
+class TrainOnline:
     def __init__(self, dataset_name, ds_type):
         self.dataset_name = dataset_name
         self.ds_type = ds_type
@@ -29,8 +30,8 @@ class Train:
                 # self.img_path = AffectnetConf.aug_train_img_path
                 # self.annotation_path = AffectnetConf.aug_train_annotation_path
 
-                self.img_path = AffectnetConf.aug_train_img_path
-                self.annotation_path = AffectnetConf.aug_train_annotation_path
+                self.img_path = AffectnetConf.no_aug_train_img_path
+                self.annotation_path = AffectnetConf.no_aug_train_annotation_path
 
                 self.val_img_path = AffectnetConf.eval_img_path
                 self.val_annotation_path = AffectnetConf.eval_annotation_path
@@ -56,11 +57,8 @@ class Train:
         start_train_date = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         '''making models'''
-        _lr = 5e-3
-        model = self.make_model(arch=arch, w_path=weight_path)
-        '''create optimizer'''
-        optimizer = self._get_optimizer(lr=_lr)
 
+        model = self.make_model(arch=arch, w_path=weight_path)
         '''create save path'''
 
         if self.dataset_name == DatasetName.affectnet:
@@ -73,10 +71,9 @@ class Train:
         '''create sample generator'''
         dhp = DataHelper()
         '''     Train   Generator'''
-        img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
-            up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
-                img_path=self.img_path, annotation_path=self.annotation_path,
-                num_of_samples=self.num_of_samples)
+        img_filenames, exp_filenames, lnd_filenames = dhp.create_generators_with_mask_online(
+            img_path=self.img_path, annotation_path=self.annotation_path,
+            num_of_samples=self.num_of_samples)
 
         # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
@@ -85,29 +82,27 @@ class Train:
         gradients = None
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
+        '''create optimizer'''
+        _lr = 5e-3
+        lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
+            _lr,
+            decay_steps=step_per_epoch * 20,
+            decay_rate=1,
+            staircase=False)
+        # optimizer = tf.keras.optimizers.Adam(lr_schedule)
+        optimizer = tf.keras.optimizers.SGD(lr_schedule)
+
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
-            up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.shuffle_data(img_filenames,
-                                                                                       exp_filenames, lnd_filenames,
-                                                                                       dr_mask_filenames,
-                                                                                       au_mask_filenames,
-                                                                                       up_mask_filenames,
-                                                                                       md_mask_filenames,
-                                                                                       bo_mask_filenames)
+            img_filenames, exp_filenames, lnd_filenames = shuffle(img_filenames, exp_filenames, lnd_filenames)
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
-                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample(
+                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample_online(
                     batch_index=batch_index, img_path=self.img_path,
                     annotation_path=self.annotation_path,
                     img_filenames=img_filenames,
                     exp_filenames=exp_filenames,
-                    lnd_filenames=lnd_filenames,
-                    dr_mask_filenames=dr_mask_filenames,
-                    au_mask_filenames=au_mask_filenames,
-                    up_mask_filenames=up_mask_filenames,
-                    md_mask_filenames=md_mask_filenames,
-                    bo_mask_filenames=bo_mask_filenames)
+                    lnd_filenames=lnd_filenames)
 
                 '''convert to tensor'''
                 global_bunch = tf.cast(global_bunch, tf.float32)

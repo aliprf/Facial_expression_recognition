@@ -75,8 +75,10 @@ class DataHelper:
                     '''save image and landmarks'''
                     im = Image.fromarray(np.round(img * 255.0).astype(np.uint8))
                     im.save(img_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '.jpg')
-                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '_exp', exp)
-                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '_slnd',
+                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(
+                        aug_inx + 1) + '_exp', exp)
+                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(
+                        aug_inx + 1) + '_slnd',
                             landmark)
 
                     # self.test_image_print(img_name=str(exp) + '_' + str(i) + 'orig',
@@ -228,6 +230,18 @@ class DataHelper:
         return img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
+    def create_generators_with_mask_online(self, img_path, annotation_path, num_of_samples, label=None):
+        img_filenames, exp_filenames, lnd_filenames = self. \
+            _create_image_and_labels_name_online(img_path=img_path,
+                                                 annotation_path=annotation_path,
+                                                 label=label,
+                                                 num_of_samples=num_of_samples)
+        # print('shuffle => ')
+        '''shuffle'''
+        img_filenames, exp_filenames, lnd_filenames = shuffle(img_filenames, exp_filenames, lnd_filenames)
+        # print('<== shuffle ')
+        return img_filenames, exp_filenames, lnd_filenames
+
     def create_generators_with_mask(self, img_path, annotation_path, num_of_samples, label=None):
         # print('read file names =>')
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
@@ -245,20 +259,96 @@ class DataHelper:
         return img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
-    def _create_input_bunches(self, img_batch, dr_mask_batch, au_mask_batch, spatial_mask_1l, spatial_mask_3l):
+    def _create_input_bunches(self, img_batch, dr_mask_batch, au_mask_batch, spatial_mask):
         # return img_batch
 
-        img_batch = np.expand_dims(np.mean(img_batch, axis=3), axis=-1)
+        # img_batch = np.expand_dims(np.mean(img_batch, axis=3), axis=-1)
 
-        if spatial_mask_1l is None:
+        if spatial_mask is None:
             bunch = np.concatenate((img_batch, dr_mask_batch, au_mask_batch), axis=-1)
         else:
-            # img_batch = img_batch * spatial_mask_3l
-            img_batch = img_batch * spatial_mask_1l
-            dr_mask_batch = dr_mask_batch * spatial_mask_1l
-            au_mask_batch = au_mask_batch * spatial_mask_1l
+            img_batch = img_batch * spatial_mask
+            dr_mask_batch = dr_mask_batch * spatial_mask
+            au_mask_batch = au_mask_batch * spatial_mask
             bunch = np.concatenate((img_batch, dr_mask_batch, au_mask_batch), axis=-1)
         return bunch
+
+    def get_batch_sample_online(self, batch_index, img_path, annotation_path, img_filenames,
+                                exp_filenames, lnd_filenames, batch_size=None):
+        if batch_size is None:
+            batch_size = LearningConfig.batch_size
+
+        img_path = img_path
+        pn_tr_path = annotation_path
+        '''create batch data and normalize images'''
+        batch_img_names = img_filenames[
+                          batch_index * batch_size:(batch_index + 1) * batch_size]
+        batch_exp_names = exp_filenames[
+                          batch_index * batch_size:(batch_index + 1) * batch_size]
+
+        '''create img and annotations'''
+        # exp
+        exp_batch = np.int8(np.array([load(pn_tr_path + file_name) for file_name in batch_exp_names]))
+        # images
+        img_batch = np.array([imread(img_path + file_name) for file_name in batch_img_names]) / 255.0
+        '''derivative masks'''
+        dr_mask_batch = np.array([np.expand_dims(
+            self.create_derivative(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
+                                   lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"))
+            , axis=-1)
+            for file_name in batch_img_names])
+        '''action unit masks'''
+        au_mask_batch = np.array([np.expand_dims(
+            self.create_AU_mask(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
+                                lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"))
+            , axis=-1)
+            for file_name in batch_img_names])
+
+        '''spatial unit masks'''
+        up_mask_batch = np.array([np.expand_dims(
+            self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
+                                                 lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"),
+                                                 part=0), axis=-1) for file_name in batch_img_names])
+        md_mask_batch = np.array([np.expand_dims(
+            self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
+                                                 lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"),
+                                                 part=1), axis=-1)for file_name in batch_img_names])
+        bo_mask_batch = np.array([np.expand_dims(
+            self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
+                                                 lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"),
+                                                 part=2), axis=-1) for file_name in batch_img_names])
+        '''global feature bunch'''
+        global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                  au_mask_batch=au_mask_batch,
+                                                  spatial_mask=None)
+        '''Upper feature bunch'''
+        upper_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                 au_mask_batch=au_mask_batch,
+                                                 spatial_mask=up_mask_batch)
+        '''Middle feature bunch'''
+        middle_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                  au_mask_batch=au_mask_batch,
+                                                  spatial_mask=md_mask_batch)
+        '''Bottom feature bunch'''
+        bottom_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                  au_mask_batch=au_mask_batch,
+                                                  spatial_mask=bo_mask_batch)
+        '''clear memory'''
+        dr_mask_batch = None
+        au_mask_batch = None
+        bo_mask_batch = None
+        md_mask_batch = None
+        up_mask_batch = None
+        bo_3l_mask_batch = None
+        md_3l_mask_batch = None
+        up_3l_mask_batch = None
+        # '''test print'''
+        # for i in range(LearningConfig.batch_size): # bs, 224, 224, 5
+        #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_0_img_', bottom_bunch[i, :, :, :3], [])
+        #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_1_dr_', bottom_bunch[i, :, :, 3], [], cmap='gray')
+        #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_2_au_', bottom_bunch[i, :, :, 4], [], cmap='gray')
+
+        return global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch
 
     def get_batch_sample(self, batch_index, img_path, annotation_path, img_filenames, exp_filenames, lnd_filenames,
                          dr_mask_filenames, au_mask_filenames, up_mask_filenames, md_mask_filenames, bo_mask_filenames,
@@ -294,37 +384,37 @@ class DataHelper:
         img_batch = np.array([imread(img_path + file_name) for file_name in batch_img_names]) / 255.0
         # derivative masks
         dr_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'dmg/' + file_name), axis=-1)
-                                  for file_name in batch_dr_names])/255.0
+                                  for file_name in batch_dr_names]) / 255.0
         # action unit masks
         au_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'im/' + file_name), axis=-1)
-                                  for file_name in batch_au_names])/255.0
+                                  for file_name in batch_au_names]) / 255.0
         # upper
         up_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
-                                  for file_name in batch_up_names])/255.0
+                                  for file_name in batch_up_names]) / 255.0
         up_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' +file_name),
-                                               imread(pn_tr_path + 'spm/' +file_name)
+                                               imread(pn_tr_path + 'spm/' + file_name),
+                                               imread(pn_tr_path + 'spm/' + file_name)
                                                ],
                                               axis=-1)
-                                     for file_name in batch_up_names])/255.0
+                                     for file_name in batch_up_names]) / 255.0
         # middle
-        md_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' +file_name), axis=-1)
-                                  for file_name in batch_md_names])/255.0
-        md_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' +file_name),
-                                               imread(pn_tr_path + 'spm/' +file_name),
-                                               imread(pn_tr_path + 'spm/' +file_name)
+        md_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
+                                  for file_name in batch_md_names]) / 255.0
+        md_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
+                                               imread(pn_tr_path + 'spm/' + file_name),
+                                               imread(pn_tr_path + 'spm/' + file_name)
                                                ],
                                               axis=-1)
-                                     for file_name in batch_md_names])/255.0
+                                     for file_name in batch_md_names]) / 255.0
         # bottom
         bo_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
-                                  for file_name in batch_bo_names])/255.0
+                                  for file_name in batch_bo_names]) / 255.0
         bo_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
                                                imread(pn_tr_path + 'spm/' + file_name),
                                                imread(pn_tr_path + 'spm/' + file_name)
                                                ],
                                               axis=-1)
-                                     for file_name in batch_bo_names])/255.0
+                                     for file_name in batch_bo_names]) / 255.0
 
         '''global feature bunch'''
         global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
@@ -476,6 +566,35 @@ class DataHelper:
             lbl = 3
         return lbl
 
+    def _create_image_and_labels_name_online(self, img_path, annotation_path, label, num_of_samples):
+        img_filenames = []
+        exp_filenames = []
+        lnd_filenames = []
+
+        if num_of_samples is None:
+            file_names = os.listdir(img_path)
+        else:
+            print('reading list -->')
+            file_names = os.listdir(img_path)
+            print('<-')
+
+        for file in file_names:
+            if file.endswith(".jpg") or file.endswith(".png"):
+                exp_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
+                lnd_lbl_file = str(file)[:-4] + "_slnd.npy"  # just name
+
+                if os.path.exists(annotation_path + exp_lbl_file):
+                    if label is not None:
+                        exp = np.load(annotation_path + exp_lbl_file)
+                        if label is not None and exp != label:
+                            continue
+
+                    img_filenames.append(str(file))
+                    exp_filenames.append(exp_lbl_file)
+                    lnd_filenames.append(lnd_lbl_file)
+
+        return np.array(img_filenames), np.array(exp_filenames), np.array(lnd_filenames),
+
     def _create_image_and_labels_name(self, img_path, annotation_path, label, num_of_samples):
         img_filenames = []
         exp_filenames = []
@@ -596,6 +715,19 @@ class DataHelper:
             self.test_image_print(img_name='z_' + str(file) + '_img', img=img,
                                   landmarks=anno_Pre)
 
+    def create_spatial_mask_single_part(self, img, lnd, part):
+        up_mask, mid_mask, bot_mask = self._spatial_masks(landmarks=lnd, img=img)
+        if part == 0:
+            return up_mask
+        elif part == 1:
+            return mid_mask
+        elif part == 2:
+            return bot_mask
+
+    def create_spatial_mask(self, img, lnd):
+        up_mask, mid_mask, bot_mask = self._spatial_masks(landmarks=lnd, img=img)
+        return up_mask, mid_mask, bot_mask
+
     def create_spatial_mask_path(self, img_path, anno_path, file, test_print=False):
         lnd = np.load(os.path.join(anno_path + 'exp_slnd/', file[:-4] + "_slnd.npy"))
         img_file_name = os.path.join(img_path, file)
@@ -607,10 +739,6 @@ class DataHelper:
         up_mask_inverted = (1 - up_mask) * img_mean
         md_mask_inverted = (1 - mid_mask) * img_mean
         bo_mask_inverted = (1 - bot_mask) * img_mean
-
-        up_fused_img = (up_mask * img_mean) + 0.1 * up_mask_inverted
-        mid_fused_img = (mid_mask * img_mean) + 0.1 * md_mask_inverted
-        bot_fused_img = (bot_mask * img_mean) + 0.1 * bo_mask_inverted
 
         # up_fused_img = 0.1 * img_mean + 0.9 * (up_mask * img_mean)
         # mid_fused_img = 0.1 * img_mean + 0.9 * (mid_mask * img_mean)
@@ -625,20 +753,32 @@ class DataHelper:
         # np.savez_compressed(bo_mask_name, bot_mask)
 
         im = Image.fromarray(np.round(up_mask * 255.0).astype(np.uint8))
-        im.save(anno_path+'spm/' + file[:-4] + "_spm_up.jpg")
+        im.save(anno_path + 'spm/' + file[:-4] + "_spm_up.jpg")
         im = Image.fromarray(np.round(mid_mask * 255.0).astype(np.uint8))
-        im.save(anno_path+'spm/' + file[:-4] + "_spm_md.jpg")
+        im.save(anno_path + 'spm/' + file[:-4] + "_spm_md.jpg")
         im = Image.fromarray(np.round(bot_mask * 255.0).astype(np.uint8))
-        im.save(anno_path +'spm/'+ file[:-4] + "_spm_bo.jpg")
+        im.save(anno_path + 'spm/' + file[:-4] + "_spm_bo.jpg")
 
         '''test mask '''
         if test_print:
+            up_fused_img = (up_mask * img_mean) + 0.1 * up_mask_inverted
+            mid_fused_img = (mid_mask * img_mean) + 0.1 * md_mask_inverted
+            bot_fused_img = (bot_mask * img_mean) + 0.1 * bo_mask_inverted
             self.test_image_print(img_name='z_up_mask_' + str(file) + '_fused_img', img=up_fused_img,
                                   landmarks=lnd, cmap='gray')
             self.test_image_print(img_name='z_mid_mask_' + str(file) + '_fused_img', img=mid_fused_img,
                                   landmarks=lnd, cmap='gray')
             self.test_image_print(img_name='z_bot_mask_' + str(file) + '_fused_img', img=bot_fused_img,
                                   landmarks=lnd, cmap='gray')
+
+    def create_AU_mask(self, img, lnd):
+        '''create mask'''
+        i_mask = self._inner_mask(landmarks=lnd)
+        img_mean = np.mean(img, axis=-1)
+        i_mask_inverted = (1 - i_mask) * img_mean
+        i_mask = i_mask * img_mean
+        i_mask = i_mask + 0.1 * i_mask_inverted
+        return i_mask
 
     def create_AU_mask_path(self, img_path, anno_path, file, test_print=False):
         # exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
@@ -658,12 +798,24 @@ class DataHelper:
         # np.savez_compressed(i_mask_name, i_mask)
 
         im = Image.fromarray(np.round(i_mask * 255.0).astype(np.uint8))
-        im.save(anno_path +'im/'+ file[:-4] + "_im.jpg")
+        im.save(anno_path + 'im/' + file[:-4] + "_im.jpg")
 
         '''test mask '''
         if test_print:
             self.test_image_print(img_name='z_mask_' + str(file) + '_fused_img', img=i_mask,
                                   landmarks=[], cmap='gray')
+
+    def create_derivative(self, img, lnd):
+        img_mean = np.mean(np.array(img), axis=-1)
+
+        _, _, mag = self._hog(image=img_mean)
+        mag = abs(mag)
+        lnd_mask = self._landmark_mask(img_mean, lnd)
+        mag = self._blur(mag, _do=True)
+        mag = img_mean * mag + (1 + 0.5) * (mag - img_mean * mag)
+        mag = lnd_mask * mag  # this mask is hard
+        mag = self._normalize_image(mag)
+        return mag
 
     def create_derivative_path(self, img_path, anno_path, file, test_print=False):
         # exp = int(np.load(os.path.join(anno_path, file[:-4] + "_exp.npy")))
@@ -710,8 +862,8 @@ class DataHelper:
         # np.savez_compressed(gy_mask_name, gy)
         # np.savez_compressed(mag_mask_name, mag)
 
-        im = Image.fromarray(np.round(mag*255.0).astype(np.uint8))
-        im.save(anno_path+'dmg/'+file[:-4] + "_dmg.jpg")
+        im = Image.fromarray(np.round(mag * 255.0).astype(np.uint8))
+        im.save(anno_path + 'dmg/' + file[:-4] + "_dmg.jpg")
 
         if test_print:
             # self.test_image_print(img_name='z_HOG_' + str(file) + '_orig', img=fused_img, landmarks=lnd)

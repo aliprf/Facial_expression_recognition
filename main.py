@@ -1,6 +1,7 @@
 from config import DatasetName, DatasetType
 from train import Train
 from train_single_path import TrainSingle
+from train_online import TrainOnline
 from test import Test
 from AffectNetClass import AffectNet
 from RafdbClass import RafDB
@@ -44,9 +45,13 @@ if __name__ == '__main__':
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
-    """train"""
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    """train online"""
+    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
     trainer.train(arch='mobileNetV2', weight_path=None)
+
+    """train"""
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     #
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)

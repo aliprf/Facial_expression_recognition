@@ -52,7 +52,7 @@ class TrainSingle:
         start_train_date = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         '''making models'''
-        _lr = 1e-4
+        _lr = 5e-3
         model = self.make_model(arch=arch, w_path=weight_path)
         '''create optimizer'''
         optimizer = self._get_optimizer(lr=_lr)
@@ -179,7 +179,7 @@ class TrainSingle:
             # loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             # loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
             # loss_total = 5 * loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
-            loss_total = 5 * loss_exp + loss_face
+            loss_total = loss_exp + 0.1 * loss_face
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
@@ -237,8 +237,8 @@ class TrainSingle:
         return model
 
     def _get_optimizer(self, lr=1e-3, beta_1=0.9, beta_2=0.999, decay=1e-6):
-        # return tf.keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, decay=decay)
-        return tf.keras.optimizers.SGD(lr=lr)
+        return tf.keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, decay=decay)
+        # return tf.keras.optimizers.SGD(lr=lr)
 
     def _flat_gradients(self, grads_or_idx_slices):
         if type(grads_or_idx_slices) == tf.IndexedSlices:

@@ -286,9 +286,7 @@ class AffectNet:
         exp_gt_glob = []
         acc_per_label = []
         for lbl in range(num_lbls):
-            val_img_filenames, val_exp_filenames, val_lnd_filenames, val_dr_mask_filenames, \
-                val_au_mask_filenames, val_up_mask_filenames, val_md_mask_filenames, \
-                val_bo_mask_filenames = dhp.create_generators_with_mask(
+            val_img_filenames, val_exp_filenames, val_lnd_filenames = dhp.create_generators_with_mask_online(
                     img_path=self.img_path,
                     annotation_path=self.anno_path, label=lbl, num_of_samples=None)
 
@@ -297,24 +295,20 @@ class AffectNet:
             exp_pr_lbl = []
             exp_gt_lbl = []
             for batch_index in tqdm(range(step_per_epoch)):
-                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample(
+                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample_online(
                     batch_index=batch_index, img_path=self.img_path,
                     annotation_path=self.anno_path,
                     img_filenames=val_img_filenames,
                     exp_filenames=val_exp_filenames,
                     lnd_filenames=val_lnd_filenames,
-                    dr_mask_filenames=val_dr_mask_filenames,
-                    au_mask_filenames=val_au_mask_filenames,
-                    up_mask_filenames=val_up_mask_filenames,
-                    md_mask_filenames=val_md_mask_filenames,
-                    bo_mask_filenames=val_bo_mask_filenames,
                     batch_size=batch_size)
                 '''predict on batch'''
                 probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                       middle_bunch, bottom_bunch])
 
-                scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
-                exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+                # scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+                # exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+                exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
                 '''append to label-global'''
                 exp_gt_lbl += exp_gt_b.tolist()
                 exp_pr_lbl += exp_pr_b.tolist()
