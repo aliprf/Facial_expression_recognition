@@ -391,32 +391,33 @@ class DataHelper:
         # upper
         up_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
                                   for file_name in batch_up_names]) / 255.0
-        up_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' + file_name)
-                                               ],
-                                              axis=-1)
-                                     for file_name in batch_up_names]) / 255.0
+        # up_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
+        #                                        imread(pn_tr_path + 'spm/' + file_name),
+        #                                        imread(pn_tr_path + 'spm/' + file_name)
+        #                                        ],
+        #                                       axis=-1)
+        #                              for file_name in batch_up_names]) / 255.0
         # middle
         md_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
                                   for file_name in batch_md_names]) / 255.0
-        md_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' + file_name)
-                                               ],
-                                              axis=-1)
-                                     for file_name in batch_md_names]) / 255.0
+        # md_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
+        #                                        imread(pn_tr_path + 'spm/' + file_name),
+        #                                        imread(pn_tr_path + 'spm/' + file_name)
+        #                                        ],
+        #                                       axis=-1)
+        #                              for file_name in batch_md_names]) / 255.0
         # bottom
         bo_mask_batch = np.array([np.expand_dims(imread(pn_tr_path + 'spm/' + file_name), axis=-1)
                                   for file_name in batch_bo_names]) / 255.0
-        bo_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' + file_name),
-                                               imread(pn_tr_path + 'spm/' + file_name)
-                                               ],
-                                              axis=-1)
-                                     for file_name in batch_bo_names]) / 255.0
+        # bo_3l_mask_batch = np.array([np.stack([imread(pn_tr_path + 'spm/' + file_name),
+        #                                        imread(pn_tr_path + 'spm/' + file_name),
+        #                                        imread(pn_tr_path + 'spm/' + file_name)
+        #                                        ],
+        #                                       axis=-1)
+        #                              for file_name in batch_bo_names]) / 255.0
 
         '''global feature bunch'''
+        print('global feature bunch')
         global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                   au_mask_batch=au_mask_batch,
                                                   spatial_mask=None)
@@ -437,7 +438,6 @@ class DataHelper:
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_0_img_', global_bunch[i, :, :, :3], [])
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_1_dr_', global_bunch[i, :, :, 3], [])
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_2_au_', global_bunch[i, :, :, 4], [])
-
         return global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch
         # return img_batch, val_batch, exp_batch, lnd_batch, lnd_avg_batch
 
