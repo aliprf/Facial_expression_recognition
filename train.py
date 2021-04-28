@@ -81,7 +81,7 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 5e-3
+        _lr = 1e-3
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 10,  # will be 0.5 every 5 spoch
@@ -101,6 +101,7 @@ class Train:
                                                                                        bo_mask_filenames)
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
+                print('get_batch_sample ->')
                 global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample(
                     batch_index=batch_index, img_path=self.img_path,
                     annotation_path=self.annotation_path,
@@ -114,6 +115,7 @@ class Train:
                     bo_mask_filenames=bo_mask_filenames)
 
                 '''convert to tensor'''
+                print('convert to tensor->')
                 global_bunch = tf.cast(global_bunch, tf.float32)
                 upper_bunch = tf.cast(upper_bunch, tf.float32)
                 middle_bunch = tf.cast(middle_bunch, tf.float32)
