@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import tensorflow_addons as tfa
 
-from tensorflow.python.framework.ops import disable_eager_execution
-disable_eager_execution()
+# from tensorflow.python.framework.ops import disable_eager_execution
+# disable_eager_execution()
 
 class CustomLosses:
     # def __init__(self):

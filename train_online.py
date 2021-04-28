@@ -20,10 +20,8 @@ import os
 from AffectNetClass import AffectNet
 from sklearn.utils import shuffle
 
-from tensorflow.python.framework.ops import disable_eager_execution
-disable_eager_execution()
-
-
+# from tensorflow.python.framework.ops import disable_eager_execution
+# disable_eager_execution()
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
 
