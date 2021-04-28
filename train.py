@@ -26,11 +26,11 @@ class Train:
         self.ds_type = ds_type
         if dataset_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
-                # self.img_path = AffectnetConf.aug_train_img_path
-                # self.annotation_path = AffectnetConf.aug_train_annotation_path
-
                 self.img_path = AffectnetConf.aug_train_img_path
                 self.annotation_path = AffectnetConf.aug_train_annotation_path
+
+                # self.img_path = AffectnetConf.aug_train_img_path
+                # self.annotation_path = AffectnetConf.aug_train_annotation_path
 
                 self.val_img_path = AffectnetConf.eval_img_path
                 self.val_annotation_path = AffectnetConf.eval_annotation_path
