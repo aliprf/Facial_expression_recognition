@@ -286,7 +286,7 @@ class AffectNet:
         val_img_filenames, val_exp_filenames, val_lnd_filenames = dhp.create_generators_with_mask_online(
             img_path=self.img_path,
             annotation_path=self.anno_path, label=None, num_of_samples=None)
-        print(val_img_filenames)
+        print(len(val_img_filenames))
         step_per_epoch = int(len(val_img_filenames) // batch_size)
         exp_pr_lbl = []
         exp_gt_lbl = []
