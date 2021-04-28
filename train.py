@@ -188,7 +188,7 @@ class Train:
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
-            loss_total = 5 * loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
+            loss_total = 2 * loss_exp + 3*loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
