@@ -272,6 +272,49 @@ class AffectNet:
             save(save_anno_path + str(i) + '_aro', arousal_arr[i])
 
     def test_accuracy(self, model):
+        dhp = DataHelper()
+        if self.ds_type == DatasetType.eval:
+            num_lbls = 8
+        else:
+            num_lbls = 7
+
+        batch_size = LearningConfig.batch_size
+        exp_pr_glob = []
+        exp_gt_glob = []
+        acc_per_label = []
+        '''create batches'''
+        val_img_filenames, val_exp_filenames, val_lnd_filenames = dhp.create_generators_with_mask_online(
+            img_path=self.img_path,
+            annotation_path=self.anno_path, label=None, num_of_samples=None)
+        print(val_img_filenames)
+        step_per_epoch = int(len(val_img_filenames) // batch_size)
+        exp_pr_lbl = []
+        exp_gt_lbl = []
+
+        for batch_index in tqdm(range(step_per_epoch)):
+            global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample_online(
+                batch_index=batch_index, img_path=self.img_path,
+                annotation_path=self.anno_path,
+                img_filenames=val_img_filenames,
+                exp_filenames=val_exp_filenames,
+                lnd_filenames=val_lnd_filenames,
+                batch_size=batch_size)
+            '''predict on batch'''
+            probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
+                                                                  middle_bunch, bottom_bunch])
+
+            scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+            exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+
+            exp_pr_lbl += exp_pr_b.tolist()
+            exp_gt_lbl += exp_gt_b.tolist()
+
+        global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
+        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
+
+        return global_accuracy, 0, 0, conf_mat
+
+    def _test_accuracy(self, model):
         """"""
         dhp = DataHelper()
         ''' we need to get samples by category first. Then, predict accuracy on batch for each class and
