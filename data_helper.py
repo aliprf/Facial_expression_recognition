@@ -288,34 +288,34 @@ class DataHelper:
 
         '''create img and annotations'''
         # exp
-        exp_batch = np.int8(np.array([load(pn_tr_path + file_name) for file_name in batch_exp_names]))
+        exp_batch = np.int8(np.array([load(pn_tr_path + 'exp_slnd/' + file_name) for file_name in batch_exp_names]))
         # images
         img_batch = np.array([imread(img_path + file_name) for file_name in batch_img_names]) / 255.0
         '''derivative masks'''
         dr_mask_batch = np.array([np.expand_dims(
             self.create_derivative(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
-                                   lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"))
+                                   lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"))
             , axis=-1)
             for file_name in batch_img_names])
         '''action unit masks'''
         au_mask_batch = np.array([np.expand_dims(
             self.create_AU_mask(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
-                                lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"))
+                                lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"))
             , axis=-1)
             for file_name in batch_img_names])
 
         '''spatial unit masks'''
         up_mask_batch = np.array([np.expand_dims(
             self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
-                                                 lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"),
+                                                 lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"),
                                                  part=0), axis=-1) for file_name in batch_img_names])
         md_mask_batch = np.array([np.expand_dims(
             self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
-                                                 lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"),
+                                                 lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"),
                                                  part=1), axis=-1)for file_name in batch_img_names])
         bo_mask_batch = np.array([np.expand_dims(
             self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
-                                                 lnd=load(pn_tr_path + file_name[:-4] + "_slnd.npy"),
+                                                 lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"),
                                                  part=2), axis=-1) for file_name in batch_img_names])
         '''global feature bunch'''
         global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
@@ -588,9 +588,9 @@ class DataHelper:
                 exp_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
                 lnd_lbl_file = str(file)[:-4] + "_slnd.npy"  # just name
 
-                if os.path.exists(annotation_path + exp_lbl_file):
+                if os.path.exists(annotation_path + 'exp_slnd/' + exp_lbl_file):
                     if label is not None:
-                        exp = np.load(annotation_path + exp_lbl_file)
+                        exp = np.load(annotation_path + 'exp_slnd/' + exp_lbl_file)
                         if label is not None and exp != label:
                             continue
 

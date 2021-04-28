@@ -22,6 +22,25 @@ from sklearn.utils import shuffle
 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
 
+'''
+================= Confusion Matrix =====================
+ neutral = 0
+    happy = 1
+    sad = 2
+    surprise = 3
+    fear = 4
+    disgust = 5
+    anger = 6
+    contempt = 7
+[[386  50  12  13   0   0  30   0]
+ [ 34 449   0   3   0   0   4   0]
+ [237  44 117  17   0   0  76   0]
+ [183  93  23 163  19   0   8   0]
+ [116  36 107 128  70   0  30   0]
+ [156  75  42  11   2   0 206   0]
+ [182  25  29   9   2   0 240   0]
+ [180 270   6   3   1   0  33   0]]
+'''
 
 class TrainOnline:
     def __init__(self, dataset_name, ds_type):
@@ -29,11 +48,11 @@ class TrainOnline:
         self.ds_type = ds_type
         if dataset_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
-                # self.img_path = AffectnetConf.aug_train_img_path
-                # self.annotation_path = AffectnetConf.aug_train_annotation_path
+                self.img_path = AffectnetConf.aug_train_img_path
+                self.annotation_path = AffectnetConf.aug_train_annotation_path
 
-                self.img_path = AffectnetConf.no_aug_train_img_path
-                self.annotation_path = AffectnetConf.no_aug_train_annotation_path
+                # self.img_path = AffectnetConf.no_aug_train_img_path
+                # self.annotation_path = AffectnetConf.no_aug_train_annotation_path
 
                 self.val_img_path = AffectnetConf.eval_img_path
                 self.val_annotation_path = AffectnetConf.eval_annotation_path
