@@ -19,6 +19,7 @@ from sklearn.metrics import accuracy_score
 import os
 from AffectNetClass import AffectNet
 from sklearn.utils import shuffle
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
 
 
 class TrainOnline:
@@ -75,7 +76,7 @@ class TrainOnline:
             img_path=self.img_path, annotation_path=self.annotation_path,
             num_of_samples=self.num_of_samples)
 
-        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
@@ -83,10 +84,10 @@ class TrainOnline:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 5e-3
+        _lr = 1e-3
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
-            decay_steps=step_per_epoch * 20,
+            decay_steps=step_per_epoch * 10,
             decay_rate=1,
             staircase=False)
         optimizer = tf.keras.optimizers.Adam(lr_schedule)
@@ -121,19 +122,19 @@ class TrainOnline:
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
                 '''apply gradients'''
-                # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
-                #     '''apply gradient'''
-                #     print("===============apply gradient================= ")
-                #     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                #     gradients = None
-                # else:
-                #     '''accumulate gradient'''
-                #     if gradients is None:
-                #         gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
-                #                      step_gradients]
-                #     else:
-                #         for i, g in enumerate(step_gradients):
-                #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
+                if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
+                    '''apply gradient'''
+                    print("===============apply gradient================= ")
+                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                    gradients = None
+                else:
+                    '''accumulate gradient'''
+                    if gradients is None:
+                        gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
+                                     step_gradients]
+                    else:
+                        for i, g in enumerate(step_gradients):
+                            gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
 
             '''evaluating part'''
             global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
@@ -183,7 +184,7 @@ class TrainOnline:
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
-        optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
+        # optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
                  ' -> : loss_total: ', loss_total,
