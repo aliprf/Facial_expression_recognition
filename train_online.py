@@ -4,7 +4,7 @@ from custom_loss import CustomLosses
 from data_helper import DataHelper
 
 import tensorflow as tf
-import tensorflow.keras as keras
+# import tensorflow.keras as keras
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -20,8 +20,8 @@ import os
 from AffectNetClass import AffectNet
 from sklearn.utils import shuffle
 
-# from tensorflow.python.framework.ops import disable_eager_execution
-# disable_eager_execution()
+from tensorflow.python.framework.ops import disable_eager_execution
+disable_eager_execution()
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
 

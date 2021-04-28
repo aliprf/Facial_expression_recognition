@@ -2,8 +2,8 @@ from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig
 # from hg_Class import HourglassNet
 
 import tensorflow as tf
-from tensorflow import keras
-from skimage.transform import resize
+# from tensorflow import keras
+# from skimage.transform import resize
 from keras.models import Model
 
 from keras.applications import mobilenet_v2, mobilenet, resnet50, densenet
