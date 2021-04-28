@@ -69,9 +69,9 @@ class Train:
         dhp = DataHelper()
         '''     Train   Generator'''
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
-            up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
-                img_path=self.img_path, annotation_path=self.annotation_path,
-                num_of_samples=self.num_of_samples)
+        up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
+            img_path=self.img_path, annotation_path=self.annotation_path,
+            num_of_samples=self.num_of_samples)
 
         # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
@@ -81,10 +81,10 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 1e-3
+        _lr = 5e-3
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
-            decay_steps=step_per_epoch * 3,
+            decay_steps=step_per_epoch * 10,  # will be 0.5 every 5 spoch
             decay_rate=1,
             staircase=False)
         optimizer = tf.keras.optimizers.Adam(lr_schedule)
@@ -188,7 +188,7 @@ class Train:
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
-            loss_total = 2 * loss_exp + 3*loss_face + loss_eyes + loss_nose + loss_mouth
+            loss_total = 2 * loss_exp + 3 * loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
