@@ -609,7 +609,7 @@ class DataHelper:
             file_names = os.listdir(img_path)
         else:
             print('reading list -->')
-            file_names = os.listdir(img_path)
+            file_names = tqdm(os.listdir(img_path))
             print('<-')
             # file_names1 = [str(i)+'.jpg' for i in range(num_of_samples)]
             # file_names = [str(i)+'.jpg' for i in range(num_of_samples)]
