@@ -419,19 +419,19 @@ class DataHelper:
         '''global feature bunch'''
         global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                   au_mask_batch=au_mask_batch,
-                                                  spatial_mask_1l=None, spatial_mask_3l=None)
+                                                  spatial_mask=None)
         '''Upper feature bunch'''
         upper_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                  au_mask_batch=au_mask_batch,
-                                                 spatial_mask_1l=up_mask_batch, spatial_mask_3l=up_3l_mask_batch)
+                                                 spatial_mask=up_mask_batch,)
         '''Middle feature bunch'''
         middle_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                   au_mask_batch=au_mask_batch,
-                                                  spatial_mask_1l=md_mask_batch, spatial_mask_3l=md_3l_mask_batch)
+                                                  spatial_mask=md_mask_batch)
         '''Bottom feature bunch'''
         bottom_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                   au_mask_batch=au_mask_batch,
-                                                  spatial_mask_1l=bo_mask_batch, spatial_mask_3l=bo_3l_mask_batch)
+                                                  spatial_mask=bo_mask_batch)
         '''test print'''
         # for i in range(LearningConfig.batch_size): # bs, 224, 224, 5
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_0_img_', global_bunch[i, :, :, :3], [])
