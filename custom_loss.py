@@ -21,8 +21,8 @@ class CustomLosses:
         tr_loss = triplet_loss_obj(y_true=y_gt, y_pred=y_pr)
         return tr_loss
 
-    def cross_entropy_loss(self, y_gt, y_pr):
-        y_gt = tf.one_hot(y_gt, depth=8)
+    def cross_entropy_loss(self, y_gt, y_pr, num_classes):
+        y_gt = tf.one_hot(y_gt, depth=num_classes)
 
         loss_object = tfa.losses.SigmoidFocalCrossEntropy(reduction=tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE)
         loss_cross_entropy = loss_object(y_gt, y_pr)

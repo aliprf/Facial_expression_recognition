@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
 
     '''upsampling'''
-    affect_net.upsample_data_fix_rate()
+    # affect_net.upsample_data_fix_rate()
     '''create masked-img'''
     # affect_net.create_masked_image()
     '''pre-processing'''
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
     # trainer.train(arch='mobileNetV2', weight_path=None)
     """train"""
-    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    # trainer.train(arch='mobileNetV2', weight_path=None)
+    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    trainer.train(arch='mobileNetV2', weight_path=None)
     #
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)

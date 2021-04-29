@@ -249,13 +249,24 @@ class DataHelper:
         # print('<== shuffle ')
         return img_filenames, exp_filenames, lnd_filenames
 
+    def create_masked_generator(self, img_path, annotation_path, num_of_samples, label=None):
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            self._create_image_and_labels_name(img_path=img_path,
+                                               annotation_path=annotation_path,
+                                               label=label,
+                                               num_of_samples=num_of_samples)
+        '''shuffle'''
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            shuffle(face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames)
+        return face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames
+
     def create_generators_with_mask(self, img_path, annotation_path, num_of_samples, label=None):
         # print('read file names =>')
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
-        md_mask_filenames, bo_mask_filenames = self._create_image_and_labels_name(img_path=img_path,
-                                                                                  annotation_path=annotation_path,
-                                                                                  label=label,
-                                                                                  num_of_samples=num_of_samples)
+        md_mask_filenames, bo_mask_filenames = self.__create_image_and_labels_name(img_path=img_path,
+                                                                                   annotation_path=annotation_path,
+                                                                                   label=label,
+                                                                                   num_of_samples=num_of_samples)
         # print('shuffle => ')
         '''shuffle'''
         img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, up_mask_filenames, \
@@ -355,6 +366,34 @@ class DataHelper:
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_0_img_', bottom_bunch[i, :, :, :3], [])
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_1_dr_', bottom_bunch[i, :, :, 3], [], cmap='gray')
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_2_au_', bottom_bunch[i, :, :, 4], [], cmap='gray')
+
+        return global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch
+
+    def get_batch_sample_masked(self, batch_index, img_path, annotation_path, exp_filenames,
+                                face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames,
+                                batch_size=None):
+        if batch_size is None:
+            batch_size = LearningConfig.batch_size
+
+        img_path = img_path
+        pn_tr_path = annotation_path
+        '''create batch data and normalize images'''
+        batch_face_img_filenames = face_img_filenames[
+                          batch_index * batch_size:(batch_index + 1) * batch_size]
+        batch_eyes_img_filenames = eyes_img_filenames[
+                                   batch_index * batch_size:(batch_index + 1) * batch_size]
+        batch_nose_img_filenames = nose_img_filenames[
+                                   batch_index * batch_size:(batch_index + 1) * batch_size]
+        batch_mouth_img_filenames = mouth_img_filenames[
+                                   batch_index * batch_size:(batch_index + 1) * batch_size]
+        batch_exp_names = exp_filenames[
+                          batch_index * batch_size:(batch_index + 1) * batch_size]
+
+        exp_batch = np.array([load(pn_tr_path + file_name) for file_name in batch_exp_names])
+        global_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_face_img_filenames])
+        upper_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_eyes_img_filenames])
+        middle_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_nose_img_filenames])
+        bottom_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_mouth_img_filenames])
 
         return global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch
 
@@ -609,6 +648,40 @@ class DataHelper:
         return np.array(img_filenames), np.array(exp_filenames), np.array(lnd_filenames),
 
     def _create_image_and_labels_name(self, img_path, annotation_path, label, num_of_samples):
+        face_img_filenames = []
+        eyes_img_filenames = []
+        nose_img_filenames = []
+        mouth_img_filenames = []
+        exp_filenames = []
+
+        if num_of_samples is None:
+            file_names = os.listdir(img_path)
+        else:
+            print('reading list -->')
+            # file_names = tqdm(os.listdir(img_path))
+            file_names = os.listdir(img_path)
+            print('<-')
+
+        for file in file_names:
+            if file.endswith("_face.npz"):
+                exp_lbl_file = str(file)[:-9] + "_exp.npy"  # just name
+
+                if os.path.exists(annotation_path + exp_lbl_file):
+                    if label is not None:
+                        exp = np.load(annotation_path + exp_lbl_file)
+                        if label is not None and exp != label:
+                            continue
+
+                    face_img_filenames.append(str(file))
+                    eyes_img_filenames.append(str(str(file)[:-9] + "_eyes.npz"))
+                    nose_img_filenames.append(str(str(file)[:-9] + "_nose.npz"))
+                    mouth_img_filenames.append(str(str(file)[:-9] + "_mouth.npz"))
+                    exp_filenames.append(exp_lbl_file)
+
+        return np.array(face_img_filenames), np.array(eyes_img_filenames), \
+               np.array(nose_img_filenames), np.array(mouth_img_filenames), np.array(exp_filenames)
+
+    def __create_image_and_labels_name(self, img_path, annotation_path, label, num_of_samples):
         img_filenames = []
         exp_filenames = []
         lnd_filenames = []

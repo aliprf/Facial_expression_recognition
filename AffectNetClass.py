@@ -90,6 +90,7 @@ class AffectNet:
                 lnd_addr_by_class[exp].append(os.path.join(self.anno_path, file[:-8] + '_slnd.npy'))
 
         print("sample_count_by_category: ====>>")
+        # [ 74874. 134415.  25459.  14090.   6378.   3803.  24882.]
         print(sample_count_by_class)
         for i in range(len(anno_addr_by_class)):
             dhl.do_random_augment(img_addrs=img_addr_by_class[i],

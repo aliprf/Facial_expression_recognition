@@ -33,8 +33,8 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 80
-    # batch_size = 5
+    # batch_size = 80
+    batch_size = 5
     virtual_batch_size = 320
     epochs = 250
     velocity_output_len = 6 # we generated five classes
@@ -85,8 +85,8 @@ class AffectnetConf:
 
     # _prefix_path = '/media/sdb4Tb/Ali_data/FER_DS/affectnet'  # --> Aq
     # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
-    _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
-    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
+    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'

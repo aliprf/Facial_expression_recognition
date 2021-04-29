@@ -28,19 +28,19 @@ class Train:
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.aug_train_img_path
                 self.annotation_path = AffectnetConf.aug_train_annotation_path
-
-                # self.img_path = AffectnetConf.aug_train_img_path
-                # self.annotation_path = AffectnetConf.aug_train_annotation_path
-
+                self.masked_img_path = AffectnetConf.aug_train_masked_img_path
                 self.val_img_path = AffectnetConf.eval_img_path
                 self.val_annotation_path = AffectnetConf.eval_annotation_path
+                self.eval_masked_img_path = AffectnetConf.eval_masked_img_path
                 self.num_of_classes = 8
                 self.num_of_samples = AffectnetConf.num_of_samples_train
             elif ds_type == DatasetType.train_7:
                 self.img_path = AffectnetConf.aug_train_img_path_7
                 self.annotation_path = AffectnetConf.aug_train_annotation_path_7
+                self.masked_img_path = AffectnetConf.aug_train_masked_img_path_7
                 self.val_img_path = AffectnetConf.eval_img_path_7
                 self.val_annotation_path = AffectnetConf.eval_annotation_path_7
+                self.eval_masked_img_path = AffectnetConf.eval_masked_img_path_7
                 self.num_of_classes = 7
                 self.num_of_samples = AffectnetConf.num_of_samples_train_7
 
@@ -68,20 +68,19 @@ class Train:
         '''create sample generator'''
         dhp = DataHelper()
         '''     Train   Generator'''
-        img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
-        up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.create_generators_with_mask(
-            img_path=self.img_path, annotation_path=self.annotation_path,
-            num_of_samples=self.num_of_samples)
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            dhp.create_masked_generator(img_path=self.masked_img_path, annotation_path=self.annotation_path,
+                                        num_of_samples=self.num_of_samples)
 
         # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
-        step_per_epoch = len(img_filenames) // LearningConfig.batch_size
+        step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
         gradients = None
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 1e-3
+        _lr = 1e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 10,  # will be 0.5 every 5 spoch
@@ -91,31 +90,24 @@ class Train:
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
-            up_mask_filenames, md_mask_filenames, bo_mask_filenames = dhp.shuffle_data(img_filenames,
-                                                                                       exp_filenames, lnd_filenames,
-                                                                                       dr_mask_filenames,
-                                                                                       au_mask_filenames,
-                                                                                       up_mask_filenames,
-                                                                                       md_mask_filenames,
-                                                                                       bo_mask_filenames)
+            face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+                shuffle(face_img_filenames, eyes_img_filenames,
+                        nose_img_filenames, mouth_img_filenames, exp_filenames)
+
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
-                print('get_batch_sample ->')
-                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample(
-                    batch_index=batch_index, img_path=self.img_path,
+                # print('get_batch_sample ->')
+                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample_masked(
+                    batch_index=batch_index, img_path=self.masked_img_path,
                     annotation_path=self.annotation_path,
-                    img_filenames=img_filenames,
                     exp_filenames=exp_filenames,
-                    lnd_filenames=lnd_filenames,
-                    dr_mask_filenames=dr_mask_filenames,
-                    au_mask_filenames=au_mask_filenames,
-                    up_mask_filenames=up_mask_filenames,
-                    md_mask_filenames=md_mask_filenames,
-                    bo_mask_filenames=bo_mask_filenames)
+                    face_img_filenames=face_img_filenames,
+                    eyes_img_filenames=eyes_img_filenames,
+                    nose_img_filenames=nose_img_filenames,
+                    mouth_img_filenames=mouth_img_filenames)
 
                 '''convert to tensor'''
-                print('convert to tensor->')
+                # print('convert to tensor->')
                 global_bunch = tf.cast(global_bunch, tf.float32)
                 upper_bunch = tf.cast(upper_bunch, tf.float32)
                 middle_bunch = tf.cast(middle_bunch, tf.float32)
@@ -185,12 +177,12 @@ class Train:
                                                                     training=True)  # todo
 
             '''calculate loss'''
-            loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
-            loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
+            loss_exp = 2 * c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp, num_classes=self.num_of_classes)
+            loss_face = 3 * c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
-            loss_total = 2 * loss_exp + 3 * loss_face + loss_eyes + loss_nose + loss_mouth
+            loss_total = loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
