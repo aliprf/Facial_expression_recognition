@@ -83,8 +83,8 @@ class AffectnetConf:
     # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
-    _prefix_path = '/media/sdb4Tb/Ali_data/FER_DS/affectnet'  # --> Aq
-    # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
+    # _prefix_path = '/media/sdb4Tb/Ali_data/FER_DS/affectnet'  # --> Aq
+    _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
     # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
@@ -98,8 +98,11 @@ class AffectnetConf:
 
     aug_train_img_path = _prefix_path + '/train_set_aug/images/'
     aug_train_annotation_path = _prefix_path + '/train_set_aug/annotations/'
+    aug_train_masked_img_path = _prefix_path + '/train_set_aug/masked_images/'
+
     eval_img_path = _prefix_path + '/eval_set/images/'
     eval_annotation_path = _prefix_path + '/eval_set/annotations/'
+    eval_masked_img_path = _prefix_path + '/eval_set/masked_images/'
 
     '''7 labels'''
     no_aug_train_img_path_7 = _prefix_path + '/train_set_7/images/'
@@ -107,9 +110,11 @@ class AffectnetConf:
 
     aug_train_img_path_7 = _prefix_path + '/train_set_7_aug/images/'
     aug_train_annotation_path_7 = _prefix_path + '/train_set_7_aug/annotations/'
+    aug_train_masked_img_path_7 = _prefix_path + '/train_set_7_aug/masked_images/'
+
     eval_img_path_7 = _prefix_path + '/eval_set_7/images/'
     eval_annotation_path_7 = _prefix_path + '/eval_set_7/annotations/'
-
+    eval_masked_img_path_7 = _prefix_path + '/eval_set_7/masked_images/'
     '''------'''
     # revised_test_img_path = _prefix_path + '/test_set/images/'
     # revised_test_annotation_path = _prefix_path + '/test_set/annotations/'

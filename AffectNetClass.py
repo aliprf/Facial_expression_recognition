@@ -8,7 +8,7 @@ import math
 from datetime import datetime
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from numpy import save, load, asarray
+from numpy import save, load, asarray, savez_compressed, savez
 import csv
 from skimage.io import imread
 import pickle
@@ -37,6 +37,7 @@ class AffectNet:
             self.img_path = AffectnetConf.no_aug_train_img_path
             self.anno_path = AffectnetConf.no_aug_train_annotation_path
             self.img_path_aug = AffectnetConf.aug_train_img_path
+            self.masked_img_path = AffectnetConf.aug_train_masked_img_path
             self.anno_path_aug = AffectnetConf.aug_train_annotation_path
 
         elif ds_type == DatasetType.eval:
@@ -44,11 +45,13 @@ class AffectNet:
             self.anno_path_aug = AffectnetConf.eval_annotation_path
             self.img_path = AffectnetConf.eval_img_path
             self.anno_path = AffectnetConf.eval_annotation_path
+            self.masked_img_path = AffectnetConf.eval_masked_img_path
 
         elif ds_type == DatasetType.train_7:
             self.img_path = AffectnetConf.no_aug_train_img_path_7
             self.anno_path = AffectnetConf.no_aug_train_annotation_path_7
             self.img_path_aug = AffectnetConf.aug_train_img_path_7
+            self.masked_img_path = AffectnetConf.aug_train_masked_img_path_7
             self.anno_path_aug = AffectnetConf.aug_train_annotation_path_7
 
         elif ds_type == DatasetType.eval_7:
@@ -56,11 +59,48 @@ class AffectNet:
             self.anno_path_aug = AffectnetConf.eval_annotation_path_7
             self.img_path = AffectnetConf.eval_img_path_7
             self.anno_path = AffectnetConf.eval_annotation_path_7
-
+            self.masked_img_path = AffectnetConf.eval_masked_img_path_7
 
         # elif ds_type == DatasetType.test:
         #     self.img_path = AffectnetConf.revised_test_img_path
         #     self.anno_path = AffectnetConf.revised_test_annotation_path
+
+    def upsample_data_fix_rate(self):
+        dhl = DataHelper()
+        if self.ds_type == DatasetType.train:
+            aug_factor_by_class = [0.5, 0.3, 1, 2, 4, 6, 1, 6]
+            sample_count_by_class = np.zeros([8])
+            img_addr_by_class = [[] for i in range(8)]
+            anno_addr_by_class = [[] for i in range(8)]
+            lnd_addr_by_class = [[] for i in range(8)]
+        elif self.ds_type == DatasetType.train_7:
+            aug_factor_by_class = [0.5, 0.3, 1, 2, 4, 6, 1]
+            sample_count_by_class = np.zeros([7])
+            img_addr_by_class = [[] for i in range(7)]
+            anno_addr_by_class = [[] for i in range(7)]
+            lnd_addr_by_class = [[] for i in range(7)]
+
+        for i, file in tqdm(enumerate(os.listdir(self.anno_path))):
+            if file.endswith("_exp.npy"):
+                exp = int(np.load(os.path.join(self.anno_path, file)))
+                sample_count_by_class[exp] += 1
+                '''adding ex'''
+                anno_addr_by_class[exp].append(os.path.join(self.anno_path, file))
+                img_addr_by_class[exp].append(os.path.join(self.img_path, file[:-8] + '.jpg'))
+                lnd_addr_by_class[exp].append(os.path.join(self.anno_path, file[:-8] + '_slnd.npy'))
+
+        print("sample_count_by_category: ====>>")
+        print(sample_count_by_class)
+        for i in range(len(anno_addr_by_class)):
+            dhl.do_random_augment(img_addrs=img_addr_by_class[i],
+                                  anno_addrs=anno_addr_by_class[i],
+                                  lnd_addrs=lnd_addr_by_class[i],
+                                  aug_factor=aug_factor_by_class[i],
+                                  aug_factor_freq=None,
+                                  img_save_path=self.img_path_aug,
+                                  anno_save_path=self.anno_path_aug,
+                                  class_index=i
+                                  )
 
     def upsample_data(self):
         """we generate some samples so that all classes will have equal number of training samples"""
@@ -115,16 +155,55 @@ class AffectNet:
         for i, file in tqdm(enumerate(os.listdir(self.img_path))):
             if file.endswith(".jpg") or file.endswith(".png"):
                 dhl.create_synthesized_landmarks_path(img_path=self.img_path,
-                                                      anno_path=self.anno_path + 'exp_slnd/', file=file,
+                                                      anno_path=self.anno_path, file=file,
                                                       model=model,
                                                       test_print=False)
+
+    def create_masked_image(self):
+        dhl = DataHelper()
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    '''load data'''
+                    lnd = np.load(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy"))
+                    img_file_name = os.path.join(self.img_path_aug, file)
+                    img = np.float32(Image.open(img_file_name)) / 255.0
+                    '''create masks'''
+                    dr_mask = np.expand_dims(dhl.create_derivative(img=img, lnd=lnd), axis=-1)
+                    au_mask = np.expand_dims(dhl.create_AU_mask(img=img, lnd=lnd), axis=-1)
+                    up_mask, mid_mask, bot_mask = dhl.create_spatial_mask(img=img, lnd=lnd)
+                    up_mask = np.expand_dims(up_mask, axis=-1)
+                    mid_mask = np.expand_dims(mid_mask, axis=-1)
+                    bot_mask = np.expand_dims(bot_mask, axis=-1)
+                    '''fuse images'''
+                    face_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                          spatial_mask=None)
+                    eyes_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                          spatial_mask=up_mask)
+                    nose_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                          spatial_mask=mid_mask)
+                    mouth_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                           spatial_mask=bot_mask)
+                    '''save fused'''
+                    savez_compressed(self.masked_img_path + file[:-4] + "_face", face_fused)
+                    savez_compressed(self.masked_img_path + file[:-4] + "_eyes", eyes_fused)
+                    savez_compressed(self.masked_img_path + file[:-4] + "_nose", nose_fused)
+                    savez_compressed(self.masked_img_path + file[:-4] + "_mouth", mouth_fused)
+
+                    # im_face.save(self.masked_img_path + file[:-4] + "_face.jpg")
+                    # im_eyes.save(self.masked_img_path + file[:-4] + "_eyes.jpg")
+                    # im_nose.save(self.masked_img_path + file[:-4] + "_nose.jpg")
+                    # im_mouth.save(self.masked_img_path + file[:-4] + "_mouth.jpg")
+
+
 
     def create_derivative_mask(self):
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
                     # check if we have already created it:
                     if os.path.exists(os.path.join(self.anno_path_aug + 'dmg/', file[:-4] + "_dmg.jpg")) or \
                             os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_dmg.jpg")): continue
@@ -136,9 +215,9 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
-                    if os.path.exists(os.path.join(self.anno_path_aug + 'im/', file[:-4] + "_im.jpg")) or \
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_im.jpg")) or \
                             os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_im.jpg")): continue
                     dhl.create_AU_mask_path(img_path=self.img_path_aug,
                                             anno_path=self.anno_path_aug, file=file, test_print=False)
@@ -147,8 +226,8 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
-                if os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_exp.npy")) \
-                        and os.path.exists(os.path.join(self.anno_path_aug + 'exp_slnd/', file[:-4] + "_slnd.npy")):
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
                     if os.path.exists(os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_up.jpg")) and \
                             os.path.exists(os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_md.jpg")) and \
                             os.path.exists(
@@ -330,8 +409,8 @@ class AffectNet:
         acc_per_label = []
         for lbl in range(num_lbls):
             val_img_filenames, val_exp_filenames, val_lnd_filenames = dhp.create_generators_with_mask_online(
-                    img_path=self.img_path,
-                    annotation_path=self.anno_path, label=lbl, num_of_samples=None)
+                img_path=self.img_path,
+                annotation_path=self.anno_path, label=lbl, num_of_samples=None)
 
             '''create batches'''
             step_per_epoch = int(len(val_img_filenames) // batch_size)

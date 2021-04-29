@@ -43,17 +43,24 @@ class DataHelper:
                 img_orig = np.array(Image.open(img_addrs[i]))
 
                 '''set aug_factor'''
-                if i % aug_factor_freq == 0 and aug_factor_freq != 1:
+                if aug_factor_freq is not None and i % aug_factor_freq == 0 and aug_factor_freq != 1:
                     _aug_factor = aug_factor + 1
                 else:
                     _aug_factor = aug_factor
 
+                '''Down sampling if needed:'''
+                if _aug_factor < 1:
+                    k = int(1 / _aug_factor)
+                    if i % k != 0:
+                        continue
+
                 '''save original images:'''
                 im = Image.fromarray(np.round(img_orig).astype(np.uint8))
                 im.save(img_save_path + str(class_index) + '_' + str(i) + '_0' + '.jpg')
-                np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_0' + '_exp', exp)
-                np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
+                np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_exp', exp)
+                np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
 
+                _aug_factor = int(_aug_factor)
                 if _aug_factor == 1: continue
 
                 for aug_inx in range(_aug_factor):
@@ -75,9 +82,9 @@ class DataHelper:
                     '''save image and landmarks'''
                     im = Image.fromarray(np.round(img * 255.0).astype(np.uint8))
                     im.save(img_save_path + str(class_index) + '_' + str(i) + '_' + str(aug_inx + 1) + '.jpg')
-                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(
+                    np.save(anno_save_path + str(class_index) + '_' + str(i) + '_' + str(
                         aug_inx + 1) + '_exp', exp)
-                    np.save(anno_save_path + 'exp_slnd/' + str(class_index) + '_' + str(i) + '_' + str(
+                    np.save(anno_save_path + str(class_index) + '_' + str(i) + '_' + str(
                         aug_inx + 1) + '_slnd',
                             landmark)
 
@@ -259,7 +266,7 @@ class DataHelper:
         return img_filenames, exp_filenames, lnd_filenames, dr_mask_filenames, au_mask_filenames, \
                up_mask_filenames, md_mask_filenames, bo_mask_filenames
 
-    def _create_input_bunches(self, img_batch, dr_mask_batch, au_mask_batch, spatial_mask):
+    def create_input_bunches(self, img_batch, dr_mask_batch, au_mask_batch, spatial_mask):
         # return img_batch
 
         # img_batch = np.expand_dims(np.mean(img_batch, axis=3), axis=-1)
@@ -291,12 +298,13 @@ class DataHelper:
         exp_batch = np.int8(np.array([load(pn_tr_path + 'exp_slnd/' + file_name) for file_name in batch_exp_names]))
         # images
         img_batch = np.array([imread(img_path + file_name) for file_name in batch_img_names]) / 255.0
-        '''derivative masks'''
-        dr_mask_batch = np.array([np.expand_dims(
-            self.create_derivative(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
-                                   lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"))
-            , axis=-1)
-            for file_name in batch_img_names])
+        # '''derivative masks'''
+        # dr_mask_batch = np.array([np.expand_dims(
+        #     self.create_derivative(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
+        #                            lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"))
+        #     , axis=-1)
+        #     for file_name in batch_img_names])
+        dr_mask_batch = None
         '''action unit masks'''
         au_mask_batch = np.array([np.expand_dims(
             self.create_AU_mask(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
@@ -312,27 +320,27 @@ class DataHelper:
         md_mask_batch = np.array([np.expand_dims(
             self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
                                                  lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"),
-                                                 part=1), axis=-1)for file_name in batch_img_names])
+                                                 part=1), axis=-1) for file_name in batch_img_names])
         bo_mask_batch = np.array([np.expand_dims(
             self.create_spatial_mask_single_part(img=np.float32(np.array(imread(img_path + file_name)) / 255.0),
                                                  lnd=load(pn_tr_path + 'exp_slnd/' + file_name[:-4] + "_slnd.npy"),
                                                  part=2), axis=-1) for file_name in batch_img_names])
         '''global feature bunch'''
-        global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
-                                                  au_mask_batch=au_mask_batch,
-                                                  spatial_mask=None)
-        '''Upper feature bunch'''
-        upper_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+        global_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                  au_mask_batch=au_mask_batch,
-                                                 spatial_mask=up_mask_batch)
+                                                 spatial_mask=None)
+        '''Upper feature bunch'''
+        upper_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                au_mask_batch=au_mask_batch,
+                                                spatial_mask=up_mask_batch)
         '''Middle feature bunch'''
-        middle_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
-                                                  au_mask_batch=au_mask_batch,
-                                                  spatial_mask=md_mask_batch)
+        middle_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                 au_mask_batch=au_mask_batch,
+                                                 spatial_mask=md_mask_batch)
         '''Bottom feature bunch'''
-        bottom_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
-                                                  au_mask_batch=au_mask_batch,
-                                                  spatial_mask=bo_mask_batch)
+        bottom_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                 au_mask_batch=au_mask_batch,
+                                                 spatial_mask=bo_mask_batch)
         '''clear memory'''
         dr_mask_batch = None
         au_mask_batch = None
@@ -423,21 +431,21 @@ class DataHelper:
 
         '''global feature bunch'''
         print('global feature bunch')
-        global_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
-                                                  au_mask_batch=au_mask_batch,
-                                                  spatial_mask=None)
-        '''Upper feature bunch'''
-        upper_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+        global_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
                                                  au_mask_batch=au_mask_batch,
-                                                 spatial_mask=up_mask_batch,)
+                                                 spatial_mask=None)
+        '''Upper feature bunch'''
+        upper_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                au_mask_batch=au_mask_batch,
+                                                spatial_mask=up_mask_batch, )
         '''Middle feature bunch'''
-        middle_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
-                                                  au_mask_batch=au_mask_batch,
-                                                  spatial_mask=md_mask_batch)
+        middle_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                 au_mask_batch=au_mask_batch,
+                                                 spatial_mask=md_mask_batch)
         '''Bottom feature bunch'''
-        bottom_bunch = self._create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
-                                                  au_mask_batch=au_mask_batch,
-                                                  spatial_mask=bo_mask_batch)
+        bottom_bunch = self.create_input_bunches(img_batch=img_batch, dr_mask_batch=dr_mask_batch,
+                                                 au_mask_batch=au_mask_batch,
+                                                 spatial_mask=bo_mask_batch)
         '''test print'''
         # for i in range(LearningConfig.batch_size): # bs, 224, 224, 5
         #     self.test_image_print(str(batch_index + 1 * (i + 1)) + 'fer_0_img_', global_bunch[i, :, :, :3], [])
@@ -1077,7 +1085,7 @@ class DataHelper:
         landmark = np.copy(_landmark)
 
         fix_pad = InputDataSize.image_input_size * 2
-        img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'reflect')
+        img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'wrap')
         for jj in range(len(landmark)):
             landmark[jj] = landmark[jj] + fix_pad
 
@@ -1085,7 +1093,7 @@ class DataHelper:
         translation = (0, 0)
         shear = 0
 
-        rot = np.random.uniform(-1 * 0.35, 0.35)
+        rot = np.random.uniform(-1 * 0.45, 0.45)
         sx, sy = scale
         t_matrix = np.array([
             [sx * math.cos(rot), -sy * math.sin(rot + shear), 0],
@@ -1135,7 +1143,9 @@ class DataHelper:
         return img, t_label
 
     def _crop_image(self, img, annotation):
-        rand_padd = random.randint(5, 15)
+        # rand_padd = random.randint(1, 5) * img.shape[0]/100
+        rand_padd = random.randint(1, 25)
+
         ann_xy, ann_x, ann_y = self.create_landmarks(annotation, 1, 1)
         xmin = int(max(0, min(ann_x) - rand_padd))
         xmax = int(max(ann_x) + rand_padd)
