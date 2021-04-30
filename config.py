@@ -33,8 +33,8 @@ class DatasetType:
 
 
 class LearningConfig:
-    # batch_size = 80
-    batch_size = 5
+    batch_size = 35
+    # batch_size = 5
     virtual_batch_size = 320
     epochs = 250
     velocity_output_len = 6 # we generated five classes
@@ -47,7 +47,7 @@ class InputDataSize:
     image_input_size = 224
 
 class RafDBConf:
-    # _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
+    _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/RAF-DB'  # --> Atlas
     _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
 
@@ -84,9 +84,9 @@ class AffectnetConf:
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
     # _prefix_path = '/media/sdb4Tb/Ali_data/FER_DS/affectnet'  # --> Aq
-    # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
+    _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'
