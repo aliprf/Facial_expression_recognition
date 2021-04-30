@@ -28,7 +28,7 @@ if __name__ == '__main__':
     '''upsampling'''
     # affect_net.upsample_data_fix_rate()
     '''create masked-img'''
-    # affect_net.create_masked_image()
+    affect_net.create_masked_image()
     '''pre-processing'''
     # affect_net.create_derivative_mask()
     # affect_net.create_au_mask()
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
     # trainer.train(arch='mobileNetV2', weight_path=None)
     """train"""
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     #
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
