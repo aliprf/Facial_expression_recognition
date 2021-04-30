@@ -388,13 +388,11 @@ class DataHelper:
                                    batch_index * batch_size:(batch_index + 1) * batch_size]
         batch_exp_names = exp_filenames[
                           batch_index * batch_size:(batch_index + 1) * batch_size]
-        print('.')
         exp_batch = np.array([load(pn_tr_path + file_name) for file_name in batch_exp_names])
         global_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_face_img_filenames])
         upper_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_eyes_img_filenames])
         middle_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_nose_img_filenames])
         bottom_bunch = np.array([load(img_path + file_name)['arr_0'] for file_name in batch_mouth_img_filenames])
-        print('...')
 
         return global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch
 
