@@ -363,7 +363,7 @@ class AffectNet:
         '''create batches'''
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
             dhp.create_masked_generator(
-                img_path=self.img_path,
+                img_path=self.masked_img_path,
                 annotation_path=self.anno_path, label=None, num_of_samples=None)
         print(len(face_img_filenames))
         step_per_epoch = int(len(face_img_filenames) // batch_size)

@@ -72,7 +72,7 @@ class Train:
             dhp.create_masked_generator(img_path=self.masked_img_path, annotation_path=self.annotation_path,
                                         num_of_samples=self.num_of_samples)
 
-        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -96,7 +96,7 @@ class Train:
 
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
-                # print('get_batch_sample ->')
+                print('get_batch_sample ->')
                 global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample_masked(
                     batch_index=batch_index, img_path=self.masked_img_path,
                     annotation_path=self.annotation_path,
@@ -107,7 +107,7 @@ class Train:
                     mouth_img_filenames=mouth_img_filenames)
 
                 '''convert to tensor'''
-                # print('convert to tensor->')
+                print('convert to tensor->')
                 global_bunch = tf.cast(global_bunch, tf.float32)
                 upper_bunch = tf.cast(upper_bunch, tf.float32)
                 middle_bunch = tf.cast(middle_bunch, tf.float32)
@@ -115,6 +115,7 @@ class Train:
                 exp_batch = tf.cast(exp_batch, tf.uint8)
 
                 '''train step'''
+                print('train step->')
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
                                                  global_bunch=global_bunch,
                                                  upper_bunch=upper_bunch,
