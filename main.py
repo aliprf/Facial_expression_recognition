@@ -13,7 +13,7 @@ if __name__ == '__main__':
     dhl = DataHelper()
 
     '''<><><><><><><>AffectNet<><><><><><><>'''
-    affect_net = AffectNet(ds_type=DatasetType.train_7)
+    affect_net = AffectNet(ds_type=DatasetType.eval_7)
     '''create from the original data'''
     '''7 labels'''
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.train_7, FLD_model_file_name='./ds_136_ef.h5', is_7=True)
@@ -50,6 +50,7 @@ if __name__ == '__main__':
     # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
     # trainer.train(arch='mobileNetV2', weight_path=None)
+
     """train"""
     # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
     # trainer.train(arch='mobileNetV2', weight_path=None)
