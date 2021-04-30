@@ -197,8 +197,6 @@ class AffectNet:
                     # im_nose.save(self.masked_img_path + file[:-4] + "_nose.jpg")
                     # im_mouth.save(self.masked_img_path + file[:-4] + "_mouth.jpg")
 
-
-
     def create_derivative_mask(self):
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
@@ -363,22 +361,26 @@ class AffectNet:
         exp_gt_glob = []
         acc_per_label = []
         '''create batches'''
-        val_img_filenames, val_exp_filenames, val_lnd_filenames = dhp.create_masked_generator(
-            img_path=self.img_path,
-            annotation_path=self.anno_path, label=None, num_of_samples=None)
-        print(len(val_img_filenames))
-        step_per_epoch = int(len(val_img_filenames) // batch_size)
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            dhp.create_masked_generator(
+                img_path=self.img_path,
+                annotation_path=self.anno_path, label=None, num_of_samples=None)
+        print(len(face_img_filenames))
+        step_per_epoch = int(len(face_img_filenames) // batch_size)
         exp_pr_lbl = []
         exp_gt_lbl = []
 
         for batch_index in tqdm(range(step_per_epoch)):
-            global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample_online(
-                batch_index=batch_index, img_path=self.img_path,
+            global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample_masked(
+                batch_index=batch_index, img_path=self.masked_img_path,
                 annotation_path=self.anno_path,
-                img_filenames=val_img_filenames,
-                exp_filenames=val_exp_filenames,
-                lnd_filenames=val_lnd_filenames,
+                exp_filenames=exp_filenames,
+                face_img_filenames=face_img_filenames,
+                eyes_img_filenames=eyes_img_filenames,
+                nose_img_filenames=nose_img_filenames,
+                mouth_img_filenames=mouth_img_filenames,
                 batch_size=batch_size)
+
             '''predict on batch'''
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
