@@ -164,6 +164,8 @@ class AffectNet:
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
+                print(self.anno_path_aug, file[:-4] + "_exp.npy")
+                print(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy"))
                 if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
                         and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
                     '''load data'''
