@@ -90,10 +90,11 @@ class Train:
         _lr = 1e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
-            decay_steps=step_per_epoch * 10,  # will be 0.5 every 5 spoch
+            decay_steps=step_per_epoch * 10,  # will be 0.5 every 5 10
             decay_rate=1,
             staircase=False)
-        optimizer = tf.keras.optimizers.Adam(lr_schedule)
+        optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        # optimizer = tf.keras.optimizers.Adam(lr_schedule)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):

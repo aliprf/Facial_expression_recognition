@@ -23,12 +23,12 @@ if __name__ == '__main__':
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.eval, FLD_model_file_name='./ds_136_ef.h5')
 
     '''create synthesized landmarks'''
-    affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
+    # affect_net.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
 
     '''upsampling'''
     # affect_net.upsample_data_fix_rate()
     '''create masked-img'''
-    affect_net.create_masked_image()
+    # affect_net.create_masked_image()
     '''pre-processing'''
     # affect_net.create_derivative_mask()
     # affect_net.create_au_mask()
@@ -46,15 +46,16 @@ if __name__ == '__main__':
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
+    """train"""
+    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
+    #
+
     """train online"""
     # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
     # trainer.train(arch='mobileNetV2', weight_path=None)
 
-    """train"""
-    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
-    # trainer.train(arch='mobileNetV2', weight_path=None)
-    #
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
     # trainer.train(arch='mobileNetV2_single', weight_path=None)
