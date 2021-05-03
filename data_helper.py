@@ -249,6 +249,17 @@ class DataHelper:
         # print('<== shuffle ')
         return img_filenames, exp_filenames, lnd_filenames
 
+    def create_masked_generator_full_path(self, img_path, annotation_path, num_of_samples, label=None):
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            self._create_image_and_labels_name_full_path(img_path=img_path,
+                                               annotation_path=annotation_path,
+                                               label=label,
+                                               num_of_samples=num_of_samples)
+        '''shuffle'''
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            shuffle(face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames)
+        return face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames
+
     def create_masked_generator(self, img_path, annotation_path, num_of_samples, label=None):
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
             self._create_image_and_labels_name(img_path=img_path,
@@ -645,6 +656,40 @@ class DataHelper:
                     lnd_filenames.append(lnd_lbl_file)
 
         return np.array(img_filenames), np.array(exp_filenames), np.array(lnd_filenames),
+
+    def _create_image_and_labels_name_full_path(self, img_path, annotation_path, label, num_of_samples):
+        face_img_filenames = []
+        eyes_img_filenames = []
+        nose_img_filenames = []
+        mouth_img_filenames = []
+        exp_filenames = []
+
+        if num_of_samples is None:
+            file_names = os.listdir(img_path)
+        else:
+            print('reading list -->')
+            # file_names = tqdm(os.listdir(img_path))
+            file_names = os.listdir(img_path)
+            print('<-')
+
+        for file in file_names:
+            if file.endswith("_face.npz"):
+                exp_lbl_file = str(file)[:-9] + "_exp.npy"  # just name
+
+                if os.path.exists(annotation_path + exp_lbl_file):
+                    if label is not None:
+                        exp = np.load(annotation_path + exp_lbl_file)
+                        if label is not None and exp != label:
+                            continue
+
+                    face_img_filenames.append(img_path + str(file))
+                    eyes_img_filenames.append(img_path + str(str(file)[:-9] + "_eyes.npz"))
+                    nose_img_filenames.append(img_path + str(str(file)[:-9] + "_nose.npz"))
+                    mouth_img_filenames.append(img_path + str(str(file)[:-9] + "_mouth.npz"))
+                    exp_filenames.append(annotation_path + exp_lbl_file)
+
+        return np.array(face_img_filenames), np.array(eyes_img_filenames), \
+               np.array(nose_img_filenames), np.array(mouth_img_filenames), np.array(exp_filenames)
 
     def _create_image_and_labels_name(self, img_path, annotation_path, label, num_of_samples):
         face_img_filenames = []

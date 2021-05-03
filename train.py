@@ -2,7 +2,7 @@ from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, Da
 from cnn_model import CNNModel
 from custom_loss import CustomLosses
 from data_helper import DataHelper
-
+from dataset_class import CustomDataset
 import tensorflow as tf
 # import tensorflow.keras as keras
 import numpy as np
@@ -69,10 +69,17 @@ class Train:
         dhp = DataHelper()
         '''     Train   Generator'''
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
-            dhp.create_masked_generator(img_path=self.masked_img_path, annotation_path=self.annotation_path,
-                                        num_of_samples=self.num_of_samples)
+            dhp.create_masked_generator_full_path(img_path=self.masked_img_path, annotation_path=self.annotation_path,
+                                                  num_of_samples=self.num_of_samples)
+        '''create dataset'''
+        cds = CustomDataset()
+        ds = cds.create_dataset(file_names_face=face_img_filenames,
+                                file_names_eyes=eyes_img_filenames,
+                                file_names_nose=nose_img_filenames,
+                                file_names_mouth=mouth_img_filenames,
+                                anno_names=exp_filenames)
 
-        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -90,32 +97,18 @@ class Train:
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
-                shuffle(face_img_filenames, eyes_img_filenames,
-                        nose_img_filenames, mouth_img_filenames, exp_filenames)
-
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
-                print('get_batch_sample ->')
-                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample_masked(
-                    batch_index=batch_index, img_path=self.masked_img_path,
-                    annotation_path=self.annotation_path,
-                    exp_filenames=exp_filenames,
-                    face_img_filenames=face_img_filenames,
-                    eyes_img_filenames=eyes_img_filenames,
-                    nose_img_filenames=nose_img_filenames,
-                    mouth_img_filenames=mouth_img_filenames)
-
-                '''convert to tensor'''
-                print('convert to tensor->')
-                global_bunch = tf.cast(global_bunch, tf.float32)
-                upper_bunch = tf.cast(upper_bunch, tf.float32)
-                middle_bunch = tf.cast(middle_bunch, tf.float32)
-                bottom_bunch = tf.cast(bottom_bunch, tf.float32)
-                exp_batch = tf.cast(exp_batch, tf.uint8)
-
+                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
+                '''squeeze'''
+                exp_batch = exp_batch[:, -1]
+                global_bunch = global_bunch[:, -1, :, :]
+                upper_bunch = upper_bunch[:, -1, :, :]
+                middle_bunch = middle_bunch[:, -1, :, :]
+                bottom_bunch = bottom_bunch[:, -1, :, :]
+                # [:,:,-1,:],
                 '''train step'''
-                print('train step->')
+                # print('train step->')
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
                                                  global_bunch=global_bunch,
                                                  upper_bunch=upper_bunch,
