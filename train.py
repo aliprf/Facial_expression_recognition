@@ -18,6 +18,7 @@ import pickle
 from sklearn.metrics import accuracy_score
 import os
 from AffectNetClass import AffectNet
+import time
 
 
 class Train:
@@ -101,16 +102,20 @@ class Train:
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
                 print('load data...')
+                start_time = time.perf_counter()
                 global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
                 '''squeeze'''
-                print('squeeze...')
+                # print('squeeze...')
                 exp_batch = exp_batch[:, -1]
                 global_bunch = global_bunch[:, -1, :, :]
                 upper_bunch = upper_bunch[:, -1, :, :]
                 middle_bunch = middle_bunch[:, -1, :, :]
                 bottom_bunch = bottom_bunch[:, -1, :, :]
                 # [:,:,-1,:],
+
                 '''train step'''
+                print("Execution time:", time.perf_counter() - start_time)
+
                 print('train step->')
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
                                                  global_bunch=global_bunch,
