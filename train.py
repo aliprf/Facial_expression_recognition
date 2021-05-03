@@ -79,7 +79,7 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -100,8 +100,10 @@ class Train:
         for epoch in range(LearningConfig.epochs):
             for batch_index in range(step_per_epoch):
                 '''load annotation and images'''
+                print('load data...')
                 global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
                 '''squeeze'''
+                print('squeeze...')
                 exp_batch = exp_batch[:, -1]
                 global_bunch = global_bunch[:, -1, :, :]
                 upper_bunch = upper_bunch[:, -1, :, :]
@@ -109,7 +111,7 @@ class Train:
                 bottom_bunch = bottom_bunch[:, -1, :, :]
                 # [:,:,-1,:],
                 '''train step'''
-                # print('train step->')
+                print('train step->')
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
                                                  global_bunch=global_bunch,
                                                  upper_bunch=upper_bunch,
@@ -119,6 +121,7 @@ class Train:
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
                 '''apply gradients'''
+                print('gradients->')
                 if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
                     '''apply gradient'''
                     print("===============apply gradient================= ")
