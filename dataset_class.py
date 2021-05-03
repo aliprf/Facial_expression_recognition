@@ -70,9 +70,9 @@ class CustomDataset:
         #     .batch(LearningConfig.batch_size)\
         #     .prefetch(tf.data.AUTOTUNE)
 
-        dataset = dataset.map(wrap_get_img, num_parallel_calls=tf.data.AUTOTUNE)\
+        dataset = dataset.map(wrap_get_img, num_parallel_calls=12)\
             .batch(LearningConfig.batch_size)\
-            .prefetch(tf.data.AUTOTUNE)
+            .prefetch(5)
 
         # imgs_face, imgs_eyes, imgs_nose, imgs_mouth, lbls = next(iter(dataset))
         return dataset
