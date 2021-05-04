@@ -32,7 +32,8 @@ from skimage.draw import line, set_color
 
 class CustomDataset:
 
-    def create_dataset(self, file_names_face, file_names_eyes, file_names_nose, file_names_mouth, anno_names):
+    def create_dataset(self, file_names_face, file_names_eyes, file_names_nose, file_names_mouth, anno_names,
+                       is_validation=False):
 
         def get_img(file_name):
             path = bytes.decode(file_name)  # called when use dataset since dataset is generator
@@ -50,7 +51,10 @@ class CustomDataset:
             img_eyes = tf.numpy_function(get_img, [file_name_eyes], [tf.double])
             img_nose = tf.numpy_function(get_img, [file_name_nose], [tf.double])
             img_mouth = tf.numpy_function(get_img, [file_name_mouth], [tf.double])
-            lbl = tf.numpy_function(get_lbl, [anno_name], [tf.int64])
+            if is_validation:
+                lbl = tf.numpy_function(get_lbl, [anno_name], [tf.string])
+            else:
+                lbl = tf.numpy_function(get_lbl, [anno_name], [tf.int64])
             return img_face, img_eyes, img_nose, img_mouth, lbl
 
         epoch_size = len(file_names_face)

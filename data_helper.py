@@ -252,9 +252,9 @@ class DataHelper:
     def create_masked_generator_full_path(self, img_path, annotation_path, num_of_samples, label=None):
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
             self._create_image_and_labels_name_full_path(img_path=img_path,
-                                               annotation_path=annotation_path,
-                                               label=label,
-                                               num_of_samples=num_of_samples)
+                                                         annotation_path=annotation_path,
+                                                         label=label,
+                                                         num_of_samples=num_of_samples)
         '''shuffle'''
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
             shuffle(face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames)
@@ -390,13 +390,13 @@ class DataHelper:
         pn_tr_path = annotation_path
         '''create batch data and normalize images'''
         batch_face_img_filenames = face_img_filenames[
-                          batch_index * batch_size:(batch_index + 1) * batch_size]
+                                   batch_index * batch_size:(batch_index + 1) * batch_size]
         batch_eyes_img_filenames = eyes_img_filenames[
                                    batch_index * batch_size:(batch_index + 1) * batch_size]
         batch_nose_img_filenames = nose_img_filenames[
                                    batch_index * batch_size:(batch_index + 1) * batch_size]
         batch_mouth_img_filenames = mouth_img_filenames[
-                                   batch_index * batch_size:(batch_index + 1) * batch_size]
+                                    batch_index * batch_size:(batch_index + 1) * batch_size]
         batch_exp_names = exp_filenames[
                           batch_index * batch_size:(batch_index + 1) * batch_size]
         exp_batch = np.array([load(pn_tr_path + file_name) for file_name in batch_exp_names])

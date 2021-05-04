@@ -376,7 +376,8 @@ class AffectNet:
                                 file_names_eyes=eyes_img_filenames,
                                 file_names_nose=nose_img_filenames,
                                 file_names_mouth=mouth_img_filenames,
-                                anno_names=exp_filenames)
+                                anno_names=exp_filenames,
+                                is_validation=True)
 
         batch_index = 0
         for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
