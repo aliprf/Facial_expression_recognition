@@ -382,7 +382,7 @@ class AffectNet:
         batch_index = 0
         for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
             '''predict on batch'''
-            exp_batch = exp_batch[:, -1]
+            exp_gt_b = exp_gt_b[:, -1]
             global_bunch = global_bunch[:, -1, :, :]
             upper_bunch = upper_bunch[:, -1, :, :]
             middle_bunch = middle_bunch[:, -1, :, :]
