@@ -104,7 +104,7 @@ class Train:
             batch_index = 0
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''
-                print('load data...')
+                # print('load data...')
                 start_time = time.perf_counter()
                 # global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
                 # global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = ds.take(1)
@@ -118,9 +118,9 @@ class Train:
                 # [:,:,-1,:],
 
                 '''train step'''
-                print("Execution time:", time.perf_counter() - start_time)
+                # print("Execution time:", time.perf_counter() - start_time)
 
-                print('train step->')
+                # print('train step->')
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
                                                  global_bunch=global_bunch,
                                                  upper_bunch=upper_bunch,
@@ -130,7 +130,7 @@ class Train:
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
                 '''apply gradients'''
-                print('gradients->')
+                # print('gradients->')
                 if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
                     '''apply gradient'''
                     print("===============apply gradient================= ")
@@ -144,7 +144,7 @@ class Train:
                     else:
                         for i, g in enumerate(step_gradients):
                             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
-            batch_index += 1
+                batch_index += 1
             '''evaluating part'''
             global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
             '''save weights'''
