@@ -26,6 +26,7 @@ from scipy import ndimage, misc
 from data_helper import DataHelper
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
+from dataset_class import CustomDataset
 
 
 class AffectNet:
@@ -370,29 +371,28 @@ class AffectNet:
         exp_pr_lbl = []
         exp_gt_lbl = []
 
-        for batch_index in tqdm(range(step_per_epoch)):
-            global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b = dhp.get_batch_sample_masked(
-                batch_index=batch_index, img_path=self.masked_img_path,
-                annotation_path=self.anno_path,
-                exp_filenames=exp_filenames,
-                face_img_filenames=face_img_filenames,
-                eyes_img_filenames=eyes_img_filenames,
-                nose_img_filenames=nose_img_filenames,
-                mouth_img_filenames=mouth_img_filenames,
-                batch_size=batch_size)
+        cds = CustomDataset()
+        ds = cds.create_dataset(file_names_face=face_img_filenames,
+                                file_names_eyes=eyes_img_filenames,
+                                file_names_nose=nose_img_filenames,
+                                file_names_mouth=mouth_img_filenames,
+                                anno_names=exp_filenames)
 
+        batch_index = 0
+        for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
             '''predict on batch'''
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
             scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
             exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
-            print(exp_pr_b)
-            print(exp_gt_b)
-            print('================')
+
+            # print(exp_pr_b)
+            # print(exp_gt_b)
+            # print('================')
 
             exp_pr_lbl += exp_pr_b.tolist()
             exp_gt_lbl += exp_gt_b.tolist()
-
+            batch_index += 1
         exp_pr_lbl = np.float64(np.array(exp_pr_lbl))
         exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
 

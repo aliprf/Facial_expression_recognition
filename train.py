@@ -80,7 +80,7 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -104,9 +104,7 @@ class Train:
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''
                 # print('load data...')
-                start_time = time.perf_counter()
-                # global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
-                # global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = ds.take(1)
+                # start_time = time.perf_counter()
                 '''squeeze'''
                 # print('squeeze...')
                 exp_batch = exp_batch[:, -1]
@@ -183,7 +181,7 @@ class Train:
                                                                     training=True)  # todo
 
             '''calculate loss'''
-            loss_exp, accuracy = 2 * c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+            loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
                                                                num_classes=self.num_of_classes,
                                                                ds_name=DatasetName.affectnet)
             loss_face = 3 * c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
