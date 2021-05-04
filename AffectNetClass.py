@@ -397,8 +397,8 @@ class AffectNet:
             # print(exp_gt_b)
             # print('================')
 
-            exp_pr_lbl += exp_pr_b.tolist()
-            exp_gt_lbl += exp_gt_b.tolist()
+            exp_pr_lbl += np.array(exp_pr_b).tolist()
+            exp_gt_lbl += np.array(exp_gt_b).tolist()
             batch_index += 1
         exp_pr_lbl = np.float64(np.array(exp_pr_lbl))
         exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
