@@ -8,7 +8,7 @@ import math
 from datetime import datetime
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from numpy import save, load, asarray
+from numpy import save, load, asarray, savez_compressed
 import csv
 from skimage.io import imread
 import pickle
@@ -39,10 +39,12 @@ class RafDB:
             self.anno_path = RafDBConf.no_aug_train_annotation_path
             self.img_path_aug = RafDBConf.aug_train_img_path
             self.anno_path_aug = RafDBConf.aug_train_annotation_path
+            self.masked_img_path = RafDBConf.aug_train_masked_img_path
 
         elif ds_type == DatasetType.test:
             self.img_path = RafDBConf.test_img_path
             self.anno_path = RafDBConf.test_img_path
+            self.masked_img_path = RafDBConf.test_masked_img_path
 
     def create_from_orig(self, ds_type):
         """
@@ -132,7 +134,7 @@ class RafDB:
         '''calculate augmentation factor for each class:'''
         aug_factor_by_class, aug_factor_by_class_freq = dhl.calculate_augmentation_rate(
             sample_count_by_class=sample_count_by_class,
-            base_aug_factor=AffectnetConf.augmentation_factor)
+            base_aug_factor=RafDBConf.augmentation_factor)
 
         '''after we have calculated those two array, we will augment samples '''
         for i in range(len(anno_addr_by_class)):
@@ -145,3 +147,35 @@ class RafDB:
                                   anno_save_path=self.anno_path_aug,
                                   class_index=i
                                   )
+
+    def create_masked_image(self):
+        dhl = DataHelper()
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    '''load data'''
+                    lnd = np.load(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy"))
+                    img_file_name = os.path.join(self.img_path_aug, file)
+                    img = np.float32(Image.open(img_file_name)) / 255.0
+                    '''create masks'''
+                    dr_mask = np.expand_dims(dhl.create_derivative(img=img, lnd=lnd), axis=-1)
+                    au_mask = np.expand_dims(dhl.create_AU_mask(img=img, lnd=lnd), axis=-1)
+                    up_mask, mid_mask, bot_mask = dhl.create_spatial_mask(img=img, lnd=lnd)
+                    up_mask = np.expand_dims(up_mask, axis=-1)
+                    mid_mask = np.expand_dims(mid_mask, axis=-1)
+                    bot_mask = np.expand_dims(bot_mask, axis=-1)
+                    '''fuse images'''
+                    face_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                          spatial_mask=None)
+                    eyes_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                          spatial_mask=up_mask)
+                    nose_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                          spatial_mask=mid_mask)
+                    mouth_fused = dhl.create_input_bunches(img_batch=img, dr_mask_batch=dr_mask, au_mask_batch=au_mask,
+                                                           spatial_mask=bot_mask)
+                    '''save fused'''
+                    savez_compressed(self.masked_img_path + file[:-4] + "_face", face_fused)
+                    savez_compressed(self.masked_img_path + file[:-4] + "_eyes", eyes_fused)
+                    savez_compressed(self.masked_img_path + file[:-4] + "_nose", nose_fused)
+                    savez_compressed(self.masked_img_path + file[:-4] + "_mouth", mouth_fused)

@@ -50,7 +50,7 @@ class InputDataSize:
 class RafDBConf:
     _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/RAF-DB'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
+    # _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
 
     orig_annotation_txt_path = _prefix_path + '/orig/RAFDB-NEED/list_patition_label.txt'
     orig_image_path = _prefix_path + '/orig/RAFDB-NEED/aligned/'
@@ -61,11 +61,13 @@ class RafDBConf:
 
     aug_train_img_path = _prefix_path + '/train_set_aug/images/'
     aug_train_annotation_path = _prefix_path + '/train_set_aug/annotations/'
+    aug_train_masked_img_path = _prefix_path + '/train_set_aug/masked_images/'
 
     test_img_path = _prefix_path + '/test_set/images/'
     test_annotation_path = _prefix_path + '/test_set/annotations/'
+    test_masked_img_path = _prefix_path + '/eval_set/masked_images/'
 
-    augmentation_factor = 1
+    augmentation_factor = 5
 
     weight_save_path = _prefix_path + '/weight_saving_path/'
 
@@ -84,10 +86,10 @@ class AffectnetConf:
     # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
-    _prefix_path = '/media/sda/Ali/Ali_data/FER_DS/affectnet'  # --> Aq
+    # _prefix_path = '/media/sda/Ali/Ali_data/FER_DS/affectnet'  # --> Aq
     # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
-    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'
@@ -119,8 +121,6 @@ class AffectnetConf:
     '''------'''
     # revised_test_img_path = _prefix_path + '/test_set/images/'
     # revised_test_annotation_path = _prefix_path + '/test_set/annotations/'
-
-    augmentation_factor = 2
 
     weight_save_path = _prefix_path + '/weight_saving_path/'
 
