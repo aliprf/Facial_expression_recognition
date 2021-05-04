@@ -6,7 +6,7 @@ import tensorflow as tf
 # from skimage.transform import resize
 from keras.models import Model
 
-from keras.applications import mobilenet_v2, mobilenet, resnet50, densenet
+from keras.applications import mobilenet_v2, mobilenet, resnet50, densenet, resnet
 from keras.layers import Dense, MaxPooling2D, Conv2D, Flatten, \
     BatchNormalization, Activation, GlobalAveragePooling2D, DepthwiseConv2D, \
     Dropout, ReLU, Concatenate, Input, GlobalMaxPool2D, LeakyReLU, Softmax, ELU
@@ -19,6 +19,12 @@ class CNNModel:
             model = self._create_MobileNet_with_embedding(num_of_classes,
                                                           input_shape=[InputDataSize.image_input_size,
                                                                        InputDataSize.image_input_size, 5])
+
+        elif arch == 'efn-b3':
+            model = self._create_efnb3_with_embedding(num_of_classes,
+                                                      input_shape=[InputDataSize.image_input_size,
+                                                                   InputDataSize.image_input_size, 5])
+
         elif arch == 'mobileNetV2_single':
             model = self._create_MobileNet_with_embedding_single(num_of_classes,
                                                                  input_shape=[InputDataSize.image_input_size,
@@ -70,6 +76,165 @@ class CNNModel:
         model_json = revised_model.to_json()
 
         with open("./model_archs/mn_v2_cat_emb_sinle.json", "w") as json_file:
+            json_file.write(model_json)
+
+        return revised_model
+
+    def _create_efnb3_with_embedding(self, num_of_classes, input_shape):
+        _model_face = efn.EfficientNetB3(include_top=True,
+                                         weights=None,
+                                         input_tensor=None,
+                                         input_shape=input_shape,
+                                         pooling=None,
+                                         classes=num_of_classes)
+
+        _model_face.layers.pop()
+        for layer in _model_face.layers:
+            layer._name = 'face_' + layer.name
+        '''eyes'''
+        model_eyes = efn.EfficientNetB3(include_top=True,
+                                        weights=None,
+                                        input_tensor=None,
+                                        input_shape=input_shape,
+                                        pooling=None,
+                                        classes=num_of_classes)
+        model_eyes.layers.pop()
+        for layer in model_eyes.layers:
+            layer._name = 'eyes_' + layer.name
+        '''nose'''
+        model_nose = efn.EfficientNetB3(include_top=True,
+                                        weights=None,
+                                        input_tensor=None,
+                                        input_shape=input_shape,
+                                        pooling=None,
+                                        classes=num_of_classes)
+        model_nose.layers.pop()
+        for layer in model_nose.layers:
+            layer._name = 'nose_' + layer.name
+        '''mouth'''
+        model_mouth = efn.EfficientNetB3(include_top=True,
+                                         weights=None,
+                                         input_tensor=None,
+                                         input_shape=input_shape,
+                                         pooling=None,
+                                         classes=num_of_classes)
+        model_mouth.layers.pop()
+        for layer in model_mouth.layers:
+            layer._name = 'mouth_' + layer.name
+
+        # mobilenet_model_mouth.summary()
+        ''''''
+        o_relu_l_face = _model_face.get_layer('face_top_activation').output  # 1536
+        o_relu_l_eyes = model_eyes.get_layer('eyes_top_activation').output  # 1536
+        o_relu_l_nose = model_nose.get_layer('nose_top_activation').output  # 1536
+        o_relu_l_mouth = model_mouth.get_layer('mouth_top_activation').output  # 1536
+
+        '''embedding'''
+        g_x_l_face = GlobalAveragePooling2D()(o_relu_l_face)
+        x_l_face = Dropout(rate=0.3)(g_x_l_face)
+        x_l_face = Dense(LearningConfig.embedding_size * 2,
+                         kernel_regularizer=tf.keras.regularizers.l2(0.0001))(x_l_face)
+        x_l_face = BatchNormalization()(x_l_face)
+        x_l_face = Dropout(rate=0.3)(x_l_face)
+        x_l_face = ReLU()(x_l_face)
+
+        x_l_face = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+            x_l_face)  # No activation on final dense layer
+        embedding_layer_face = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            x_l_face)  # L2 normalize embeddings
+        # eyes
+        g_x_l_eyes = GlobalAveragePooling2D()(o_relu_l_eyes)
+        x_l_eyes = Dropout(rate=0.3)(g_x_l_eyes)
+        x_l_eyes = Dense(LearningConfig.embedding_size * 2,
+                         kernel_regularizer=tf.keras.regularizers.l2(0.0001))(x_l_eyes)
+        x_l_eyes = BatchNormalization()(x_l_eyes)
+        x_l_eyes = Dropout(rate=0.3)(x_l_eyes)
+        x_l_eyes = ReLU()(x_l_eyes)
+        x_l_eyes = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+            x_l_eyes)  # No activation on final dense layer
+        embedding_layer_eyes = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            x_l_eyes)  # L2 normalize embeddings
+        # nose
+        g_x_l_nose = GlobalAveragePooling2D()(o_relu_l_nose)
+        x_l_nose = Dropout(rate=0.3)(g_x_l_nose)
+        x_l_nose = Dense(LearningConfig.embedding_size * 2,
+                         kernel_regularizer=tf.keras.regularizers.l2(0.0001))(x_l_nose)
+        x_l_nose = BatchNormalization()(x_l_nose)
+        x_l_nose = Dropout(rate=0.3)(x_l_nose)
+        x_l_nose = ReLU()(x_l_nose)
+        x_l_nose = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+            x_l_nose)  # No activation on final dense layer
+        embedding_layer_nose = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            x_l_nose)  # L2 normalize embeddings
+        # mouth
+        g_x_l_mouth = GlobalAveragePooling2D()(o_relu_l_mouth)
+        x_l_mouth = Dropout(rate=0.3)(g_x_l_mouth)
+        x_l_mouth = Dense(LearningConfig.embedding_size * 2,
+                          kernel_regularizer=tf.keras.regularizers.l2(0.0001))(x_l_mouth)
+        x_l_mouth = BatchNormalization()(x_l_mouth)
+        x_l_mouth = Dropout(rate=0.3)(x_l_mouth)
+        x_l_mouth = ReLU()(x_l_mouth)
+        x_l_mouth = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+            x_l_mouth)  # No activation on final dense layer
+        embedding_layer_mouth = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            x_l_mouth)  # L2 normalize embeddings
+
+        '''concat'''
+        concat_relu = tf.keras.layers.Concatenate(axis=1)([o_relu_l_face,
+                                                           o_relu_l_eyes,
+                                                           o_relu_l_nose,
+                                                           o_relu_l_mouth])
+
+        fused_global_avg_pool = GlobalAveragePooling2D()(concat_relu)
+        x_l = Dropout(rate=0.5)(fused_global_avg_pool)
+        '''FC layer for out'''
+        x_l = Dense(LearningConfig.embedding_size,
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.3)(x_l)
+        x_l = ReLU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 2,
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.3)(x_l)
+        x_l = ReLU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 4,
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.3)(x_l)
+        x_l = ReLU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 8,
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.3)(x_l)
+        x_l = ReLU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 16,
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.3)(x_l)
+        x_l = ReLU()(x_l)
+
+        '''out'''
+        out_categorical = Dense(num_of_classes,
+                                activation='softmax',
+                                name='out')(x_l)
+
+        inp = [_model_face.input, model_eyes.input,
+               model_nose.input, model_mouth.input]
+        revised_model = Model(inp, [out_categorical,
+                                    embedding_layer_face,
+                                    embedding_layer_eyes,
+                                    embedding_layer_nose,
+                                    embedding_layer_mouth])
+        revised_model.summary()
+        '''save json'''
+        model_json = revised_model.to_json()
+
+        with open("./model_archs/efn_emb.json", "w") as json_file:
             json_file.write(model_json)
 
         return revised_model
@@ -192,19 +357,19 @@ class CNNModel:
         fused_global_avg_pool = GlobalAveragePooling2D()(concat_embeddings)
         '''FC layer for out'''
         x_l = Dense(LearningConfig.embedding_size,
-                    kernel_regularizer=tf.keras.regularizers.l2(0.0001),)(fused_global_avg_pool)
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(fused_global_avg_pool)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 2,
-                    kernel_regularizer=tf.keras.regularizers.l2(0.0001),)(x_l)
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 4,
-                    kernel_regularizer=tf.keras.regularizers.l2(0.0001),)(x_l)
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
         x_l = ELU()(x_l)
@@ -305,7 +470,7 @@ class CNNModel:
                          kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_face)
         x_l_face = BatchNormalization()(x_l_face)
         x_l_face = Dropout(rate=0.3)(x_l_face)
-        x_l_face = ELU()(x_l_face)
+        x_l_face = ReLU()(x_l_face)
 
         x_l_face = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
             x_l_face)  # No activation on final dense layer
@@ -316,7 +481,7 @@ class CNNModel:
                          kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_eyes)
         x_l_eyes = BatchNormalization()(x_l_eyes)
         x_l_eyes = Dropout(rate=0.3)(x_l_eyes)
-        x_l_eyes = ELU()(x_l_eyes)
+        x_l_eyes = ReLU()(x_l_eyes)
         x_l_eyes = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
             x_l_eyes)  # No activation on final dense layer
         embedding_layer_eyes = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
@@ -326,7 +491,7 @@ class CNNModel:
                          kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_nose)
         x_l_nose = BatchNormalization()(x_l_nose)
         x_l_nose = Dropout(rate=0.3)(x_l_nose)
-        x_l_nose = ELU()(x_l_nose)
+        x_l_nose = ReLU()(x_l_nose)
         x_l_nose = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
             x_l_nose)  # No activation on final dense layer
         embedding_layer_nose = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
@@ -336,7 +501,7 @@ class CNNModel:
                           kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_mouth)
         x_l_mouth = BatchNormalization()(x_l_mouth)
         x_l_mouth = Dropout(rate=0.3)(x_l_mouth)
-        x_l_mouth = ELU()(x_l_mouth)
+        x_l_mouth = ReLU()(x_l_mouth)
         x_l_mouth = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
             x_l_mouth)  # No activation on final dense layer
         embedding_layer_mouth = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
@@ -358,31 +523,31 @@ class CNNModel:
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001))(concat_embeddings)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
-        x_l = ELU()(x_l)
+        x_l = ReLU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size,
-                    kernel_regularizer=tf.keras.regularizers.l2(0.0001),)(x_l)
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
-        x_l = ELU()(x_l)
+        x_l = ReLU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 2,
-                    kernel_regularizer=tf.keras.regularizers.l2(0.0001),)(x_l)
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
-        x_l = ELU()(x_l)
+        x_l = ReLU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 4,
-                    kernel_regularizer=tf.keras.regularizers.l2(0.0001),)(x_l)
+                    kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
-        x_l = ELU()(x_l)
+        x_l = ReLU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 8,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
         x_l = Dropout(rate=0.3)(x_l)
-        x_l = ELU()(x_l)
+        x_l = ReLU()(x_l)
 
         '''out'''
         out_categorical = Dense(num_of_classes,
