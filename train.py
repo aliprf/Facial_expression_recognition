@@ -97,7 +97,6 @@ class Train:
         optimizer = tf.keras.optimizers.SGD(lr_schedule)
         # optimizer = tf.keras.optimizers.Adam(lr_schedule)
 
-
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
             # for batch_index in range(step_per_epoch):
