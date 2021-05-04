@@ -407,6 +407,13 @@ class AffectNet:
         conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
         conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)
 
+        ds = None
+        face_img_filenames = None
+        eyes_img_filenames = None
+        nose_img_filenames = None
+        mouth_img_filenames = None
+        exp_filenames = None
+
         return global_accuracy, conf_mat
 
     def _test_accuracy(self, model):
