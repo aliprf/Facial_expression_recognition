@@ -80,7 +80,7 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -143,11 +143,10 @@ class Train:
                             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
                 batch_index += 1
             '''evaluating part'''
-            global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+            global_accuracy, conf_mat = self._eval_model(model=model)
             '''save weights'''
             model.save(save_path + '_' + str(epoch) + '_' + self.dataset_name +
-                       '_ACglob-' + str(global_accuracy) +
-                       '_ACavg-' + str(avg_accuracy) +
+                       '_AC_' + str(global_accuracy) +
                        '.h5')
 
             '''calculate Learning rate'''
@@ -221,7 +220,7 @@ class Train:
                 affn = AffectNet(ds_type=DatasetType.eval)
             else:
                 affn = AffectNet(ds_type=DatasetType.eval_7)
-            global_accuracy, avg_accuracy, acc_per_label, conf_mat = affn.test_accuracy(model=model)
+            global_accuracy, conf_mat = affn.test_accuracy(model=model)
 
         # else:
         #     predictions = model(img_batch_eval)
@@ -231,13 +230,9 @@ class Train:
         #     acc = accuracy_score(pn_batch_eval, predicted_lbls)
         print("================== Total Accuracy =====================")
         print(global_accuracy)
-        print("================== Average Accuracy =====================")
-        print(avg_accuracy)
-        print("==== per Label :")
-        print(acc_per_label)
         print("================== Confusion Matrix =====================")
         print(conf_mat)
-        return global_accuracy, avg_accuracy, acc_per_label, conf_mat
+        return global_accuracy, conf_mat
 
     def make_model(self, arch, w_path):
         cnn = CNNModel()
