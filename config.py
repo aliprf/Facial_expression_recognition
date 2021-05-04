@@ -33,10 +33,10 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 35
+    batch_size = 25
     # batch_size = 30
     # batch_size = 3
-    virtual_batch_size = 210
+    virtual_batch_size = 150
     epochs = 250
     # expression_output_len = 8 # we generated five classes
     embedding_size = 256
