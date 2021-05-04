@@ -61,5 +61,5 @@ class CustomLosses:
         # tr_loss_nose = triplet_loss_obj(y_true=y_gt, y_pred=embedding_layer_nose)
         # tr_loss_mouth = triplet_loss_obj(y_true=y_gt, y_pred=embedding_layer_mouth)
 
-        return 10 * loss, accuracy
+        return loss, accuracy
         # return 10 * loss_cross_entropy

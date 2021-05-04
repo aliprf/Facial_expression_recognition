@@ -183,10 +183,10 @@ class Train:
             loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
                                                                num_classes=self.num_of_classes,
                                                                ds_name=DatasetName.affectnet)
-            loss_face = 3 * c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
-            loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
-            loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
-            loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
+            loss_face = 300 * c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
+            loss_eyes = 100 * c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
+            loss_nose = 100 * c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
+            loss_mouth = 100 * c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
             loss_total = loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
