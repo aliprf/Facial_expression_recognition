@@ -73,7 +73,6 @@ class CustomDataset:
         dataset = dataset.map(wrap_get_img, num_parallel_calls=32)\
             .batch(LearningConfig.batch_size)\
             .prefetch(10)
-
         # imgs_face, imgs_eyes, imgs_nose, imgs_mouth, lbls = next(iter(dataset))
         return dataset
 

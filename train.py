@@ -97,13 +97,17 @@ class Train:
         optimizer = tf.keras.optimizers.SGD(lr_schedule)
         # optimizer = tf.keras.optimizers.Adam(lr_schedule)
 
+
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            for batch_index in range(step_per_epoch):
+            # for batch_index in range(step_per_epoch):
+            batch_index = 0
+            for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''
                 print('load data...')
                 start_time = time.perf_counter()
-                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
+                # global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = next(iter(ds))
+                # global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = ds.take(1)
                 '''squeeze'''
                 # print('squeeze...')
                 exp_batch = exp_batch[:, -1]
@@ -140,7 +144,7 @@ class Train:
                     else:
                         for i, g in enumerate(step_gradients):
                             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
-
+            batch_index += 1
             '''evaluating part'''
             global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
             '''save weights'''
