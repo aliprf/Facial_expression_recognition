@@ -399,7 +399,7 @@ class AffectNet:
         global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
         conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl, normalize='all')
 
-        return global_accuracy, 0, 0, conf_mat
+        return global_accuracy, conf_mat
 
     def _test_accuracy(self, model):
         """"""
