@@ -382,6 +382,12 @@ class AffectNet:
         batch_index = 0
         for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
             '''predict on batch'''
+            exp_batch = exp_batch[:, -1]
+            global_bunch = global_bunch[:, -1, :, :]
+            upper_bunch = upper_bunch[:, -1, :, :]
+            middle_bunch = middle_bunch[:, -1, :, :]
+            bottom_bunch = bottom_bunch[:, -1, :, :]
+
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
             scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
