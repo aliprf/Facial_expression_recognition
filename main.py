@@ -13,7 +13,7 @@ if __name__ == '__main__':
     dhl = DataHelper()
 
     '''<><><><><><><>AffectNet<><><><><><><>'''
-    affect_net = AffectNet(ds_type=DatasetType.eval_7)
+    affect_net = AffectNet(ds_type=DatasetType.train_7)
     '''create from the original data'''
     '''7 labels'''
     # affect_net.read_csv(ds_name=DatasetName.affectnet, ds_type=DatasetType.train_7, FLD_model_file_name='./ds_136_ef.h5', is_7=True)
@@ -38,20 +38,20 @@ if __name__ == '__main__':
     '''<><><><><><><>RAF-DB<><><><><><><>'''
     '''[1290.  281.  717. 4772. 1982.  705. 2524.]'''
     raf_db = RafDB(ds_type=DatasetType.train)
-    raf_db.create_from_orig(ds_type=DatasetType.train)
-    raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
-    raf_db.upsample_data()
-    raf_db.create_masked_image()
-
-    raf_db = RafDB(ds_type=DatasetType.test)
-    raf_db.create_masked_image()
+    # raf_db.create_from_orig(ds_type=DatasetType.train)
+    # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
+    # raf_db.upsample_data()
+    # raf_db.create_masked_image()
+    #
+    # raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db.create_masked_image()
 
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train"""
-    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
-    # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
+    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='mobileNetV2', weight_path=None)
     #
     """train online"""

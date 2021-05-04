@@ -41,6 +41,8 @@ surprise  [117  63   145  148 11  0  14]
 fear      [ 75  22   226  110 36  0  27]
 disgust   [ 60  39   230  11  3  10 143]
 anger     [101  22   182  4   1   1 187]]
+
+neutral happy sad surprise fear disgust anger
 '''
 
 class TrainOnline:

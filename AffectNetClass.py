@@ -397,7 +397,7 @@ class AffectNet:
         exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
 
         global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
-        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
+        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl, normalize='all')
 
         return global_accuracy, 0, 0, conf_mat
 

@@ -88,7 +88,7 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 5e-4
+        _lr = 1e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
@@ -183,7 +183,9 @@ class Train:
                                                                     training=True)  # todo
 
             '''calculate loss'''
-            loss_exp = 2 * c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp, num_classes=self.num_of_classes)
+            loss_exp, accuracy = 2 * c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+                                                               num_classes=self.num_of_classes,
+                                                               ds_name=DatasetName.affectnet)
             loss_face = 3 * c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
@@ -195,6 +197,7 @@ class Train:
         # optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
+                 ' -> : accuracy: ', accuracy,
                  ' -> : loss_total: ', loss_total,
                  ' -> : loss_exp: ', loss_exp,
                  ' -> : loss_face: ', loss_face,

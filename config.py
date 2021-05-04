@@ -36,11 +36,9 @@ class LearningConfig:
     batch_size = 70
     # batch_size = 30
     # batch_size = 3
-    virtual_batch_size = 150
+    virtual_batch_size = 210
     epochs = 250
-    velocity_output_len = 6 # we generated five classes
     # expression_output_len = 8 # we generated five classes
-    expression_output_len_shrunk = 4 # we generated 4 classes
     embedding_size = 256
 
 
@@ -72,8 +70,6 @@ class RafDBConf:
     weight_save_path = _prefix_path + '/weight_saving_path/'
 
 
-
-
 class AffectnetConf:
     """"""
     '''atlas'''
@@ -86,10 +82,10 @@ class AffectnetConf:
     # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
-    # _prefix_path = '/media/sda/Ali/Ali_data/FER_DS/affectnet'  # --> Aq
+    _prefix_path = '/media/sda/Ali/Ali_data/FER_DS/affectnet'  # --> Aq
     # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
+    # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 
     orig_csv_train_path = _prefix_path + '/orig/training.csv'
     orig_csv_evaluate_path = _prefix_path + '/orig/validation.csv'
