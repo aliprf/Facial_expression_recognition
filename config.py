@@ -63,7 +63,7 @@ class RafDBConf:
 
     test_img_path = _prefix_path + '/test_set/images/'
     test_annotation_path = _prefix_path + '/test_set/annotations/'
-    test_masked_img_path = _prefix_path + '/eval_set/masked_images/'
+    test_masked_img_path = _prefix_path + '/test_set/masked_images/'
 
     augmentation_factor = 5
 
