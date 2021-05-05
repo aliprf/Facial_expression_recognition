@@ -185,11 +185,6 @@ class RafDB:
 
     def test_accuracy(self, model):
         dhp = DataHelper()
-        if self.ds_type == DatasetType.eval:
-            num_lbls = 8
-        else:
-            num_lbls = 7
-
         batch_size = LearningConfig.batch_size
         exp_pr_glob = []
         exp_gt_glob = []
@@ -213,7 +208,7 @@ class RafDB:
                                 is_validation=False)
 
         batch_index = 0
-        for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
+        for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in tqdm(ds):
             '''predict on batch'''
             exp_gt_b = exp_gt_b[:, -1]
             global_bunch = global_bunch[:, -1, :, :]
@@ -226,9 +221,9 @@ class RafDB:
             scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
             exp_pr_b = np.array([np.argmax(scores_b[i])+1 for i in range(len(probab_exp_pr_b))])
 
-            print(exp_pr_b)
-            print(exp_gt_b)
-            print('================')
+            # print(exp_pr_b)
+            # print(exp_gt_b)
+            # print('================')
 
             exp_pr_lbl += np.array(exp_pr_b).tolist()
             exp_gt_lbl += np.array(exp_gt_b).tolist()
