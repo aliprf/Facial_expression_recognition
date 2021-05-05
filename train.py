@@ -71,8 +71,8 @@ class Train:
         '''create save path'''
         if self.dataset_name == DatasetName.affectnet:
             save_path = AffectnetConf.weight_save_path + start_train_date + '/'
-        # elif self.dataset_name == DatasetName.:
-        #     save_path = '/media/data2/alip/HM_WEIGHTs/wflw/efn_1d/11_april/'
+        elif self.dataset_name == DatasetName.rafdb:
+            save_path = RafDBConf.weight_save_path + start_train_date + '/'
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
