@@ -27,6 +27,7 @@ from data_helper import DataHelper
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from shutil import copyfile
+from dataset_class import CustomDataset
 
 
 class RafDB:
@@ -181,3 +182,70 @@ class RafDB:
                     savez_compressed(self.masked_img_path + file[:-4] + "_eyes", eyes_fused)
                     savez_compressed(self.masked_img_path + file[:-4] + "_nose", nose_fused)
                     savez_compressed(self.masked_img_path + file[:-4] + "_mouth", mouth_fused)
+
+    def test_accuracy(self, model):
+        dhp = DataHelper()
+        if self.ds_type == DatasetType.eval:
+            num_lbls = 8
+        else:
+            num_lbls = 7
+
+        batch_size = LearningConfig.batch_size
+        exp_pr_glob = []
+        exp_gt_glob = []
+        acc_per_label = []
+        '''create batches'''
+        face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
+            dhp.create_masked_generator_full_path(
+                img_path=self.masked_img_path,
+                annotation_path=self.anno_path, label=None, num_of_samples=None)
+        print(len(face_img_filenames))
+        step_per_epoch = int(len(face_img_filenames) // batch_size)
+        exp_pr_lbl = []
+        exp_gt_lbl = []
+
+        cds = CustomDataset()
+        ds = cds.create_dataset(file_names_face=face_img_filenames,
+                                file_names_eyes=eyes_img_filenames,
+                                file_names_nose=nose_img_filenames,
+                                file_names_mouth=mouth_img_filenames,
+                                anno_names=exp_filenames,
+                                is_validation=True)
+
+        batch_index = 0
+        for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
+            '''predict on batch'''
+            exp_gt_b = exp_gt_b[:, -1]
+            global_bunch = global_bunch[:, -1, :, :]
+            upper_bunch = upper_bunch[:, -1, :, :]
+            middle_bunch = middle_bunch[:, -1, :, :]
+            bottom_bunch = bottom_bunch[:, -1, :, :]
+
+            probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
+                                                                  middle_bunch, bottom_bunch])
+            scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+            exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+
+            # print(exp_pr_b)
+            # print(exp_gt_b)
+            # print('================')
+
+            exp_pr_lbl += np.array(exp_pr_b).tolist()
+            exp_gt_lbl += np.array(exp_gt_b).tolist()
+            batch_index += 1
+        exp_pr_lbl = np.float64(np.array(exp_pr_lbl))
+        exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
+
+        global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
+        # conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
+        conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)
+
+        ds = None
+        face_img_filenames = None
+        eyes_img_filenames = None
+        nose_img_filenames = None
+        mouth_img_filenames = None
+        exp_filenames = None
+
+        return global_accuracy, conf_mat
+

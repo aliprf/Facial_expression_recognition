@@ -18,6 +18,7 @@ import pickle
 from sklearn.metrics import accuracy_score
 import os
 from AffectNetClass import AffectNet
+from RafdbClass import RafDB
 import time
 
 
@@ -90,7 +91,7 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -225,12 +226,17 @@ class Train:
         '''first we need to create the 4 bunch here: '''
 
         '''for Affectnet, we need to calculate accuracy of each label and then total avg accuracy:'''
+        global_accuracy = 0
+        conf_mat = []
         if self.dataset_name == DatasetName.affectnet:
             if self.ds_type == DatasetType.train:
                 affn = AffectNet(ds_type=DatasetType.eval)
             else:
                 affn = AffectNet(ds_type=DatasetType.eval_7)
             global_accuracy, conf_mat = affn.test_accuracy(model=model)
+        if self.dataset_name == DatasetName.rafdb:
+            rafdb = RafDB(ds_type=DatasetType.test)
+            global_accuracy, conf_mat = rafdb.test_accuracy(model=model)
 
         # else:
         #     predictions = model(img_batch_eval)
