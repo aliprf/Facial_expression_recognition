@@ -44,6 +44,8 @@ class RafDB:
         elif ds_type == DatasetType.test:
             self.img_path = RafDBConf.test_img_path
             self.anno_path = RafDBConf.test_img_path
+            self.img_path_aug = RafDBConf.test_img_path
+            self.anno_path_aug = RafDBConf.test_img_path
             self.masked_img_path = RafDBConf.test_masked_img_path
 
     def create_from_orig(self, ds_type):
