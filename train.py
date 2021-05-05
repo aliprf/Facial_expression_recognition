@@ -1,4 +1,4 @@
-from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, DatasetType
+from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, DatasetType, RafDBConf
 from cnn_model import CNNModel
 from custom_loss import CustomLosses
 from data_helper import DataHelper
@@ -25,7 +25,17 @@ class Train:
     def __init__(self, dataset_name, ds_type):
         self.dataset_name = dataset_name
         self.ds_type = ds_type
-        if dataset_name == DatasetName.affectnet:
+        if dataset_name == DatasetName.rafdb:
+            self.img_path = RafDBConf.aug_train_img_path
+            self.annotation_path = RafDBConf.aug_train_annotation_path
+            self.masked_img_path = RafDBConf.aug_train_masked_img_path
+            self.val_img_path = RafDBConf.test_img_path
+            self.val_annotation_path = RafDBConf.test_annotation_path
+            self.eval_masked_img_path = RafDBConf.test_masked_img_path
+            self.num_of_classes = 7
+            self.num_of_samples = None
+
+        elif dataset_name == DatasetName.affectnet:
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.aug_train_img_path
                 self.annotation_path = AffectnetConf.aug_train_annotation_path

@@ -29,6 +29,10 @@ class CustomLosses:
         if ds_name == DatasetName.affectnet:
             # neutral happy sad surprise fear disgust anger
             weight_map = [2, 1, 3, 5, 7, 10, 3]
+        elif ds_name == DatasetName.rafdb:
+            # Surprise Fear Disgust Happiness Sadness Anger Neutral
+            # [1290.  281.  717. 4772. 1982.  705. 2524.]
+            weight_map = [3, 6, 4, 1, 2, 4, 2]
 
         # loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=False,
         #                                                       reduction=tf.keras.losses.Reduction.NONE)

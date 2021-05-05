@@ -668,8 +668,8 @@ class DataHelper:
             file_names = os.listdir(img_path)
         else:
             print('reading list -->')
-            # file_names = tqdm(os.listdir(img_path))
-            file_names = os.listdir(img_path)
+            file_names = tqdm(os.listdir(img_path))
+            # file_names = os.listdir(img_path)
             print('<-')
 
         for file in file_names:

@@ -43,18 +43,26 @@ if __name__ == '__main__':
     # raf_db.upsample_data()
     # raf_db.create_masked_image()
     #
-    raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
-    raf_db.create_masked_image()
+    # raf_db.create_masked_image()
 
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train"""
+    '''affectNet'''
     # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
     # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='efn-b3', weight_path=None)
     #
+    '''rafdb'''
+    trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
+    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
+    # trainer.train(arch='efn-b3', weight_path=None)
+    #
+
     """train online"""
     # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
