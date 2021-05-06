@@ -91,7 +91,7 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, conf_mat = self._eval_model(model=model)
+        # global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -139,19 +139,19 @@ class Train:
                                                  summary_writer=summary_writer)
                 '''apply gradients'''
                 # print('gradients->')
-                if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
-                    '''apply gradient'''
-                    print("===============apply gradient================= ")
-                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                    gradients = None
-                else:
-                    '''accumulate gradient'''
-                    if gradients is None:
-                        gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
-                                     step_gradients]
-                    else:
-                        for i, g in enumerate(step_gradients):
-                            gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
+                # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
+                #     '''apply gradient'''
+                #     print("===============apply gradient================= ")
+                #     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                #     gradients = None
+                # else:
+                #     '''accumulate gradient'''
+                #     if gradients is None:
+                #         gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
+                #                      step_gradients]
+                #     else:
+                #         for i, g in enumerate(step_gradients):
+                #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
                 batch_index += 1
             '''evaluating part'''
             global_accuracy, conf_mat = self._eval_model(model=model)
@@ -202,7 +202,7 @@ class Train:
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
-        # optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
+        optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
                  ' -> : accuracy: ', accuracy,

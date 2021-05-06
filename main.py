@@ -47,10 +47,10 @@ if __name__ == '__main__':
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
 
-    raf_db = RafDB(ds_type=DatasetType.train)
-    raf_db.relabel()
-    raf_db = RafDB(ds_type=DatasetType.test)
-    raf_db.relabel()
+    # raf_db = RafDB(ds_type=DatasetType.train)
+    # raf_db.relabel()
+    # raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db.relabel()
 
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
