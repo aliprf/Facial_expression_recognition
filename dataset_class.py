@@ -57,7 +57,7 @@ class CustomDataset:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [val_type])
             else:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [tf.int64])
-            return img_face, img_eyes, img_nose, img_mouth, lbl
+            return img_face, img_eyes, img_nose, img_mouth, tf.int64(lbl)
 
         epoch_size = len(file_names_face)
 
