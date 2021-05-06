@@ -151,6 +151,16 @@ class RafDB:
                                   class_index=i
                                   )
 
+    def relabel(self):
+        dhl = DataHelper()
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    lbl = np.float64(np.load(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")))
+                    lbl = lbl - 1
+                    save(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy"), lbl)
+
     def create_masked_image(self):
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
