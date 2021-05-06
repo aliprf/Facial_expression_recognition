@@ -91,7 +91,7 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -99,7 +99,7 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 5e-3
+        _lr = 1e-3
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
@@ -234,9 +234,9 @@ class Train:
             else:
                 affn = AffectNet(ds_type=DatasetType.eval_7)
             global_accuracy, conf_mat = affn.test_accuracy(model=model)
-        # if self.dataset_name == DatasetName.rafdb:
-        #     rafdb = RafDB(ds_type=DatasetType.test)
-        #     global_accuracy, conf_mat = rafdb.test_accuracy(model=model)
+        if self.dataset_name == DatasetName.rafdb:
+            rafdb = RafDB(ds_type=DatasetType.test)
+            global_accuracy, conf_mat = rafdb.test_accuracy(model=model)
 
         # else:
         #     predictions = model(img_batch_eval)
