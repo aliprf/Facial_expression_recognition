@@ -57,13 +57,13 @@ if __name__ == '__main__':
 
     """train"""
     '''affectNet'''
-    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
-    # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
+    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    trainer.train(arch='mobileNetV2', weight_path='././last_6_may_55.h5')
     # trainer.train(arch='efn-b3', weight_path=None)
     #
     '''rafdb'''
-    trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='efn-b3', weight_path=None)
     #

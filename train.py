@@ -99,7 +99,7 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 1e-3
+        _lr = 1e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
@@ -161,20 +161,20 @@ class Train:
                        '.h5')
 
             '''calculate Learning rate'''
-            _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-6, max_lr=1e-2)
+            _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=5e-3)
             optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""
         '''reducing triangle'''
-        cycle = np.floor(1 + iterations / (2 * step_size))
-        x = np.abs(iterations / step_size - 2 * cycle + 1)
-        lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) / float(2 ** (cycle - 1))
-
-        '''exp'''
         # cycle = np.floor(1 + iterations / (2 * step_size))
         # x = np.abs(iterations / step_size - 2 * cycle + 1)
-        # lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) * gamma ** iterations
+        # lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) / float(2 ** (cycle - 1))
+
+        '''exp'''
+        cycle = np.floor(1 + iterations / (2 * step_size))
+        x = np.abs(iterations / step_size - 2 * cycle + 1)
+        lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) * gamma ** iterations
 
         print('LR is: ' + str(lr))
         return lr
