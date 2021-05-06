@@ -158,7 +158,7 @@ class RafDB:
                 if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
                         and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
                     lbl = np.int64(np.load(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")))
-                    lbl = lbl - 1
+                    lbl = lbl + 1
                     save(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy"), lbl)
 
     def create_masked_image(self):
