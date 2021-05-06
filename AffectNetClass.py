@@ -400,8 +400,8 @@ class AffectNet:
             exp_pr_lbl += np.array(exp_pr_b).tolist()
             exp_gt_lbl += np.array(exp_gt_b).tolist()
             batch_index += 1
-        exp_pr_lbl = np.float64(np.array(exp_pr_lbl))
-        exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
+        exp_pr_lbl = np.int64(np.array(exp_pr_lbl))
+        exp_gt_lbl = np.int64(np.array(exp_gt_lbl))
 
         global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
         # conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
