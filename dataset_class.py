@@ -33,7 +33,7 @@ from skimage.draw import line, set_color
 class CustomDataset:
 
     def create_dataset(self, file_names_face, file_names_eyes, file_names_nose, file_names_mouth, anno_names,
-                       is_validation=False):
+                       is_validation=False, val_type=None):
 
         def get_img(file_name):
             path = bytes.decode(file_name)  # called when use dataset since dataset is generator
@@ -51,8 +51,10 @@ class CustomDataset:
             img_eyes = tf.numpy_function(get_img, [file_name_eyes], [tf.double])
             img_nose = tf.numpy_function(get_img, [file_name_nose], [tf.double])
             img_mouth = tf.numpy_function(get_img, [file_name_mouth], [tf.double])
-            if is_validation:
+            if is_validation and val_type is None:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [tf.string])
+            elif is_validation:
+                lbl = tf.numpy_function(get_lbl, [anno_name], [val_type])
             else:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [tf.int64])
             return img_face, img_eyes, img_nose, img_mouth, lbl
