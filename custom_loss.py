@@ -46,7 +46,7 @@ class CustomLosses:
         loss = y_gt_oh * tf.math.log(y_pred) * weight_map
         loss = tf.reduce_mean(-tf.reduce_sum(loss))
 
-        accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh)) * 100.0
+        accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
         # y_gt = tf.one_hot(y_gt, depth=num_classes)
         # loss_object = tfa.losses.SigmoidFocalCrossEntropy(reduction=tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE)
@@ -65,5 +65,5 @@ class CustomLosses:
         # tr_loss_nose = triplet_loss_obj(y_true=y_gt, y_pred=embedding_layer_nose)
         # tr_loss_mouth = triplet_loss_obj(y_true=y_gt, y_pred=embedding_layer_mouth)
 
-        return loss, accuracy
+        return 5*loss, accuracy
         # return 10 * loss_cross_entropy

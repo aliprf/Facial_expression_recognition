@@ -105,8 +105,8 @@ class Train:
             decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
             decay_rate=1,
             staircase=False)
-        optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        # optimizer = tf.keras.optimizers.Adam(lr_schedule)
+        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        optimizer = tf.keras.optimizers.Adam(lr_schedule)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
@@ -161,8 +161,8 @@ class Train:
                        '.h5')
 
             '''calculate Learning rate'''
-            # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=1e-2)
-            # optimizer = self._get_optimizer(lr=_lr)
+            _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-6, max_lr=1e-2)
+            optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""
@@ -192,12 +192,12 @@ class Train:
 
             '''calculate loss'''
             loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
-                                                               num_classes=self.num_of_classes,
-                                                               ds_name=DatasetName.affectnet)
-            loss_face = 300 * c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
-            loss_eyes = 100 * c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
-            loss_nose = 100 * c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
-            loss_mouth = 100 * c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
+                                                           num_classes=self.num_of_classes,
+                                                           ds_name=DatasetName.affectnet)
+            loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
+            loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
+            loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
+            loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
             loss_total = loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)

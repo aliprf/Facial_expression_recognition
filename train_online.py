@@ -34,13 +34,14 @@ disgust     [ 156   75    42    11   2   0   206   0] 5
 anger       [ 182   25    29    9    2   0   240   0] 28
 contempt    [ 180   270   6     3    1   0   33    0] 5
 
-neutral   [[256  25  185  10  1   0  21]
-happy     [ 26  421  41   5   0   0   4]
-sad       [ 72  17   377  6   2   0  23]
-surprise  [117  63   145  148 11  0  14]
-fear      [ 75  22   226  110 36  0  27]
-disgust   [ 60  39   230  11  3  10 143]
-anger     [101  22   182  4   1   1 187]]
+ neutral    [250  37 113  16   2  18  64]
+ happy      [ 26 428  15   8   0  14   9]
+ sad        [ 71  13 305   8   3  30  70]
+ surprise   [ 81  56  81 195  25  46  16]
+ fear       [ 50  13 131  72 142  48  44]
+ disgust    [ 38  34  72   7   4 218 127]
+ anger      [ 77  10  66   4   4  82 257]
+
 
 neutral happy sad surprise fear disgust anger
 '''
