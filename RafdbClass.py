@@ -59,18 +59,21 @@ class RafDB:
         if ds_type == DatasetType.train:
             txt_path = RafDBConf.orig_annotation_txt_path
             load_img_path = RafDBConf.orig_image_path
+            load_bbox_path = RafDBConf.orig_bounding_box
             save_img_path = RafDBConf.no_aug_train_img_path
             save_anno_path = RafDBConf.no_aug_train_annotation_path
             prefix = 'train'
         elif ds_type == DatasetType.test:
             txt_path = RafDBConf.orig_annotation_txt_path
             load_img_path = RafDBConf.orig_image_path
+            load_bbox_path = RafDBConf.orig_bounding_box
             save_img_path = RafDBConf.test_img_path
             save_anno_path = RafDBConf.test_annotation_path
             prefix = 'test'
 
         '''read the text file, and save exp, and image'''
         file1 = open(txt_path, 'r')
+        dhl = DataHelper()
         while True:
             line = file1.readline()
             if not line:
@@ -78,14 +81,15 @@ class RafDB:
             f_name = line.split(' ')[0]
             if prefix not in f_name: continue
 
-            img_source_address = load_img_path + f_name[:-4] + '_aligned.jpg'
+            img_source_address = load_img_path + f_name[:-4] + '.jpg'
             img_dest_address = save_img_path + f_name
-            exp = int(line.split(' ')[1])
-            '''padd, resize image and save'''
+
+            exp = int(line.split(' ')[1]) - 1
             img = np.array(Image.open(img_source_address))
-            # padd
-            # fix_pad = int(InputDataSize.image_input_size * 0.05)
-            # img = np.pad(img, ((fix_pad, fix_pad), (fix_pad, fix_pad), (0, 0)), 'symmetric')
+
+            '''padd, resize image and save'''
+            x_min, y_min, x_max, y_max = self.get_bounding_box(load_bbox_path + f_name[:-4] + '_boundingbox.txt')
+            img = dhl.crop_image_bbox(img, x_min, y_min, x_max, y_max)
             '''resize'''
             res_img = resize(img, (InputDataSize.image_input_size, InputDataSize.image_input_size, 3),
                              anti_aliasing=True)
@@ -105,6 +109,46 @@ class RafDB:
                                                       anno_path=self.anno_path, file=file,
                                                       model=model,
                                                       test_print=test_print)
+    def get_bounding_box(self, file_name):
+        file1 = open(file_name, 'r')
+        line = file1.readline()
+        x_min, y_min, x_max, y_max = line.split(' ')[0:4]
+        file1.close()
+        return int(float(x_min)), int(float(y_min)), int(float(x_max)), int(float(y_max))
+
+    def upsample_data_fix_rate(self):
+        '''[1290.  281.  717. 4772. 1982.  705. 2524.]'''
+
+        dhl = DataHelper()
+        ''''''
+        aug_factor_by_class = [2, 8, 5, 2, 3, 5, 3]
+        sample_count_by_class = np.zeros([7])
+        img_addr_by_class = [[] for i in range(7)]
+        anno_addr_by_class = [[] for i in range(7)]
+        lnd_addr_by_class = [[] for i in range(7)]
+
+        for i, file in tqdm(enumerate(os.listdir(self.anno_path))):
+            if file.endswith("_exp.npy"):
+                exp = int(np.load(os.path.join(self.anno_path, file)))
+                sample_count_by_class[exp] += 1
+                '''adding ex'''
+                anno_addr_by_class[exp].append(os.path.join(self.anno_path, file))
+                img_addr_by_class[exp].append(os.path.join(self.img_path, file[:-8] + '.jpg'))
+                lnd_addr_by_class[exp].append(os.path.join(self.anno_path, file[:-8] + '_slnd.npy'))
+
+        print("sample_count_by_category: ====>>")
+        print(sample_count_by_class)
+
+        for i in range(len(anno_addr_by_class)):
+            dhl.do_random_augment(img_addrs=img_addr_by_class[i],
+                                  anno_addrs=anno_addr_by_class[i],
+                                  lnd_addrs=lnd_addr_by_class[i],
+                                  aug_factor=aug_factor_by_class[i],
+                                  aug_factor_freq=None,
+                                  img_save_path=self.img_path_aug,
+                                  anno_save_path=self.anno_path_aug,
+                                  class_index=i
+                                  )
 
     def upsample_data(self):
         """we generate some samples so that all classes will have equal number of training samples"""

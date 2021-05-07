@@ -831,7 +831,7 @@ class DataHelper:
         plt.scatter(x=landmarks_x[:], y=landmarks_y[:], c='#fddb3a', s=8)
         plt.axis('off')
         plt.tight_layout(pad=0)
-        plt.savefig('z_' + img_name + '.png')
+        plt.savefig('z_' + img_name + '.png', bbox_inches='tight', dpi=100, pad_inches=0)
         plt.clf()
 
     def create_synthesized_landmarks_path(self, img_path, anno_path, file, model, test_print):
@@ -1258,6 +1258,17 @@ class DataHelper:
         t_label = self.relabel_ds(t_label)
 
         return img, t_label
+
+    def crop_image_bbox(self, img,  x_min, y_min, x_max, y_max):
+        # rand_padd = 0
+        rand_padd = random.randint(1, 5) * img.shape[0]/100
+
+        xmin = int(max(0, x_min - rand_padd))
+        xmax = int(x_max + rand_padd)
+        ymin = int(max(0, y_min - rand_padd - 5))
+        ymax = int(y_max + rand_padd)
+        croped_img = img[ymin:ymax, xmin:xmax]
+        return croped_img
 
     def _crop_image(self, img, annotation):
         # rand_padd = random.randint(1, 5) * img.shape[0]/100

@@ -125,6 +125,8 @@ class Train:
                 bottom_bunch = bottom_bunch[:, -1, :, :]
                 # [:,:,-1,:],
 
+                self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
+
                 '''train step'''
                 # print("Execution time:", time.perf_counter() - start_time)
 
@@ -162,7 +164,8 @@ class Train:
 
             '''calculate Learning rate'''
             _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=5e-3)
-            optimizer = self._get_optimizer(lr=_lr)
+            optimizer = tf.keras.optimizers.Adam(lr_schedule)
+            # optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""
@@ -269,3 +272,18 @@ class Train:
                 grads_or_idx_slices.dense_shape
             )
         return grads_or_idx_slices
+
+    def test_print_batch(self, global_bunch, upper_bunch, middle_bunch, bottom_bunch, _index):
+        dhl = DataHelper()
+        global_bunch = np.array(global_bunch)
+        upper_bunch = np.array(upper_bunch)
+        middle_bunch = np.array(middle_bunch)
+        bottom_bunch = np.array(bottom_bunch)
+
+        bs = np.array(global_bunch).shape[0]
+        for i in range(bs):
+            dhl.test_image_print(img_name=str(_index) + '_g_img', img=middle_bunch[i, :, :, :3], landmarks=[])
+            dhl.test_image_print(img_name=str(_index) + '_g_au', img=middle_bunch[i,:, :, 3], landmarks=[], cmap='gray')
+            dhl.test_image_print(img_name=str(_index) + '_g_dr', img=middle_bunch[i,:, :, 4], landmarks=[], cmap='gray')
+        pass
+

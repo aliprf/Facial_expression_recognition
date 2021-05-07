@@ -34,9 +34,9 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 70
+    # batch_size = 70
     # batch_size = 30
-    # batch_size = 3
+    batch_size = 3
     virtual_batch_size = 350
     epochs = 250
     # expression_output_len = 8 # we generated five classes
@@ -52,7 +52,8 @@ class RafDBConf:
     # _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
 
     orig_annotation_txt_path = _prefix_path + '/orig/RAFDB-NEED/list_patition_label.txt'
-    orig_image_path = _prefix_path + '/orig/RAFDB-NEED/aligned/'
+    orig_image_path = _prefix_path + '/orig/RAFDB-NEED/original/'
+    orig_bounding_box = _prefix_path + '/orig/RAFDB-NEED/boundingbox/'
 
     '''only 7 labels'''
     no_aug_train_img_path = _prefix_path + '/train_set/images/'

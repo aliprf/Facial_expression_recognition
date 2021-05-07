@@ -71,16 +71,9 @@ class CustomDataset:
         dataset = tf.data.Dataset.from_tensor_slices((file_names_face, file_names_eyes, file_names_nose,
                                                       file_names_mouth, anno_names))
         dataset = dataset.shuffle(epoch_size)
-        # dataset = dataset.batch(LearningConfig.batch_size).map(wrap_get_img).prefetch(tf.data.AUTOTUNE)
-
-        # dataset = dataset.map(wrap_get_img, num_parallel_calls=tf.data.AUTOTUNE)\
-        #     .batch(LearningConfig.batch_size)\
-        #     .prefetch(tf.data.AUTOTUNE)
-
         dataset = dataset.map(wrap_get_img, num_parallel_calls=32)\
             .batch(LearningConfig.batch_size)\
             .prefetch(10)
-        # imgs_face, imgs_eyes, imgs_nose, imgs_mouth, lbls = next(iter(dataset))
         return dataset
 
     # def create_dataset(self, imgs_path, annotations_path):
