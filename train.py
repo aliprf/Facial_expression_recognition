@@ -99,7 +99,7 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 1e-4
+        _lr = 3e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
@@ -110,7 +110,6 @@ class Train:
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            # for batch_index in range(step_per_epoch):
             batch_index = 0
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''
@@ -163,8 +162,8 @@ class Train:
                        '.h5')
 
             '''calculate Learning rate'''
-            _lr = self.calc_learning_rate(iterations=epoch, step_size=7, base_lr=5e-6, max_lr=1e-4)
-            optimizer = tf.keras.optimizers.SGD(lr_schedule)
+            # _lr = self.calc_learning_rate(iterations=epoch, step_size=7, base_lr=5e-6, max_lr=1e-4)
+            # optimizer = tf.keras.optimizers.SGD(lr_schedule)
             # optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
