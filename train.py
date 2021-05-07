@@ -105,8 +105,8 @@ class Train:
             decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
             decay_rate=1,
             staircase=False)
-        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        optimizer = tf.keras.optimizers.Adam(lr_schedule)
+        optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        # optimizer = tf.keras.optimizers.Adam(lr_schedule)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
@@ -125,7 +125,7 @@ class Train:
                 bottom_bunch = bottom_bunch[:, -1, :, :]
                 # [:,:,-1,:],
 
-                self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
+                # self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
 
                 '''train step'''
                 # print("Execution time:", time.perf_counter() - start_time)
@@ -163,8 +163,8 @@ class Train:
                        '.h5')
 
             '''calculate Learning rate'''
-            _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=5e-3)
-            optimizer = tf.keras.optimizers.Adam(lr_schedule)
+            _lr = self.calc_learning_rate(iterations=epoch, step_size=7, base_lr=5e-6, max_lr=1e-4)
+            optimizer = tf.keras.optimizers.SGD(lr_schedule)
             # optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):

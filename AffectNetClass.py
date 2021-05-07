@@ -413,6 +413,10 @@ class AffectNet:
         nose_img_filenames = None
         mouth_img_filenames = None
         exp_filenames = None
+        global_bunch = None
+        upper_bunch = None
+        middle_bunch = None
+        bottom_bunch = None
 
         return global_accuracy, conf_mat
 
