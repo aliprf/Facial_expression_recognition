@@ -99,10 +99,10 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 3e-4
+        _lr = 8e-5
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
-            decay_steps=step_per_epoch * 50,  # will be 0.5 every 5 10
+            decay_steps=step_per_epoch * 15,  # will be 0.5 every 5 10
             decay_rate=1,
             staircase=False)
         optimizer = tf.keras.optimizers.SGD(lr_schedule)
@@ -193,13 +193,18 @@ class Train:
                                                                     training=True)  # todo
 
             '''calculate loss'''
+            '''CE loss'''
             loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
                                                            num_classes=self.num_of_classes,
                                                            ds_name=DatasetName.affectnet)
+            '''embedding loss'''
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
+            '''correlation loss'''
+            # c_loss.correlation_loss(exp_gt=anno_exp, exp_v=exp_pr, face_fv=emb_face, eye_fv=emb_eyes, nose_fv=emb_nose, mouth_fv=emb_mouth)
+            '''total:'''
             loss_total = loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)

@@ -28,6 +28,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from dataset_class import CustomDataset
 
+'''   
+neutral  [287  27  99  22   8  35  22]
+happy    [ 40 406  13  18   1  22   0]
+sad      [ 74  10 317   7  11  62  19]
+surprise [ 80  39  55 229  53  42   2]
+fear     [ 32  11  89  77 213  63  15]
+disgust  [ 31  24  64  11   9 322  39]
+anger    [ 86   9  62  12   9 152 170]]
+'''
 
 class AffectNet:
     def __init__(self, ds_type):
