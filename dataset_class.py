@@ -39,7 +39,7 @@ class CustomDataset:
         def get_img(file_name):
             path = bytes.decode(file_name)  # called when use dataset since dataset is generator
             img = load(path)['arr_0']
-            if tf.random.uniform([]) <= 0.6:
+            if is_validation or tf.random.uniform([]) <= 0.6:
                 return img
 
             '''split'''
