@@ -28,16 +28,37 @@ from scipy import ndimage, misc
 from skimage.transform import SimilarityTransform, AffineTransform
 from skimage.draw import rectangle
 from skimage.draw import line, set_color
-
+from tf_augmnetation import TFAugmentation
 
 class CustomDataset:
 
     def create_dataset(self, file_names_face, file_names_eyes, file_names_nose, file_names_mouth, anno_names,
                        is_validation=False):
+        tf_aug = TFAugmentation()
 
         def get_img(file_name):
             path = bytes.decode(file_name)  # called when use dataset since dataset is generator
             img = load(path)['arr_0']
+            if tf.random.uniform([]) <= 0.6:
+                return img
+
+            '''split'''
+            img_main = img[:, :, :3]
+            # img_mask = img[:, :, 3:]
+            img_mask_1 = tf.image.grayscale_to_rgb(tf.expand_dims(img[:, :, 3], axis=2))
+            img_mask_2 = tf.image.grayscale_to_rgb(tf.expand_dims(img[:, :, 4], axis=2))
+            '''main image'''
+            img_main = tf_aug.color(img_main)
+            img_main = tf_aug.random_invert_img(img_main)
+            '''masks'''
+            img_mask_1 = tf_aug.random_invert_img(img_mask_1, p=0.2)
+            img_mask_1 = tf.image.rgb_to_grayscale(tf_aug.color(img_mask_1))
+            #
+            img_mask_2 = tf_aug.random_invert_img(img_mask_2, p=0.5)
+            img_mask_2 = tf.image.rgb_to_grayscale(tf_aug.color(img_mask_2))
+            ''''''
+            # img = tf.concat([img_main, img_mask], axis=2)
+            img = tf.concat([img_main, img_mask_1, img_mask_2], axis=2)
             return img
 
         def get_lbl(anno_name):

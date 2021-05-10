@@ -57,7 +57,7 @@ class CustomLosses:
         if ds_name == DatasetName.affectnet:
             # neutral happy sad surprise fear disgust anger
             # weight_map = [2, 1, 3, 5, 7, 10, 3]
-            weight_map = [3, 1, 1, 5, 5, 1, 7]
+            weight_map = [5, 1, 3, 8, 7, 10, 9]
         elif ds_name == DatasetName.rafdb:
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717. 4772. 1982.  705. 2524.]

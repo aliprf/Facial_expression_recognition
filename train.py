@@ -1,3 +1,4 @@
+import tf_augmnetation
 from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, DatasetType, RafDBConf
 from cnn_model import CNNModel
 from custom_loss import CustomLosses
@@ -20,7 +21,7 @@ import os
 from AffectNetClass import AffectNet
 from RafdbClass import RafDB
 import time
-
+from tf_augmnetation import TFAugmentation
 
 class Train:
     def __init__(self, dataset_name, ds_type):
@@ -99,14 +100,14 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 8e-5
+        _lr = 5e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
-            decay_steps=step_per_epoch * 15,  # will be 0.5 every 5 10
+            decay_steps=step_per_epoch * 20,  # will be 0.5 every 5 10
             decay_rate=1,
             staircase=False)
-        optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        # optimizer = tf.keras.optimizers.Adam(lr_schedule)
+        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        optimizer = tf.keras.optimizers.Adam(lr_schedule)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
@@ -286,8 +287,8 @@ class Train:
 
         bs = np.array(global_bunch).shape[0]
         for i in range(bs):
-            dhl.test_image_print(img_name=str(_index) + '_g_img', img=middle_bunch[i, :, :, :3], landmarks=[])
-            dhl.test_image_print(img_name=str(_index) + '_g_au', img=middle_bunch[i,:, :, 3], landmarks=[], cmap='gray')
-            dhl.test_image_print(img_name=str(_index) + '_g_dr', img=middle_bunch[i,:, :, 4], landmarks=[], cmap='gray')
+            dhl.test_image_print(img_name=str(_index*i+1) + '_g_img', img=global_bunch[i, :, :, :3], landmarks=[])
+            dhl.test_image_print(img_name=str(_index*i+1) + '_g_au', img=global_bunch[i,:, :, 3], landmarks=[], cmap='gray')
+            dhl.test_image_print(img_name=str(_index*i+1) + '_g_dr', img=global_bunch[i,:, :, 4], landmarks=[], cmap='gray')
         pass
 
