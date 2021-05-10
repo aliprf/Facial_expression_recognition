@@ -70,7 +70,7 @@ class CustomLosses:
 
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
-        return 5 * loss, accuracy
+        return 0.01*5 * loss, accuracy
 
     def cross_entropy_loss(self, y_gt, y_pr, num_classes, ds_name):
         y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
