@@ -65,12 +65,14 @@ class CustomLosses:
         # clip
         y_pred = K.clip(y_pred, K.epsilon(), 1)
         # calc
-        loss = y_gt_oh * tf.math.log(y_pred) * weight_map
-        loss = tf.reduce_mean(-tf.reduce_sum(loss))
+        loss = -tf.reduce_mean(y_gt_oh * tf.math.log(y_pred) * weight_map)
+
+        # loss = y_gt_oh * tf.math.log(y_pred) * weight_map
+        # loss = tf.reduce_mean(-tf.reduce_sum(loss))
 
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
-        return 0.01*5 * loss, accuracy
+        return 10 * loss, accuracy
 
     def cross_entropy_loss(self, y_gt, y_pr, num_classes, ds_name):
         y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
