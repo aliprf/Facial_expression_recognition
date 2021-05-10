@@ -56,7 +56,8 @@ class CustomLosses:
 
     def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat):
         y_pred_sparse = np.array([np.argmax(y_pr[i]) for i in range(len(y_pr))])
-        weight_map = np.array([conf_mat[y_gt[i], y_pred_sparse[i]] for i in range(len(y_pred_sparse))])
+        # weight_map = np.array([conf_mat[y_gt[i], y_pred_sparse[i]] for i in range(len(y_pred_sparse))])
+        weight_map = np.array([conf_mat[y_gt[i], :] for i in range(len(y_pred_sparse))])
 
         y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
         y_pred = y_pr
