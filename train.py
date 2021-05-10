@@ -23,6 +23,7 @@ from RafdbClass import RafDB
 import time
 from tf_augmnetation import TFAugmentation
 
+
 class Train:
     def __init__(self, dataset_name, ds_type):
         self.dataset_name = dataset_name
@@ -92,7 +93,8 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
+        # conf_mat = np.ones([7,7])
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -138,7 +140,8 @@ class Train:
                                                  bottom_bunch=bottom_bunch,
                                                  anno_exp=exp_batch,
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
-                                                 summary_writer=summary_writer)
+                                                 summary_writer=summary_writer,
+                                                 conf_mat=conf_mat)
                 '''apply gradients'''
                 # print('gradients->')
                 # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
@@ -184,7 +187,7 @@ class Train:
 
     def train_step(self, epoch, step, total_steps, model,
                    global_bunch, upper_bunch, middle_bunch, bottom_bunch,
-                   anno_exp, optimizer, summary_writer, c_loss):
+                   anno_exp, optimizer, summary_writer, c_loss, conf_mat):
         with tf.GradientTape() as tape:
             '''create annotation_predicted'''
             # annotation_predicted = model(images, training=True)
@@ -195,9 +198,12 @@ class Train:
 
             '''calculate loss'''
             '''CE loss'''
-            loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
-                                                           num_classes=self.num_of_classes,
-                                                           ds_name=DatasetName.affectnet)
+            loss_exp, accuracy = c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr, y_gt=anno_exp,
+                                                                             num_classes=self.num_of_classes,
+                                                                             conf_mat=conf_mat)
+            # loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+            #                                                num_classes=self.num_of_classes,
+            #                                                ds_name=self.dataset_name)
             '''embedding loss'''
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
@@ -287,8 +293,9 @@ class Train:
 
         bs = np.array(global_bunch).shape[0]
         for i in range(bs):
-            dhl.test_image_print(img_name=str(_index*i+1) + '_g_img', img=global_bunch[i, :, :, :3], landmarks=[])
-            dhl.test_image_print(img_name=str(_index*i+1) + '_g_au', img=global_bunch[i,:, :, 3], landmarks=[], cmap='gray')
-            dhl.test_image_print(img_name=str(_index*i+1) + '_g_dr', img=global_bunch[i,:, :, 4], landmarks=[], cmap='gray')
+            dhl.test_image_print(img_name=str(_index * i + 1) + '_g_img', img=global_bunch[i, :, :, :3], landmarks=[])
+            dhl.test_image_print(img_name=str(_index * i + 1) + '_g_au', img=global_bunch[i, :, :, 3], landmarks=[],
+                                 cmap='gray')
+            dhl.test_image_print(img_name=str(_index * i + 1) + '_g_dr', img=global_bunch[i, :, :, 4], landmarks=[],
+                                 cmap='gray')
         pass
-

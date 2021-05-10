@@ -36,6 +36,15 @@ surprise [ 80  39  55 229  53  42   2]
 fear     [ 32  11  89  77 213  63  15]
 disgust  [ 31  24  64  11   9 322  39]
 anger    [ 86   9  62  12   9 152 170]]
+
+         [314   4  27  77  10   4  64]
+         [ 72 324   8  66   4  11  15]
+         [116   3 229  36  18  11  87]
+         [ 62  12  17 339  39   9  22]
+         [ 41   6  59 139 191   7  57]
+         [ 65  12  41  38  13 119 212]
+         [ 89   2  15  35   7  10 342]]
+         
 '''
 
 class AffectNet:
@@ -481,7 +490,7 @@ class AffectNet:
         avg_accuracy = np.mean(np.array(acc_per_label))
         global_accuracy = accuracy_score(exp_gt_glob, exp_pr_glob)
         '''calculate confusion matrix'''
-        conf_mat = confusion_matrix(exp_gt_glob, exp_pr_glob)
+        conf_mat = confusion_matrix(exp_gt_glob, exp_pr_glob)/500
         '''clean memory '''
         exp_pr_glob = None
         exp_gt_glob = None
