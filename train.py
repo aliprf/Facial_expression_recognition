@@ -102,7 +102,7 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 5e-3
+        _lr = 5e-4
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
             decay_steps=step_per_epoch * 30,  # will be 0.5 every 5 10
