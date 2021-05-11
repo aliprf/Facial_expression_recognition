@@ -258,9 +258,9 @@ class RafDB:
     def test_accuracy(self, model):
         dhp = DataHelper()
         batch_size = LearningConfig.batch_size
-        exp_pr_glob = []
-        exp_gt_glob = []
-        acc_per_label = []
+        # exp_pr_glob = []
+        # exp_gt_glob = []
+        # acc_per_label = []
         '''create batches'''
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
             dhp.create_masked_generator_full_path(
@@ -300,8 +300,8 @@ class RafDB:
         exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
 
         global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
-        # conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
-        conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)
+        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
+        # conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)
 
         ds = None
         face_img_filenames = None
