@@ -29,7 +29,16 @@ from sklearn.metrics import confusion_matrix
 from shutil import copyfile
 from dataset_class import CustomDataset
 
+'''
+[[ 26   3  33 188  55  17   7]
+ [  2   3  11  17  33   3   5]
+ [ 22   3  42   5   3  54  31]
+ [122 747 109  84  18  96   9]
+ [ 62   9 301  24  30  36  16]
+ [  5   5   6   9   8  63  66]
+ [410   8 110  55  18  27  52]]
 
+'''
 class RafDB:
     def __init__(self, ds_type):
         """we set the parameters needed during the whole class:
@@ -214,13 +223,13 @@ class RafDB:
                                   )
 
     def relabel(self):
-        dhl = DataHelper()
+        affectnet_like_lbls = [3, 4, 5, 1, 2, 6, 0]
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
                 if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
                         and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
                     lbl = np.int64(np.load(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")))
-                    lbl = lbl - 1
+                    lbl = affectnet_like_lbls[lbl]
                     save(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy"), lbl)
 
     def create_masked_image(self):
