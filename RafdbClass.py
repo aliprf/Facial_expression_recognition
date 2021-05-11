@@ -123,12 +123,17 @@ class RafDB:
             if file.endswith("_exp.npy"):
                 exp = np.load(os.path.join(self.anno_path_aug, file))
                 sample_count_by_class[exp] += 1
+                print(exp)
         print("sample_count_by_category: ====>>")
         print(sample_count_by_class)
 
 
     def upsample_data_fix_rate(self):
-        '''[1290.  281.  717. 4772. 1982.  705. 2524.]'''
+        """ [1290.  281.  717.  4772.   1982.  705.  2524.]
+            Augmentation: sample_count_by_category: ====>>
+            [2,      8,     5,    2,      3,    5,     3] + 1 which i original
+           [3870.  2529.  4302. 14316.  7928.  4230. 10096.] => 47271
+        """
 
         dhl = DataHelper()
         ''''''
@@ -285,10 +290,6 @@ class RafDB:
                                                                   middle_bunch, bottom_bunch])
             scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
             exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
-
-            print(exp_pr_b)
-            print(exp_gt_b)
-            print('================')
 
             exp_pr_lbl += np.array(exp_pr_b).tolist()
             exp_gt_lbl += np.array(exp_gt_b).tolist()

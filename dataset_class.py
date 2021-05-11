@@ -33,7 +33,7 @@ from tf_augmnetation import TFAugmentation
 class CustomDataset:
 
     def create_dataset(self, file_names_face, file_names_eyes, file_names_nose, file_names_mouth, anno_names,
-                       is_validation=False):
+                       is_validation=False, ds=DatasetName.affectnet):
         tf_aug = TFAugmentation()
 
         def get_img(file_name):
@@ -72,13 +72,12 @@ class CustomDataset:
             img_eyes = tf.numpy_function(get_img, [file_name_eyes], [tf.double])
             img_nose = tf.numpy_function(get_img, [file_name_nose], [tf.double])
             img_mouth = tf.numpy_function(get_img, [file_name_mouth], [tf.double])
-            # if is_validation and val_type is None:
-            #     lbl = tf.numpy_function(get_lbl, [anno_name], [tf.string])
-            if is_validation:
+
+            if is_validation and ds == DatasetName.affectnet:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [tf.string])
             else:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [tf.int64])
-            # lbl = tf.int64(lbl)
+
             return img_face, img_eyes, img_nose, img_mouth, lbl
 
         epoch_size = len(file_names_face)
