@@ -116,6 +116,17 @@ class RafDB:
         file1.close()
         return int(float(x_min)), int(float(y_min)), int(float(x_max)), int(float(y_max))
 
+    def report(self):
+        dhl = DataHelper()
+        sample_count_by_class = np.zeros([7])
+        for i, file in tqdm(enumerate(os.listdir(self.anno_path_aug))):
+            if file.endswith("_exp.npy"):
+                exp = np.load(os.path.join(self.anno_path_aug, file))
+                sample_count_by_class[exp] += 1
+        print("sample_count_by_category: ====>>")
+        print(sample_count_by_class)
+
+
     def upsample_data_fix_rate(self):
         '''[1290.  281.  717. 4772. 1982.  705. 2524.]'''
 
