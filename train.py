@@ -102,14 +102,14 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 5e-4
+        _lr = 5e-3
         lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
             _lr,
-            decay_steps=step_per_epoch * 20,  # will be 0.5 every 5 10
+            decay_steps=step_per_epoch * 30,  # will be 0.5 every 5 10
             decay_rate=1,
             staircase=False)
         # optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        optimizer = tf.keras.optimizers.Adam(lr_schedule)
+        optimizer = tf.keras.optimizers.Adam(lr_schedule, decay=1e-7)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
@@ -127,7 +127,7 @@ class Train:
                 bottom_bunch = bottom_bunch[:, -1, :, :]
                 # [:,:,-1,:],
 
-                # self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
+                self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
 
                 '''train step'''
                 # print("Execution time:", time.perf_counter() - start_time)

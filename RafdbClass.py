@@ -126,6 +126,7 @@ class RafDB:
                 sample_count_by_class[exp] += 1
                 print(exp, end="-")
         print("sample_count_by_category: ====>>")
+        '''testset : [ 329.   74.  160. 1185.  478.  162.  680.]'''
         print(sample_count_by_class)
 
 
