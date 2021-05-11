@@ -123,7 +123,7 @@ class RafDB:
             if file.endswith("_exp.npy"):
                 exp = np.load(os.path.join(self.anno_path_aug, file))
                 sample_count_by_class[exp] += 1
-                print(exp)
+                print(exp, end="-")
         print("sample_count_by_category: ====>>")
         print(sample_count_by_class)
 
