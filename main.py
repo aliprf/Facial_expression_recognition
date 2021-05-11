@@ -47,10 +47,10 @@ if __name__ == '__main__':
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
 
-    raf_db = RafDB(ds_type=DatasetType.train)
-    raf_db.relabel()
-    raf_db = RafDB(ds_type=DatasetType.test)
-    raf_db.relabel()
+    # raf_db = RafDB(ds_type=DatasetType.train)
+    # raf_db.relabel()
+    # raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db.relabel()
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.report()
     '''<><><><><><><>FERPLUS<><><><><><><>'''
@@ -65,8 +65,8 @@ if __name__ == '__main__':
     # trainer.train(arch='efn-b3', weight_path=None)
     #
     '''rafdb'''
-    # trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
-    # trainer.train(arch='mobileNetV2', weight_path='./last_11_60.h5')
+    trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
+    trainer.train(arch='mobileNetV2', weight_path='./last_11_60.h5')
 
     # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='efn-b3', weight_path=None)
