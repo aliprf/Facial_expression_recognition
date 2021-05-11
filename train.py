@@ -294,9 +294,7 @@ class Train:
 
         bs = np.array(global_bunch).shape[0]
         for i in range(bs):
-            dhl.test_image_print(img_name=str(_index * i + 1) + '_g_img', img=global_bunch[i, :, :, :3], landmarks=[])
-            dhl.test_image_print(img_name=str(_index * i + 1) + '_g_au', img=global_bunch[i, :, :, 3], landmarks=[],
-                                 cmap='gray')
-            dhl.test_image_print(img_name=str(_index * i + 1) + '_g_dr', img=global_bunch[i, :, :, 4], landmarks=[],
-                                 cmap='gray')
+            dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_img', img=global_bunch[i, :, :, :3], landmarks=[])
+            dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_au', img=global_bunch[i, :, :, 3], landmarks=[])
+            dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_dr', img=global_bunch[i, :, :, 4], landmarks=[])
         pass
