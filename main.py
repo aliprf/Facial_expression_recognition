@@ -51,6 +51,7 @@ if __name__ == '__main__':
     # raf_db.relabel()
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.relabel()
+    raf_db = RafDB(ds_type=DatasetType.test)
     raf_db.report()
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''

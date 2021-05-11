@@ -122,6 +122,7 @@ class RafDB:
         for i, file in tqdm(enumerate(os.listdir(self.anno_path_aug))):
             if file.endswith("_exp.npy"):
                 exp = np.load(os.path.join(self.anno_path_aug, file))
+                # exp = np.load(os.path.join(self.anno_path_aug, file))
                 sample_count_by_class[exp] += 1
                 print(exp, end="-")
         print("sample_count_by_category: ====>>")
