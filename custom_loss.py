@@ -69,14 +69,15 @@ class CustomLosses:
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717.    4772.   1982.  705.   2524.]
             # [3870.  2529.  4302. 14316.   7928.  4230. 10096.]
+            # relabel aff: 680 1185 478 329 74 160 162
             fixed_weight_map = [
-                [3, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), 6, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), 4, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 2, K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 5, K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 2]]
+                [2, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), 3, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), 4, K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 10, K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 8, K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 8]]
 
         conf_mat = conf_mat * (1 - np.identity(7, dtype=np.float))
         global_weight_map = fixed_weight_map + conf_mat
