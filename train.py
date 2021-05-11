@@ -94,7 +94,7 @@ class Train:
                                 anno_names=exp_filenames)
 
         global_accuracy, conf_mat = self._eval_model(model=model)
-        # conf_mat = np.ones([7,7])
+        # conf_mat = np.random.rand(7,7)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -200,6 +200,7 @@ class Train:
             '''CE loss'''
             loss_exp, accuracy = c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr, y_gt=anno_exp,
                                                                              num_classes=self.num_of_classes,
+                                                                             ds_name=self.dataset_name,
                                                                              conf_mat=conf_mat)
             # loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
             #                                                num_classes=self.num_of_classes,

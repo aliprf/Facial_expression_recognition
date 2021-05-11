@@ -54,25 +54,59 @@ class CustomLosses:
         tr_loss = triplet_loss_obj(y_true=y_gt, y_pred=y_pr)
         return tr_loss
 
-    def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat):
-        y_pred_sparse = np.array([np.argmax(y_pr[i]) for i in range(len(y_pr))])
-        # weight_map = np.array([conf_mat[y_gt[i], y_pred_sparse[i]] for i in range(len(y_pred_sparse))])
-        weight_map = np.array([conf_mat[y_gt[i], :] for i in range(len(y_pred_sparse))])
+    def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat, ds_name):
+        if ds_name == DatasetName.affectnet:
+            # neutral happy sad surprise fear disgust anger
+            fixed_weight_map = [
+                [2, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), 3, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), 5, K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 7, K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 10, K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 4]]
+        elif ds_name == DatasetName.rafdb:
+            # Surprise Fear Disgust Happiness Sadness Anger Neutral
+            # [1290.  281.  717. 4772. 1982.  705. 2524.]
+            fixed_weight_map = [3, 6, 4, 1, 2, 4, 2]
 
+        conf_mat = conf_mat * (1 - np.identity(7, dtype=np.float))
+        global_weight_map = fixed_weight_map + conf_mat
+
+        weight_map = np.array([global_weight_map[y_gt[i], :] for i in range(len(y_gt))])
+
+        '''calculate loss'''
         y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
         y_pred = y_pr
         y_pred /= tf.reduce_sum(y_pred, axis=-1, keepdims=True)
-        # clip
         y_pred = K.clip(y_pred, K.epsilon(), 1)
-        # calc
-        loss = -10.0*tf.reduce_mean(y_gt_oh * tf.math.log(y_pred) * weight_map)
+        categorical_loss = -(y_gt_oh * tf.math.log(y_pred) * weight_map)
+        loss_reg = (1 - y_gt_oh) * tf.abs(y_gt_oh - y_pred) * weight_map
 
-        # loss = y_gt_oh * tf.math.log(y_pred) * weight_map
-        # loss = tf.reduce_mean(-tf.reduce_sum(loss))
-
-        accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))*100.0
+        loss = 10 * tf.reduce_mean(categorical_loss + loss_reg)
+        accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh)) * 100.0
 
         return 5.0 * loss, accuracy
+
+    # def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat):
+    #     y_pred_sparse = np.array([np.argmax(y_pr[i]) for i in range(len(y_pr))])
+    #     # weight_map = np.array([conf_mat[y_gt[i], y_pred_sparse[i]] for i in range(len(y_pred_sparse))])
+    #     weight_map = np.array([conf_mat[y_gt[i], :] for i in range(len(y_pred_sparse))])
+    #
+    #     y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
+    #     y_pred = y_pr
+    #     y_pred /= tf.reduce_sum(y_pred, axis=-1, keepdims=True)
+    #     # clip
+    #     y_pred = K.clip(y_pred, K.epsilon(), 1)
+    #     # calc
+    #     loss = -10.0*tf.reduce_mean(y_gt_oh * tf.math.log(y_pred) * weight_map)
+    #
+    #     # loss = y_gt_oh * tf.math.log(y_pred) * weight_map
+    #     # loss = tf.reduce_mean(-tf.reduce_sum(loss))
+    #
+    #     accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))*100.0
+    #
+    #     return 5.0 * loss, accuracy
 
     def cross_entropy_loss(self, y_gt, y_pr, num_classes, ds_name):
         y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
@@ -94,8 +128,7 @@ class CustomLosses:
         # clip
         y_pred = K.clip(y_pred, K.epsilon(), 1)
         # calc
-        loss = y_gt_oh * tf.math.log(y_pred) * weight_map
-        loss = tf.reduce_mean(-tf.reduce_sum(loss))
+        loss = -10.0 * tf.reduce_mean(y_gt_oh * tf.math.log(y_pred) * weight_map)
 
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
@@ -111,5 +144,5 @@ class CustomLosses:
         # loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         # loss_cross_entropy = loss_object(y_gt, y_pr)
 
-        return 0.01*5*loss, accuracy
+        return 5*loss, accuracy
         # return 10 * loss_cross_entropy
