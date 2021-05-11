@@ -93,8 +93,8 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, conf_mat = self._eval_model(model=model)
-        conf_mat = np.random.rand(7,7)
+        global_accuracy, conf_mat = self._eval_model(model=model)
+        # conf_mat = np.random.rand(7,7)
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -127,7 +127,7 @@ class Train:
                 bottom_bunch = bottom_bunch[:, -1, :, :]
                 # [:,:,-1,:],
 
-                self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
+                # self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
 
                 '''train step'''
                 # print("Execution time:", time.perf_counter() - start_time)

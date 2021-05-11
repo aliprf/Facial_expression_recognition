@@ -66,7 +66,7 @@ if __name__ == '__main__':
     #
     '''rafdb'''
     trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
-    trainer.train(arch='mobileNetV2', weight_path='./last_11_may_56.h5')
+    trainer.train(arch='mobileNetV2', weight_path='./last_11_60.h5')
 
     # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='efn-b3', weight_path=None)
