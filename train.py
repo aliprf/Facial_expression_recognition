@@ -93,8 +93,10 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, conf_mat = self._eval_model(model=model)
-        # conf_mat = np.random.rand(7,7)
+        if weight_path is not None:
+            global_accuracy, conf_mat = self._eval_model(model=model)
+        else:
+            conf_mat = np.ones_like([7*7])
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -102,23 +104,23 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         # '''create optimizer'''
-        # _lr = 1e-3
-        # lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-        #     _lr,
-        #     decay_steps=step_per_epoch * 15,  # will be 0.5 every 5 10
-        #     decay_rate=1,
-        #     staircase=False)
-        # # optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        # optimizer = tf.keras.optimizers.Adam(lr_schedule, decay=1e-6)
+        _lr = 1e-3
+        lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
+            _lr,
+            decay_steps=step_per_epoch * 15,  # will be 0.5 every 5 10
+            decay_rate=1,
+            staircase=False)
+        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        optimizer = tf.keras.optimizers.Adam(lr_schedule, decay=1e-6)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
             batch_index = 0
 
             '''calculate Learning rate'''
-            _lr = self.calc_learning_rate(iterations=epoch, step_size=5, base_lr=5e-5, max_lr=5e-3)
-            # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-4, max_lr=1e-2)
-            optimizer = tf.keras.optimizers.Adam(_lr)
+            # _lr = self.calc_learning_rate(iterations=epoch, step_size=5, base_lr=5e-5, max_lr=5e-3)
+            # # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-4, max_lr=1e-2)
+            # optimizer = tf.keras.optimizers.Adam(_lr)
 
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''

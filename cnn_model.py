@@ -24,6 +24,10 @@ class CNNModel:
             model = self._create_efnb3_with_embedding(num_of_classes,
                                                       input_shape=[InputDataSize.image_input_size,
                                                                    InputDataSize.image_input_size, 5])
+        elif arch == 'efn-b0':
+            model = self._create_efnb0_with_embedding(num_of_classes,
+                                                      input_shape=[InputDataSize.image_input_size,
+                                                                   InputDataSize.image_input_size, 5])
 
         elif arch == 'mobileNetV2_single':
             model = self._create_MobileNet_with_embedding_single(num_of_classes,
@@ -76,6 +80,177 @@ class CNNModel:
         model_json = revised_model.to_json()
 
         with open("./model_archs/mn_v2_cat_emb_sinle.json", "w") as json_file:
+            json_file.write(model_json)
+
+        return revised_model
+
+    def _create_efnb0_with_embedding(self, num_of_classes, input_shape):
+        model_face = efn.EfficientNetB0(
+            input_shape=input_shape,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        model_face.layers.pop()
+
+        '''eyes'''
+        model_eyes = efn.EfficientNetB0(
+            input_shape=input_shape,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        model_eyes.layers.pop()
+
+        '''nose'''
+        model_nose = efn.EfficientNetB0(
+            input_shape=input_shape,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        model_nose.layers.pop()
+
+        '''mouth'''
+        model_mouth = efn.EfficientNetB0(
+            input_shape=input_shape,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        model_mouth.layers.pop()
+
+        for layer in model_face.layers:
+            layer._name = 'face_' + layer.name
+        for layer in model_eyes.layers:
+            layer._name = 'eyes_' + layer.name
+        for layer in model_nose.layers:
+            layer._name = 'nose_' + layer.name
+        for layer in model_mouth.layers:
+            layer._name = 'mouth_' + layer.name
+
+        # mobilenet_model_mouth.summary()
+        ''''''
+        # o_relu_l_face = model_face.get_layer('face_top_activation').output  # 1280
+        # o_relu_l_eyes = model_eyes.get_layer('eyes_top_activation').output  # 1280
+        # o_relu_l_nose = model_nose.get_layer('nose_top_activation').output  # 1280
+        # o_relu_l_mouth = model_mouth.get_layer('mouth_top_activation').output  # 1280
+
+        g_x_l_face = model_face.get_layer('face_avg_pool').output  # 1280
+        g_x_l_eyes = model_eyes.get_layer('eyes_avg_pool').output  # 1280
+        g_x_l_nose = model_nose.get_layer('nose_avg_pool').output  # 1280
+        g_x_l_mouth = model_mouth.get_layer('mouth_avg_pool').output  # 1280
+
+        '''embedding'''
+        # g_x_l_face = GlobalAveragePooling2D()(o_relu_l_face)
+        # x_l_face = Dense(LearningConfig.embedding_size * 2,
+        #                  kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_face)
+        # x_l_face = BatchNormalization()(x_l_face)
+        # x_l_face = Dropout(rate=0.2)(x_l_face)
+        # x_l_face = ReLU()(x_l_face)
+
+        x_l_face = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+            g_x_l_face)  # No activation on final dense layer
+        embedding_layer_face = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            x_l_face)  # L2 normalize embeddings
+
+        '''eyes'''
+        # g_x_l_eyes = GlobalAveragePooling2D()(o_relu_l_eyes)
+        # x_l_eyes = Dense(LearningConfig.embedding_size * 2,
+        #                  kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_eyes)
+        # x_l_eyes = BatchNormalization()(x_l_eyes)
+        # x_l_eyes = Dropout(rate=0.2)(x_l_eyes)
+        # x_l_eyes = ReLU()(x_l_eyes)
+        # x_l_eyes = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+        #     x_l_eyes)  # No activation on final dense layer
+        embedding_layer_eyes = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            g_x_l_eyes)  # L2 normalize embeddings
+
+        '''nose'''
+        # g_x_l_nose = GlobalAveragePooling2D()(o_relu_l_nose)
+        # x_l_nose = Dense(LearningConfig.embedding_size * 2,
+        #                  kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_nose)
+        # x_l_nose = BatchNormalization()(x_l_nose)
+        # x_l_nose = Dropout(rate=0.2)(x_l_nose)
+        # x_l_nose = ReLU()(x_l_nose)
+        x_l_nose = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+            g_x_l_nose)  # No activation on final dense layer
+        embedding_layer_nose = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            x_l_nose)  # L2 normalize embeddings
+        '''mouth'''
+        # g_x_l_mouth = GlobalAveragePooling2D()(o_relu_l_mouth)
+        # x_l_mouth = Dense(LearningConfig.embedding_size * 2,
+        #                   kernel_regularizer=tf.keras.regularizers.l2(0.0001))(g_x_l_mouth)
+        # x_l_mouth = BatchNormalization()(x_l_mouth)
+        # x_l_mouth = Dropout(rate=0.3)(x_l_mouth)
+        # x_l_mouth = ReLU()(x_l_mouth)
+        # x_l_mouth = tf.keras.layers.Dense(LearningConfig.embedding_size, activation=None)(
+        #     x_l_mouth)  # No activation on final dense layer
+        embedding_layer_mouth = tf.keras.layers.Lambda(lambda x: tf.math.l2_normalize(x, axis=1))(
+            g_x_l_mouth)  # L2 normalize embeddings
+
+        '''concat'''
+        fused_global_avg_pool = tf.keras.layers.Concatenate(axis=1)([g_x_l_face,
+                                                                     g_x_l_eyes,
+                                                                     g_x_l_nose,
+                                                                     g_x_l_mouth])
+
+        # fused_global_avg_pool = tf.keras.layers.Add()([g_x_l_face,
+        #                                                g_x_l_eyes,
+        #                                                g_x_l_nose,
+        #                                                g_x_l_mouth])
+
+        # concat_embeddings = tf.keras.layers.Concatenate(axis=1)([o_relu_l_face,
+        #                                                          o_relu_l_eyes,
+        #                                                          o_relu_l_nose,
+        #                                                          o_relu_l_mouth])
+
+        # fused_global_avg_pool = GlobalAveragePooling2D()(concat_embeddings)
+
+        '''FC layer for out'''
+        # x_l = Dense(LearningConfig.embedding_size)(fused_global_avg_pool)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = Dropout(rate=0.2)(x_l)
+        # x_l = ReLU()(x_l)
+        #
+        # x_l = Dense(LearningConfig.embedding_size // 2)(x_l)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = Dropout(rate=0.2)(x_l)
+        # x_l = ReLU()(x_l)
+        #
+        # x_l = Dense(LearningConfig.embedding_size // 4)(x_l)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = Dropout(rate=0.2)(x_l)
+        # x_l = ReLU()(x_l)
+        #
+        # x_l = Dense(LearningConfig.embedding_size // 8)(x_l)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = Dropout(rate=0.2)(x_l)
+        # x_l = ReLU()(x_l)
+        #
+        # x_l = Dense(LearningConfig.embedding_size // 16)(x_l)
+        # x_l = BatchNormalization()(x_l)
+        # x_l = Dropout(rate=0.2)(x_l)
+        # x_l = ReLU()(x_l)
+
+        '''out'''
+        x_l = Dropout(rate=0.2)(fused_global_avg_pool)
+        out_categorical = Dense(num_of_classes,
+                                activation='softmax',
+                                name='out')(x_l)
+
+        inp = [model_face.input, model_eyes.input,
+               model_nose.input, model_mouth.input]
+        revised_model = Model(inp, [out_categorical,
+                                    embedding_layer_face,
+                                    embedding_layer_eyes,
+                                    embedding_layer_nose,
+                                    embedding_layer_mouth])
+        revised_model.summary()
+        '''save json'''
+        model_json = revised_model.to_json()
+
+        with open("./model_archs/efnB0_cat_emb.json", "w") as json_file:
             json_file.write(model_json)
 
         return revised_model
