@@ -33,6 +33,9 @@ if __name__ == '__main__':
     # affect_net.create_derivative_mask()
     # affect_net.create_au_mask()
     # affect_net.create_spatial_masks()
+
+    affect_net.report()
+
     ''''''
 
     '''<><><><><><><>RAF-DB<><><><><><><>'''
@@ -65,8 +68,8 @@ if __name__ == '__main__':
     # trainer.train(arch='efn-b3', weight_path=None)
     #
     '''rafdb'''
-    trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
-    trainer.train(arch='mobileNetV2', weight_path='./last_11_may_74.h5')
+    # trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train)
+    # trainer.train(arch='mobileNetV2', weight_path='./last_11_may_74.h5')
 
     # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='efn-b3', weight_path=None)

@@ -60,6 +60,15 @@ anger    [ 86   9  62  12   9 152 170]]
          [0.05  0.014 0.136 0.184 0.502 0.06  0.054]
          [0.082 0.028 0.15  0.034 0.036 0.488 0.182]
          [0.166 0.006 0.08  0.048 0.038 0.108 0.554]]
+         
+         [[0.626 0.082 0.048 0.046 0.014 0.008 0.176]
+         [0.062 0.896 0.006 0.012 0.002 0.008 0.014]
+         [0.194 0.028 0.504 0.024 0.038 0.024 0.188]
+         [0.176 0.128 0.03  0.448 0.118 0.012 0.088]
+         [0.062 0.026 0.098 0.13  0.524 0.028 0.132]
+         [0.076 0.07  0.092 0.014 0.028 0.322 0.398]
+         [0.126 0.02  0.018 0.014 0.022 0.034 0.766]]
+
 '''
 
 class AffectNet:
@@ -382,6 +391,20 @@ class AffectNet:
             save(save_anno_path + str(i) + '_exp', str(int(expression_lbl_arr[i])))
             save(save_anno_path + str(i) + '_val', valence_arr[i])
             save(save_anno_path + str(i) + '_aro', arousal_arr[i])
+
+    def report(self):
+        dhl = DataHelper()
+        sample_count_by_class = np.zeros([7])
+        for i, file in tqdm(enumerate(os.listdir(self.anno_path_aug))):
+            if file.endswith("_exp.npy"):
+                exp = np.load(os.path.join(self.anno_path_aug, file))
+                # exp = np.load(os.path.join(self.anno_path_aug, file))
+                sample_count_by_class[exp] += 1
+                print(exp, end="-")
+        print("sample_count_by_category: ====>>")
+        ''''''
+        print(sample_count_by_class)
+
 
     def test_accuracy(self, model):
         dhp = DataHelper()
