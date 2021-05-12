@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # affect_net.create_au_mask()
     # affect_net.create_spatial_masks()
 
-    affect_net.report()
+    # affect_net.report()
 
     ''''''
 

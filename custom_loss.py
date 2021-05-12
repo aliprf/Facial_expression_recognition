@@ -56,6 +56,7 @@ class CustomLosses:
 
     def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat, ds_name):
         if ds_name == DatasetName.affectnet:
+            l_w = 10
             # neutral happy sad surprise fear disgust anger
             # [37437. 44805. 25459. 42270. 31890. 26621. 24882.] => 233364
             # [6.23. 5.20. 9.16. 5.52. 7.31. 8.76. 9.37.] =>
@@ -69,6 +70,7 @@ class CustomLosses:
                 [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 1.68, K.epsilon()],
                 [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 1.80]]
         elif ds_name == DatasetName.rafdb:
+            l_w = 1
             # neutral happy sad surprise fear disgust anger
             # 10096  14316   7928   3870  2529  4302   4230 => 47271
             # 4.68   3.30    5.96  12.21  18.69 10.98  11.17 =>
@@ -99,7 +101,7 @@ class CustomLosses:
         categorical_loss = -(y_gt_oh * tf.math.log(y_pred) * weight_map)
         loss_reg = (1 - y_gt_oh) * tf.abs(y_gt_oh - y_pred) * weight_map
 
-        loss = tf.reduce_mean(categorical_loss + loss_reg)
+        loss = l_w * tf.reduce_mean(categorical_loss + loss_reg)
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh)) * 100.0
 
         return 5.0 * loss, accuracy
