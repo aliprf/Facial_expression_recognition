@@ -57,14 +57,17 @@ class CustomLosses:
     def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat, ds_name):
         if ds_name == DatasetName.affectnet:
             # neutral happy sad surprise fear disgust anger
+            # [37437. 44805. 25459. 42270. 31890. 26621. 24882.] => 233364
+            # [6.23. 5.20. 9.16. 5.52. 7.31. 8.76. 9.37.] =>
+            # 1.19.  1.    1.76  1.06.  1.40  1.68 1.80.] =>
             fixed_weight_map = [
-                [1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [1.19, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
                 [K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3, K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3, K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3]]
+                [K.epsilon(), K.epsilon(), 1.76, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), 1.06, K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 1.40, K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 1.68, K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 1.80]]
         elif ds_name == DatasetName.rafdb:
             # neutral happy sad surprise fear disgust anger
             # 10096  14316   7928   3870  2529  4302   4230 => 47271

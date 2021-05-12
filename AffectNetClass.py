@@ -400,9 +400,9 @@ class AffectNet:
                 exp = np.load(os.path.join(self.anno_path_aug, file))
                 # exp = np.load(os.path.join(self.anno_path_aug, file))
                 sample_count_by_class[exp] += 1
-                print(exp, end="-")
+                # print(exp, end="-")
         print("sample_count_by_category: ====>>")
-        ''''''
+        '''[37437. 44805. 25459. 42270. 31890. 26621. 24882.]'''
         print(sample_count_by_class)
 
 
