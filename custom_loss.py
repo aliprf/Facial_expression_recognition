@@ -56,7 +56,7 @@ class CustomLosses:
 
     def cross_entropy_loss_with_dynamic_loss(self, y_gt, y_pr, num_classes, conf_mat, ds_name):
         if ds_name == DatasetName.affectnet:
-            l_w = 10
+            l_w = 5
             # neutral happy sad surprise fear disgust anger
             # [37437. 44805. 25459. 42270. 31890. 26621. 24882.] => 233364
             # [6.23. 5.20. 9.16. 5.52. 7.31. 8.76. 9.37.] =>
