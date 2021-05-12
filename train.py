@@ -116,7 +116,8 @@ class Train:
             batch_index = 0
 
             '''calculate Learning rate'''
-            _lr = self.calc_learning_rate(iterations=epoch, step_size=5, base_lr=5e-5, max_lr=5e-3)
+            # _lr = self.calc_learning_rate(iterations=epoch, step_size=5, base_lr=5e-5, max_lr=5e-3)
+            _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-4, max_lr=1e-2)
             optimizer = tf.keras.optimizers.Adam(_lr)
 
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
