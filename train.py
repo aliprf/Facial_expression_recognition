@@ -101,19 +101,24 @@ class Train:
         gradients = None
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
-        '''create optimizer'''
-        _lr = 5e-4
-        lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-            _lr,
-            decay_steps=step_per_epoch * 30,  # will be 0.5 every 5 10
-            decay_rate=1,
-            staircase=False)
-        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        optimizer = tf.keras.optimizers.Adam(lr_schedule, decay=1e-7)
+        # '''create optimizer'''
+        # _lr = 1e-3
+        # lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
+        #     _lr,
+        #     decay_steps=step_per_epoch * 15,  # will be 0.5 every 5 10
+        #     decay_rate=1,
+        #     staircase=False)
+        # # optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        # optimizer = tf.keras.optimizers.Adam(lr_schedule, decay=1e-6)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
             batch_index = 0
+
+            '''calculate Learning rate'''
+            _lr = self.calc_learning_rate(iterations=epoch, step_size=5, base_lr=5e-5, max_lr=5e-3)
+            optimizer = tf.keras.optimizers.Adam(_lr)
+
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''
                 # print('load data...')
@@ -143,20 +148,20 @@ class Train:
                                                  summary_writer=summary_writer,
                                                  conf_mat=conf_mat)
                 '''apply gradients'''
-                # print('gradients->')
-                # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
-                #     '''apply gradient'''
-                #     print("===============apply gradient================= ")
-                #     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                #     gradients = None
-                # else:
-                #     '''accumulate gradient'''
-                #     if gradients is None:
-                #         gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
-                #                      step_gradients]
-                #     else:
-                #         for i, g in enumerate(step_gradients):
-                #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
+                print('gradients->')
+                if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
+                    '''apply gradient'''
+                    print("===============apply gradient================= ")
+                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                    gradients = None
+                else:
+                    '''accumulate gradient'''
+                    if gradients is None:
+                        gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
+                                     step_gradients]
+                    else:
+                        for i, g in enumerate(step_gradients):
+                            gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
                 batch_index += 1
             '''evaluating part'''
             global_accuracy, conf_mat = self._eval_model(model=model)
@@ -165,22 +170,17 @@ class Train:
                        '_AC_' + str(global_accuracy) +
                        '.h5')
 
-            '''calculate Learning rate'''
-            # _lr = self.calc_learning_rate(iterations=epoch, step_size=7, base_lr=5e-6, max_lr=1e-4)
-            # optimizer = tf.keras.optimizers.SGD(lr_schedule)
-            # optimizer = self._get_optimizer(lr=_lr)
-
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""
         '''reducing triangle'''
-        # cycle = np.floor(1 + iterations / (2 * step_size))
-        # x = np.abs(iterations / step_size - 2 * cycle + 1)
-        # lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) / float(2 ** (cycle - 1))
-
-        '''exp'''
         cycle = np.floor(1 + iterations / (2 * step_size))
         x = np.abs(iterations / step_size - 2 * cycle + 1)
-        lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) * gamma ** iterations
+        lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) / float(2 ** (cycle - 1))
+
+        '''exp'''
+        # cycle = np.floor(1 + iterations / (2 * step_size))
+        # x = np.abs(iterations / step_size - 2 * cycle + 1)
+        # lr = base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) * gamma ** iterations
 
         print('LR is: ' + str(lr))
         return lr
