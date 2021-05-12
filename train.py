@@ -151,20 +151,20 @@ class Train:
                                                  summary_writer=summary_writer,
                                                  conf_mat=conf_mat)
                 '''apply gradients'''
-                print('gradients->')
-                if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
-                    '''apply gradient'''
-                    print("===============apply gradient================= ")
-                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                    gradients = None
-                else:
-                    '''accumulate gradient'''
-                    if gradients is None:
-                        gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
-                                     step_gradients]
-                    else:
-                        for i, g in enumerate(step_gradients):
-                            gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
+                # print('gradients->')
+                # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
+                #     '''apply gradient'''
+                #     print("===============apply gradient================= ")
+                #     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                #     gradients = None
+                # else:
+                #     '''accumulate gradient'''
+                #     if gradients is None:
+                #         gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
+                #                      step_gradients]
+                #     else:
+                #         for i, g in enumerate(step_gradients):
+                #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
                 batch_index += 1
             '''evaluating part'''
             global_accuracy, conf_mat = self._eval_model(model=model)
