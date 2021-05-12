@@ -66,18 +66,22 @@ class CustomLosses:
                 [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3, K.epsilon()],
                 [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3]]
         elif ds_name == DatasetName.rafdb:
+            # neutral happy sad surprise fear disgust anger
+            # 10096  14316   7928   3870  2529  4302   4230 => 47271
+            # 4.68   3.30    5.96  12.21  18.69 10.98  11.17 =>
+            # 1.41   1       1.80  3.7    5.66  3.32  3.38 =>
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717.    4772.   1982.  705.   2524.]
             # [3870.  2529.  4302. 14316.   7928.  4230. 10096.]
             # relabel aff: 680 1185 478 329 74 160 162
             fixed_weight_map = [
-                [2, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [1.41, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
                 [K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), 3, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), 4, K.epsilon(), K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 10, K.epsilon(), K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 4, K.epsilon()],
-                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 8]]
+                [K.epsilon(), K.epsilon(), 1.80, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), 3.7, K.epsilon(), K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 5.66, K.epsilon(), K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3.32, K.epsilon()],
+                [K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), 3.38]]
 
         conf_mat = conf_mat * (1 - np.identity(7, dtype=np.float))
         global_weight_map = fixed_weight_map + conf_mat
@@ -92,7 +96,7 @@ class CustomLosses:
         categorical_loss = -(y_gt_oh * tf.math.log(y_pred) * weight_map)
         loss_reg = (1 - y_gt_oh) * tf.abs(y_gt_oh - y_pred) * weight_map
 
-        loss = 10 * tf.reduce_mean(categorical_loss + loss_reg)
+        loss = tf.reduce_mean(categorical_loss + loss_reg)
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh)) * 100.0
 
         return 5.0 * loss, accuracy
