@@ -60,7 +60,7 @@ class CustomLosses:
             # neutral happy sad surprise fear disgust anger
             # [37437. 44805. 25459. 42270. 31890. 26621. 24882.] => 233364
             # [6.23. 5.20. 9.16. 5.52. 7.31. 8.76. 9.37.] =>
-            # 1.19.  1.    1.76  1.06.  1.40  1.68 1.80.] =>
+            # [1.19.  1.    1.76  1.06.  1.40  1.68 1.80.] =>
             fixed_weight_map = [
                 [1.19, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
                 [K.epsilon(), 1, K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon(), K.epsilon()],
@@ -132,7 +132,8 @@ class CustomLosses:
         if ds_name == DatasetName.affectnet:
             # neutral happy sad surprise fear disgust anger
             # weight_map = [2, 1, 3, 5, 7, 10, 3]
-            weight_map = [5, 1, 3, 8, 7, 10, 9]
+            # weight_map = [5, 1, 3, 8, 7, 10, 9]
+            weight_map = [1.19,  1.0, 1.76,  1.06, 3 + 1.40, 4 + 1.68, 2 + 1.80]
         elif ds_name == DatasetName.rafdb:
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717. 4772. 1982.  705. 2524.]
