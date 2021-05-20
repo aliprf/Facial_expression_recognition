@@ -52,7 +52,7 @@ class DynamicDataset:
                 return img
 
             '''main image'''
-            # img = self._do_augment(img)
+            img = self._do_augment(img)
             ''''''
             return img
 
@@ -98,7 +98,7 @@ class DynamicDataset:
         img = tf_aug.random_invert_img(img)
         img = tf_aug.random_quality(img)
         img = tf_aug.random_zoom(img)
-        img = tf_aug.flip(img)
+        # img = tf_aug.flip(img)
         return img
 
 #
