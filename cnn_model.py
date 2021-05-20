@@ -327,15 +327,15 @@ class CNNModel:
                                                       activation='relu')(mouth_global_avg_pool)
 
         '''concat'''
-        concat_embeddings = tf.keras.layers.Concatenate(axis=1)([embedding_layer_face,
-                                                                 embedding_layer_eyes,
-                                                                 embedding_layer_nose,
-                                                                 embedding_layer_mouth])
+        concat_globs = tf.keras.layers.Concatenate(axis=1)([face_global_avg_pool,
+                                                                 eyes_global_avg_pool,
+                                                                 nose_global_avg_pool,
+                                                                 mouth_global_avg_pool])
 
         '''out'''
         out_categorical = Dense(num_of_classes,
                                 activation='softmax',
-                                name='out')(concat_embeddings)
+                                name='out')(concat_globs)
 
         inp = [mobilenet_model_face.input, mobilenet_model_eyes.input,
                mobilenet_model_nose.input, mobilenet_model_mouth.input]
