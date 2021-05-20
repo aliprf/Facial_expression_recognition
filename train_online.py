@@ -97,7 +97,7 @@ class TrainOnline:
                                 anno_names=exp_filenames,
                                 lnd_filenames=lnd_filenames)
 
-        global_accuracy, conf_mat = self._eval_model(model=model)
+        # global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
