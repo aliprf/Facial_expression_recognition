@@ -46,6 +46,15 @@ from dataset_class import CustomDataset
  [   3   12    8    6    2  128    1]
  [   1   15    1   12    7   38   88]]
 
+[[  18  597   32   16    1    0   16]
+ [   0 1177    3    2    1    0    2]
+ [   4  302  156    6    5    0    5]
+ [   1  190    4  124    6    0    4]
+ [   0   41    4   12   10    0    7]
+ [   0  112   14    1    2    0   31]
+ [   0   92    2    2    2    0   64]]
+
+
 680 1185 478 329 74 160 162
 testset : [ 329.  74.  160. 1185.  478.  162.  680.]
 
@@ -311,8 +320,9 @@ class RafDB:
 
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
-            scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
-            exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+            # scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+            # exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+            exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
 
             exp_pr_lbl += np.array(exp_pr_b).tolist()
             exp_gt_lbl += np.array(exp_gt_b).tolist()

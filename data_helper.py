@@ -251,7 +251,7 @@ class DataHelper:
 
     def create_masked_generator_full_path(self, img_path, annotation_path, num_of_samples, label=None):
         face_img_filenames, eyes_img_filenames, nose_img_filenames, mouth_img_filenames, exp_filenames = \
-            self._create_image_and_labels_name_full_path(img_path=img_path,
+            self._create_masked_image_and_labels_name_full_path(img_path=img_path,
                                                          annotation_path=annotation_path,
                                                          label=label,
                                                          num_of_samples=num_of_samples)
@@ -657,7 +657,7 @@ class DataHelper:
 
         return np.array(img_filenames), np.array(exp_filenames), np.array(lnd_filenames),
 
-    def _create_image_and_labels_name_full_path(self, img_path, annotation_path, label, num_of_samples):
+    def _create_masked_image_and_labels_name_full_path(self, img_path, annotation_path, label, num_of_samples):
         face_img_filenames = []
         eyes_img_filenames = []
         nose_img_filenames = []
@@ -1259,9 +1259,9 @@ class DataHelper:
 
         return img, t_label
 
-    def crop_image_bbox(self, img,  x_min, y_min, x_max, y_max):
+    def crop_image_bbox(self, img, x_min, y_min, x_max, y_max):
         # rand_padd = 0
-        rand_padd = random.randint(1, 5) * img.shape[0]/100
+        rand_padd = random.randint(1, 5) * img.shape[0] / 100
 
         xmin = int(max(0, x_min - rand_padd))
         xmax = int(x_max + rand_padd)
@@ -1309,3 +1309,37 @@ class DataHelper:
             new_labels[index_dst[i] * 2] = labels[index_src[i] * 2]
             new_labels[index_dst[i] * 2 + 1] = labels[index_src[i] * 2 + 1]
         return new_labels
+
+    def create_generator_full_path(self, img_path, annotation_path, label=None):
+        img_filenames, exp_filenames, lnd_filenames = self._create_image_and_labels_name_full_path(img_path=img_path,
+                                                                                                   annotation_path=annotation_path,
+                                                                                                   label=label)
+        # '''shuffle'''
+        # img_filenames, exp_filenames = shuffle(img_filenames, exp_filenames)
+        return img_filenames, exp_filenames, lnd_filenames
+
+    def _create_image_and_labels_name_full_path(self, img_path, annotation_path, label):
+        img_filenames = []
+        exp_filenames = []
+        lnd_filenames = []
+
+        print('reading list -->')
+        file_names = tqdm(os.listdir(img_path))
+        print('<-')
+
+        for file in file_names:
+            if file.endswith(".jpg") or file.endswith(".png"):
+                exp_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
+                lnd_file = str(file)[:-4] + "_slnd.npy"  # just name
+
+                if os.path.exists(annotation_path + exp_lbl_file):
+                    if label is not None:
+                        exp = np.load(annotation_path + exp_lbl_file)
+                        if label is not None and exp != label:
+                            continue
+
+                    img_filenames.append(img_path + str(file))
+                    exp_filenames.append(annotation_path + exp_lbl_file)
+                    lnd_filenames.append(annotation_path + lnd_file)
+
+        return np.array(img_filenames), np.array(exp_filenames), np.array(lnd_filenames)

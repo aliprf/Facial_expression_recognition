@@ -61,8 +61,8 @@ if __name__ == '__main__':
 
     """train"""
     '''affectNet'''
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
-    trainer.train(arch='efn-b0', weight_path=None)
+    # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./last_11_may_60.h5')
 
     # trainer.train(arch='mobileNetV2', weight_path=None)
@@ -79,9 +79,9 @@ if __name__ == '__main__':
     #
 
     """train online"""
-    # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
+    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-3)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
-    # trainer.train(arch='mobileNetV2', weight_path=None)
+    trainer.train(arch='mobileNetV2', weight_path=None)
 
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)

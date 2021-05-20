@@ -1,4 +1,4 @@
-from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, DatasetType
+from config import DatasetName, AffectnetConf, InputDataSize, LearningConfig, DatasetType, RafDBConf
 from cnn_model import CNNModel
 from custom_loss import CustomLosses
 from data_helper import DataHelper
@@ -18,57 +18,50 @@ import pickle
 from sklearn.metrics import accuracy_score
 import os
 from AffectNetClass import AffectNet
-from sklearn.utils import shuffle
-
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
-
-'''
-================= Confusion Matrix =====================
-
-neutral     [ 386   50    12    13   0   0   30    0] 80
-happy       [ 34    449   0     3    0   0   4     0] 146
-sad         [ 237   44    117   17   0   0   76    0] 29
-surprise    [ 183   93    23    163  19  0   8     0] 16
-fear        [ 116   36    107   128  70  0   30    0] 8
-disgust     [ 156   75    42    11   2   0   206   0] 5
-anger       [ 182   25    29    9    2   0   240   0] 28
-contempt    [ 180   270   6     3    1   0   33    0] 5
-
- neutral    [250  37 113  16   2  18  64]
- happy      [ 26 428  15   8   0  14   9]
- sad        [ 71  13 305   8   3  30  70]
- surprise   [ 81  56  81 195  25  46  16]
- fear       [ 50  13 131  72 142  48  44]
- disgust    [ 38  34  72   7   4 218 127]
- anger      [ 77  10  66   4   4  82 257]
-
-
-neutral happy sad surprise fear disgust anger
-'''
+from RafdbClass import RafDB
+from dataset_dynamic import DynamicDataset
 
 class TrainOnline:
-    def __init__(self, dataset_name, ds_type):
+    def __init__(self, dataset_name, ds_type, weights='imagenet', lr=1e-2):
         self.dataset_name = dataset_name
         self.ds_type = ds_type
-        if dataset_name == DatasetName.affectnet:
+        self.weights = weights
+        self.lr = lr
+
+        if dataset_name == DatasetName.rafdb:
+            self.drop = 0.5
+            self.epochs_drop = 20
+
+            self.img_path = RafDBConf.aug_train_img_path
+            self.annotation_path = RafDBConf.aug_train_annotation_path
+            self.masked_img_path = RafDBConf.aug_train_masked_img_path
+            self.val_img_path = RafDBConf.test_img_path
+            self.val_annotation_path = RafDBConf.test_annotation_path
+            self.eval_masked_img_path = RafDBConf.test_masked_img_path
+            self.num_of_classes = 7
+            self.num_of_samples = None
+
+        elif dataset_name == DatasetName.affectnet:
+            self.drop = 0.5
+            self.epochs_drop = 5
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.aug_train_img_path
                 self.annotation_path = AffectnetConf.aug_train_annotation_path
-
-                # self.img_path = AffectnetConf.no_aug_train_img_path
-                # self.annotation_path = AffectnetConf.no_aug_train_annotation_path
-
+                self.masked_img_path = AffectnetConf.aug_train_masked_img_path
                 self.val_img_path = AffectnetConf.eval_img_path
                 self.val_annotation_path = AffectnetConf.eval_annotation_path
+                self.eval_masked_img_path = AffectnetConf.eval_masked_img_path
                 self.num_of_classes = 8
-                self.num_of_samples = AffectnetConf.num_of_samples_train
+                self.num_of_samples = None
             elif ds_type == DatasetType.train_7:
                 self.img_path = AffectnetConf.aug_train_img_path_7
                 self.annotation_path = AffectnetConf.aug_train_annotation_path_7
+                self.masked_img_path = AffectnetConf.aug_train_masked_img_path_7
                 self.val_img_path = AffectnetConf.eval_img_path_7
                 self.val_annotation_path = AffectnetConf.eval_annotation_path_7
+                self.eval_masked_img_path = AffectnetConf.eval_masked_img_path_7
                 self.num_of_classes = 7
-                self.num_of_samples = AffectnetConf.num_of_samples_train_7
+                self.num_of_samples = None
 
     def train(self, arch, weight_path):
         """"""
@@ -88,19 +81,23 @@ class TrainOnline:
 
         if self.dataset_name == DatasetName.affectnet:
             save_path = AffectnetConf.weight_save_path + start_train_date + '/'
-        # elif self.dataset_name == DatasetName.:
-        #     save_path = '/media/data2/alip/HM_WEIGHTs/wflw/efn_1d/11_april/'
+        elif self.dataset_name == DatasetName.rafdb:
+            save_path = RafDBConf.weight_save_path + start_train_date + '/'
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
         '''create sample generator'''
         dhp = DataHelper()
         '''     Train   Generator'''
-        img_filenames, exp_filenames, lnd_filenames = dhp.create_generators_with_mask_online(
-            img_path=self.img_path, annotation_path=self.annotation_path,
-            num_of_samples=self.num_of_samples)
+        '''     Train   Generator'''
+        img_filenames, exp_filenames, lnd_filenames = dhp.create_generator_full_path(img_path=self.img_path,
+                                                                                     annotation_path=self.annotation_path)
+        dds = DynamicDataset()
+        ds = dds.create_dataset(img_filenames=img_filenames,
+                                anno_names=exp_filenames,
+                                lnd_filenames=lnd_filenames)
 
-        # global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
@@ -108,33 +105,18 @@ class TrainOnline:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        _lr = 1e-3
-        lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-            _lr,
-            decay_steps=step_per_epoch * 10,
-            decay_rate=1,
-            staircase=False)
-        optimizer = tf.keras.optimizers.Adam(lr_schedule)
-        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
+        '''create optimizer'''
+        learning_rate = MyLRSchedule(initial_learning_rate=self.lr, drop=self.drop, epochs_drop=self.epochs_drop)
+        optimizer = tf.keras.optimizers.SGD(learning_rate, momentum=0.9)
+        # optimizer = tf.keras.optimizers.Adam(learning_rate)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
-            img_filenames, exp_filenames, lnd_filenames = shuffle(img_filenames, exp_filenames, lnd_filenames)
-            for batch_index in range(step_per_epoch):
-                '''load annotation and images'''
-                global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch = dhp.get_batch_sample_online(
-                    batch_index=batch_index, img_path=self.img_path,
-                    annotation_path=self.annotation_path,
-                    img_filenames=img_filenames,
-                    exp_filenames=exp_filenames,
-                    lnd_filenames=lnd_filenames)
+            batch_index = 0
+            for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
 
-                '''convert to tensor'''
-                global_bunch = tf.cast(global_bunch, tf.float32)
-                upper_bunch = tf.cast(upper_bunch, tf.float32)
-                middle_bunch = tf.cast(middle_bunch, tf.float32)
-                bottom_bunch = tf.cast(bottom_bunch, tf.float32)
-                exp_batch = tf.cast(exp_batch, tf.uint8)
+                exp_batch = exp_batch[:, -1]
+                # self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
 
                 '''train step'''
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
@@ -145,20 +127,20 @@ class TrainOnline:
                                                  anno_exp=exp_batch,
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
-                '''apply gradients'''
-                if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
-                    '''apply gradient'''
-                    print("===============apply gradient================= ")
-                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                    gradients = None
-                else:
-                    '''accumulate gradient'''
-                    if gradients is None:
-                        gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
-                                     step_gradients]
-                    else:
-                        for i, g in enumerate(step_gradients):
-                            gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
+                # '''apply gradients'''
+                # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
+                #     '''apply gradient'''
+                #     print("===============apply gradient================= ")
+                #     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                #     gradients = None
+                # else:
+                #     '''accumulate gradient'''
+                #     if gradients is None:
+                #         gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
+                #                      step_gradients]
+                #     else:
+                #         for i, g in enumerate(step_gradients):
+                #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
 
             '''evaluating part'''
             global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
@@ -199,16 +181,20 @@ class TrainOnline:
                                                                     training=True)  # todo
 
             '''calculate loss'''
-            loss_exp = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp)
+            loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+                                                           num_classes=self.num_of_classes,
+                                                           ds_name=self.dataset_name)
+
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
             loss_nose = c_loss.triplet_loss(y_pr=emb_nose, y_gt=anno_exp)
             loss_mouth = c_loss.triplet_loss(y_pr=emb_mouth, y_gt=anno_exp)
-            loss_total = 2 * loss_exp + 3*loss_face + loss_eyes + loss_nose + loss_mouth
+
+            loss_total = loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
-        # optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
+        optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
                  ' -> : loss_total: ', loss_total,
@@ -231,12 +217,17 @@ class TrainOnline:
         '''first we need to create the 4 bunch here: '''
 
         '''for Affectnet, we need to calculate accuracy of each label and then total avg accuracy:'''
+        global_accuracy = 0
+        conf_mat = []
         if self.dataset_name == DatasetName.affectnet:
             if self.ds_type == DatasetType.train:
                 affn = AffectNet(ds_type=DatasetType.eval)
             else:
                 affn = AffectNet(ds_type=DatasetType.eval_7)
-            global_accuracy, avg_accuracy, acc_per_label, conf_mat = affn.test_accuracy(model=model)
+            global_accuracy, conf_mat = affn.test_accuracy_dynamic(model=model)
+        if self.dataset_name == DatasetName.rafdb:
+            rafdb = RafDB(ds_type=DatasetType.test)
+            global_accuracy, conf_mat = rafdb.test_accuracy_dynamic(model=model)
 
         # else:
         #     predictions = model(img_batch_eval)
@@ -246,13 +237,9 @@ class TrainOnline:
         #     acc = accuracy_score(pn_batch_eval, predicted_lbls)
         print("================== Total Accuracy =====================")
         print(global_accuracy)
-        print("================== Average Accuracy =====================")
-        print(avg_accuracy)
-        print("==== per Label :")
-        print(acc_per_label)
         print("================== Confusion Matrix =====================")
         print(conf_mat)
-        return global_accuracy, avg_accuracy, acc_per_label, conf_mat
+        return global_accuracy, conf_mat
 
     def make_model(self, arch, w_path):
         cnn = CNNModel()
@@ -273,3 +260,32 @@ class TrainOnline:
                 grads_or_idx_slices.dense_shape
             )
         return grads_or_idx_slices
+
+    def test_print_batch(self, global_bunch, upper_bunch, middle_bunch, bottom_bunch, _index):
+        dhl = DataHelper()
+        global_bunch = np.array(global_bunch)
+        upper_bunch = np.array(upper_bunch)
+        middle_bunch = np.array(middle_bunch)
+        bottom_bunch = np.array(bottom_bunch)
+
+        bs = np.array(global_bunch).shape[0]
+        for i in range(bs):
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_glob_img', img=global_bunch[i,:,:,:],
+                                 landmarks=[])
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_up_img', img=upper_bunch[i,:,:,:],
+                                 landmarks=[])
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_mid_dr', img=middle_bunch[i, :, :, :],
+                                 landmarks=[])
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_bot_dr', img=bottom_bunch[i, :, :, :],
+                                 landmarks=[])
+        pass
+
+class MyLRSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
+
+    def __init__(self, initial_learning_rate, drop, epochs_drop):
+        self.initial_learning_rate = initial_learning_rate
+        self.drop = drop
+        self.epochs_drop = epochs_drop
+
+    def __call__(self, step):
+        return self.initial_learning_rate * math.pow(self.drop, math.floor((1 + step) / self.epochs_drop))

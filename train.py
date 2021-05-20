@@ -25,10 +25,14 @@ from tf_augmnetation import TFAugmentation
 
 
 class Train:
-    def __init__(self, dataset_name, ds_type):
+    def __init__(self, dataset_name, ds_type, lr=1e-2):
         self.dataset_name = dataset_name
         self.ds_type = ds_type
+        self.lr = lr
+
         if dataset_name == DatasetName.rafdb:
+            self.drop = 0.5
+            self.epochs_drop = 20
             self.img_path = RafDBConf.aug_train_img_path
             self.annotation_path = RafDBConf.aug_train_annotation_path
             self.masked_img_path = RafDBConf.aug_train_masked_img_path
@@ -39,6 +43,8 @@ class Train:
             self.num_of_samples = None
 
         elif dataset_name == DatasetName.affectnet:
+            self.drop = 0.5
+            self.epochs_drop = 5
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.aug_train_img_path
                 self.annotation_path = AffectnetConf.aug_train_annotation_path
@@ -103,15 +109,10 @@ class Train:
         gradients = None
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
-        # '''create optimizer'''
-        _lr = 1e-3
-        lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-            _lr,
-            decay_steps=step_per_epoch * 15,  # will be 0.5 every 5 10
-            decay_rate=1,
-            staircase=False)
-        # optimizer = tf.keras.optimizers.SGD(lr_schedule)
-        optimizer = tf.keras.optimizers.Adam(lr_schedule, decay=1e-6)
+        '''create optimizer'''
+        learning_rate = MyLRSchedule(initial_learning_rate=self.lr, drop=self.drop, epochs_drop=self.epochs_drop)
+        optimizer = tf.keras.optimizers.SGD(learning_rate, momentum=0.9)
+        # optimizer = tf.keras.optimizers.Adam(learning_rate)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
@@ -301,3 +302,14 @@ class Train:
             dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_au', img=global_bunch[i, :, :, 3], landmarks=[])
             dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_dr', img=global_bunch[i, :, :, 4], landmarks=[])
         pass
+
+
+class MyLRSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
+
+    def __init__(self, initial_learning_rate, drop, epochs_drop):
+        self.initial_learning_rate = initial_learning_rate
+        self.drop = drop
+        self.epochs_drop = epochs_drop
+
+    def __call__(self, step):
+        return self.initial_learning_rate * math.pow(self.drop, math.floor((1 + step) / self.epochs_drop))

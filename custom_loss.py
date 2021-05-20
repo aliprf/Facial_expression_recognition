@@ -99,7 +99,8 @@ class CustomLosses:
         y_pred /= tf.reduce_sum(y_pred, axis=-1, keepdims=True)
         y_pred = K.clip(y_pred, K.epsilon(), 1)
         categorical_loss = -(y_gt_oh * tf.math.log(y_pred) * weight_map)
-        loss_reg = (1 - y_gt_oh) * tf.abs(y_gt_oh - y_pred) * weight_map
+        # loss_reg = (1 - y_gt_oh) * tf.abs(y_gt_oh - y_pred) * weight_map
+        loss_reg = tf.abs(y_gt_oh - y_pred) * weight_map
 
         loss = l_w * tf.reduce_mean(categorical_loss + loss_reg)
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh)) * 100.0
@@ -136,10 +137,6 @@ class CustomLosses:
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717. 4772. 1982.  705. 2524.]
             weight_map = [3, 6, 4, 1, 2, 4, 2]
-
-        # loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=False,
-        #                                                       reduction=tf.keras.losses.Reduction.NONE)
-        # loss_cross_entropy = loss_object(y_gt_oh, y_pr)
 
         y_pred = y_pr
         y_pred /= tf.reduce_sum(y_pred, axis=-1, keepdims=True)

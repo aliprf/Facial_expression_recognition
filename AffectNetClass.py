@@ -27,6 +27,7 @@ from data_helper import DataHelper
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from dataset_class import CustomDataset
+from dataset_dynamic import DynamicDataset
 
 '''   
 neutral  [287  27  99  22   8  35  22]
@@ -68,8 +69,10 @@ anger    [ 86   9  62  12   9 152 170]]
          [0.062 0.026 0.098 0.13  0.524 0.028 0.132]
          [0.076 0.07  0.092 0.014 0.028 0.322 0.398]
          [0.126 0.02  0.018 0.014 0.022 0.034 0.766]]
+         
 
 '''
+
 
 class AffectNet:
     def __init__(self, ds_type):
@@ -405,6 +408,52 @@ class AffectNet:
         '''[37437. 44805. 25459. 42270. 31890. 26621. 24882.]'''
         print(sample_count_by_class)
 
+    def test_accuracy_dynamic(self, model):
+        dhp = DataHelper()
+        '''create batches'''
+        img_filenames, exp_filenames, lnd_filenames = \
+            dhp.create_generator_full_path(img_path=self.img_path,
+                                           annotation_path=self.anno_path, label=None)
+        print(len(img_filenames))
+        exp_pr_lbl = []
+        exp_gt_lbl = []
+
+        dds = DynamicDataset()
+        ds = dds.create_dataset(img_filenames=img_filenames,
+                                anno_names=exp_filenames,
+                                lnd_filenames=lnd_filenames,
+                                is_validation=True)
+
+        batch_index = 0
+        for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
+            '''predict on batch'''
+            exp_gt_b = exp_gt_b[:, -1]
+            probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
+                                                                  middle_bunch, bottom_bunch])
+            exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+
+            exp_pr_lbl += np.array(exp_pr_b).tolist()
+            exp_gt_lbl += np.array(exp_gt_b).tolist()
+            batch_index += 1
+        exp_pr_lbl = np.int64(np.array(exp_pr_lbl))
+        exp_gt_lbl = np.int64(np.array(exp_gt_lbl))
+
+        global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
+        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl) / 500.0
+        # conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)/500.0
+
+        ds = None
+        face_img_filenames = None
+        eyes_img_filenames = None
+        nose_img_filenames = None
+        mouth_img_filenames = None
+        exp_filenames = None
+        global_bunch = None
+        upper_bunch = None
+        middle_bunch = None
+        bottom_bunch = None
+
+        return global_accuracy, conf_mat
 
     def test_accuracy(self, model):
         dhp = DataHelper()
@@ -442,8 +491,8 @@ class AffectNet:
 
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
-            scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
-            exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+            # scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+            exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
 
             # print(exp_pr_b)
             # print(exp_gt_b)
@@ -456,7 +505,7 @@ class AffectNet:
         exp_gt_lbl = np.int64(np.array(exp_gt_lbl))
 
         global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
-        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)/500.0
+        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl) / 500.0
         # conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)/500.0
 
         ds = None
