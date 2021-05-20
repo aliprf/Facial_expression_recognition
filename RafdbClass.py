@@ -28,6 +28,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from shutil import copyfile
 from dataset_class import CustomDataset
+from dataset_dynamic import DynamicDataset
 
 '''
  [410   8 110  55  18  27  52] 680      => 60
@@ -252,6 +253,7 @@ class RafDB:
                     lbl = affectnet_like_lbls[lbl]
                     save(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy"), lbl)
 
+
     def create_masked_image(self):
         dhl = DataHelper()
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
@@ -296,6 +298,59 @@ class RafDB:
                                 os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_bo.jpg")): continue
                     dhl.create_spatial_mask_path(img_path=self.img_path_aug,
                                                  anno_path=self.anno_path_aug, file=file, test_print=False)
+
+    def test_accuracy_dynamic(self, model):
+        dhp = DataHelper()
+        '''create batches'''
+        img_filenames, exp_filenames, spm_up_filenames, spm_md_filenames, spm_bo_filenames = \
+            dhp.create_generator_full_path_with_spm(img_path=self.img_path,
+                                                    annotation_path=self.anno_path)
+        print(len(img_filenames))
+        exp_pr_lbl = []
+        exp_gt_lbl = []
+
+        dds = DynamicDataset()
+        ds = dds.create_dataset(img_filenames=img_filenames,
+                                spm_up_filenames=spm_up_filenames,
+                                spm_md_filenames=spm_md_filenames,
+                                spm_bo_filenames=spm_bo_filenames,
+                                anno_names=exp_filenames,
+                                is_validation=True,
+                                ds=DatasetName.rafdb)
+        batch_index = 0
+        for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
+            '''predict on batch'''
+            global_bunch = global_bunch[:, -1, :, :]
+            upper_bunch = upper_bunch[:, -1, :, :]
+            middle_bunch = middle_bunch[:, -1, :, :]
+            bottom_bunch = bottom_bunch[:, -1, :, :]
+
+            probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
+                                                                  middle_bunch, bottom_bunch])
+            exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+
+            exp_pr_lbl += np.array(exp_pr_b).tolist()
+            exp_gt_lbl += np.array(exp_gt_b).tolist()
+            batch_index += 1
+        exp_pr_lbl = np.int64(np.array(exp_pr_lbl))
+        exp_gt_lbl = np.int64(np.array(exp_gt_lbl))
+
+        global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
+        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl) / 500.0
+        # conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)/500.0
+
+        ds = None
+        face_img_filenames = None
+        eyes_img_filenames = None
+        nose_img_filenames = None
+        mouth_img_filenames = None
+        exp_filenames = None
+        global_bunch = None
+        upper_bunch = None
+        middle_bunch = None
+        bottom_bunch = None
+
+        return global_accuracy, conf_mat
 
     def test_accuracy(self, model):
         dhp = DataHelper()

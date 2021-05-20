@@ -54,8 +54,8 @@ if __name__ == '__main__':
     # raf_db.create_masked_image()
 
     # raf_db.create_spatial_masks()
-    raf_db = RafDB(ds_type=DatasetType.test)
-    raf_db.create_spatial_masks()
+    # raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db.create_spatial_masks()
 
     # raf_db = RafDB(ds_type=DatasetType.train)
     # raf_db.relabel()
@@ -90,18 +90,8 @@ if __name__ == '__main__':
     # trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
 
-    # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
-    # trainer.train(arch='mobileNetV2', weight_path=None)
-
-    """TrainSingle"""
-    # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
-    # trainer.train(arch='mobileNetV2_single', weight_path=None)
-    #
-
-    # trainer.train(arch='efficientNet', weight_path='/media/data2/alip/FER/affn/20_jan_2021/fer_model_88_affectnet.h5',
-    #               mode=0) # 0-> categorical, 1->regression
-
-    # trainer.train(arch='mobileNetV2', weight_path=None)
+    trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
+    trainer.train(arch='mobileNetV2', weight_path=None)
 
     '''test'''
     # tester = Test(dataset_name=DatasetName.affectnet)
