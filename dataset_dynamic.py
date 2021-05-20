@@ -30,6 +30,8 @@ from skimage.draw import rectangle
 from skimage.draw import line, set_color
 from tf_augmnetation import TFAugmentation
 from data_helper import DataHelper
+import time
+
 
 class DynamicDataset:
 
@@ -39,12 +41,19 @@ class DynamicDataset:
         dhl = DataHelper()
 
         def get_img(file_name, lnd):
+            start_time = time.perf_counter()
+
             path = bytes.decode(file_name)
             image_raw = tf.io.read_file(path)
             img = tf.image.decode_image(image_raw, channels=3)
             img = tf.cast(img, tf.float32)/255.0
 
+            print("Execution time 1 :", time.perf_counter() - start_time)
+            start_time = time.perf_counter()
+
             up_mask, mid_mask, bot_mask = dhl.create_spatial_mask(img=img, lnd=lnd[0])
+            print("Execution time 2 :", time.perf_counter() - start_time)
+            start_time = time.perf_counter()
 
             up_mask = tf.cast(up_mask, dtype=tf.float32)
             mid_mask = tf.cast(mid_mask, dtype=tf.float32)
@@ -66,6 +75,8 @@ class DynamicDataset:
             mid_mask = self._do_augment(mid_mask)
             bot_mask = self._do_augment(bot_mask)
             ''''''
+            print("Execution time 3 :", time.perf_counter() - start_time)
+
             return img, up_mask, mid_mask, bot_mask
 
         def get_lbl(anno_name):
