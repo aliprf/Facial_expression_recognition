@@ -204,6 +204,7 @@ class TrainOnline:
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
                  ' -> : loss_total: ', loss_total,
+                 ' -> : accuracy: ', accuracy,
                  ' -> : loss_exp: ', loss_exp,
                  ' -> : loss_face: ', loss_face,
                  ' -> : loss_eyes: ', loss_eyes,
