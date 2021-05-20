@@ -411,23 +411,28 @@ class AffectNet:
     def test_accuracy_dynamic(self, model):
         dhp = DataHelper()
         '''create batches'''
-        img_filenames, exp_filenames, lnd_filenames = \
-            dhp.create_generator_full_path(img_path=self.img_path,
-                                           annotation_path=self.anno_path, label=None)
+        img_filenames, exp_filenames, spm_up_filenames, spm_md_filenames, spm_bo_filenames = \
+            dhp.create_generator_full_path_with_spm(img_path=self.img_path,
+                                                    annotation_path=self.anno_path)
         print(len(img_filenames))
         exp_pr_lbl = []
         exp_gt_lbl = []
 
         dds = DynamicDataset()
         ds = dds.create_dataset(img_filenames=img_filenames,
+                                spm_up_filenames=spm_up_filenames,
+                                spm_md_filenames=spm_md_filenames,
+                                spm_bo_filenames=spm_bo_filenames,
                                 anno_names=exp_filenames,
-                                lnd_filenames=lnd_filenames,
                                 is_validation=True)
-
         batch_index = 0
         for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_gt_b in ds:
             '''predict on batch'''
-            exp_gt_b = exp_gt_b[:, -1]
+            global_bunch = global_bunch[:, -1, :, :]
+            upper_bunch = upper_bunch[:, -1, :, :]
+            middle_bunch = middle_bunch[:, -1, :, :]
+            bottom_bunch = bottom_bunch[:, -1, :, :]
+
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
             exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])

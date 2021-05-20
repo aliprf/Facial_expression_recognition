@@ -21,6 +21,7 @@ from AffectNetClass import AffectNet
 from RafdbClass import RafDB
 from dataset_dynamic import DynamicDataset
 
+
 class TrainOnline:
     def __init__(self, dataset_name, ds_type, weights='imagenet', lr=1e-2):
         self.dataset_name = dataset_name
@@ -90,13 +91,17 @@ class TrainOnline:
         dhp = DataHelper()
         '''     Train   Generator'''
         '''     Train   Generator'''
-        img_filenames, exp_filenames, lnd_filenames = dhp.create_generator_full_path(img_path=self.img_path,
-                                                                                     annotation_path=self.annotation_path)
+        img_filenames, exp_filenames, spm_up_filenames, spm_md_filenames, spm_bo_filenames = \
+            dhp.create_generator_full_path_with_spm(img_path=self.img_path,
+                                                    annotation_path=self.annotation_path)
         dds = DynamicDataset()
         ds = dds.create_dataset(img_filenames=img_filenames,
+                                spm_up_filenames=spm_up_filenames,
+                                spm_md_filenames=spm_md_filenames,
+                                spm_bo_filenames=spm_bo_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
@@ -113,8 +118,12 @@ class TrainOnline:
         for epoch in range(LearningConfig.epochs):
             batch_index = 0
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
-
                 exp_batch = exp_batch[:, -1]
+                global_bunch = global_bunch[:, -1, :, :]
+                upper_bunch = upper_bunch[:, -1, :, :]
+                middle_bunch = middle_bunch[:, -1, :, :]
+                bottom_bunch = bottom_bunch[:, -1, :, :]
+
                 # self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
 
                 '''train step'''
@@ -269,15 +278,16 @@ class TrainOnline:
 
         bs = np.array(global_bunch).shape[0]
         for i in range(bs):
-            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_glob_img', img=global_bunch[i,:,:,:],
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_glob_img', img=global_bunch[i, :, :, :],
                                  landmarks=[])
-            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_up_img', img=upper_bunch[i,:,:,:],
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_up_img', img=upper_bunch[i, :, :, :],
                                  landmarks=[])
             dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_mid_dr', img=middle_bunch[i, :, :, :],
                                  landmarks=[])
             dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_bot_dr', img=bottom_bunch[i, :, :, :],
                                  landmarks=[])
         pass
+
 
 class MyLRSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
 

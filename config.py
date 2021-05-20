@@ -34,9 +34,9 @@ class DatasetType:
 
 
 class LearningConfig:
-    # batch_size = 75
+    batch_size = 75
     # batch_size = 30
-    batch_size = 3
+    # batch_size = 3
     virtual_batch_size = 100
     epochs = 70
     # expression_output_len = 8 # we generated five classes
@@ -84,8 +84,8 @@ class AffectnetConf:
     # orig_test_path_prefix = '/media/data3/ali/affectNet/test_set_images_cropped_not_expanded/'
     # orig_test_path_prefix = '/media/data2/alip/affectNet/test_set_images_cropped_not_expanded/'
 
-    # _prefix_path = '/media/sda/Ali/Ali_data/FER_DS/affectnet'  # --> Aq
-    _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
+    _prefix_path = '/media/sda/Ali/Ali_data/FER_DS/affectnet'  # --> Aq
+    # _prefix_path = '/media/data3/ali/FER_DS/affectNet'  # --> zeue
     # _prefix_path = '/media/data2/alip/FER_DS/affectNet'  # --> Atlas
     # _prefix_path = '/media/ali/data/FER/affectNet'  # --> local
 

@@ -1318,6 +1318,48 @@ class DataHelper:
                                                                                                    label=label)
         return img_filenames, exp_filenames, lnd_filenames
 
+    def create_generator_full_path_with_spm(self, img_path, annotation_path, label=None):
+        img_filenames, exp_filenames, spm_up_filenames, spm_md_filenames, spm_bo_filenames =\
+            self._create_image_and_labels_name_full_path_with_spm(img_path=img_path,
+                                                                  annotation_path=annotation_path,
+                                                                  label=label)
+        return img_filenames, exp_filenames, spm_up_filenames, spm_md_filenames, spm_bo_filenames
+
+    def _create_image_and_labels_name_full_path_with_spm(self, img_path, annotation_path, label):
+        img_filenames = []
+        exp_filenames = []
+        spm_up_filenames = []
+        spm_md_filenames = []
+        spm_bo_filenames = []
+
+        print('reading list -->')
+        file_names = tqdm(os.listdir(img_path))
+        print('<-')
+
+        for file in file_names:
+            if file.endswith(".jpg") or file.endswith(".png"):
+                exp_lbl_file = str(file)[:-4] + "_exp.npy"  # just name
+
+                spm_up_file = str(file)[:-4] + "_spm_up.jpg"
+                spm_md_file = str(file)[:-4] + "_spm_md.jpg"
+                spm_bo_file = str(file)[:-4] + "_spm_bo.jpg"
+
+                if os.path.exists(annotation_path + exp_lbl_file):
+                    if label is not None:
+                        exp = np.load(annotation_path + exp_lbl_file)
+                        if label is not None and exp != label:
+                            continue
+
+                    img_filenames.append(img_path + str(file))
+                    exp_filenames.append(annotation_path + exp_lbl_file)
+
+                    spm_up_filenames.append(annotation_path + '/spm/' + spm_up_file)
+                    spm_md_filenames.append(annotation_path + '/spm/' + spm_md_file)
+                    spm_bo_filenames.append(annotation_path + '/spm/' + spm_bo_file)
+
+        return np.array(img_filenames), np.array(exp_filenames), \
+               np.array(spm_up_filenames), np.array(spm_md_filenames), np.array(spm_bo_filenames)
+
     def _create_image_and_labels_name_full_path(self, img_path, annotation_path, label):
         img_filenames = []
         exp_filenames = []
