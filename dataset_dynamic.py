@@ -95,7 +95,7 @@ class DynamicDataset:
     def _do_augment(self, img):
         tf_aug = TFAugmentation()
         img = tf_aug.color(img)
-        # img = tf_aug.random_invert_img(img)
+        img = tf_aug.random_invert_img(img)
         # img = tf_aug.random_quality(img)
         # img = tf_aug.random_zoom(img)
         # img = tf_aug.flip(img)
