@@ -101,7 +101,7 @@ class TrainOnline:
                                 spm_bo_filenames=spm_bo_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, conf_mat = self._eval_model(model=model)
+        # global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
@@ -135,6 +135,8 @@ class TrainOnline:
                                                  anno_exp=exp_batch,
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
+                batch_index += 1
+
                 # '''apply gradients'''
                 # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
                 #     '''apply gradient'''
@@ -157,10 +159,6 @@ class TrainOnline:
                        '_ACglob-' + str(global_accuracy) +
                        '_ACavg-' + str(avg_accuracy) +
                        '.h5')
-
-            '''calculate Learning rate'''
-            # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-5, max_lr=1e-2)
-            # optimizer = self._get_optimizer(lr=_lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""

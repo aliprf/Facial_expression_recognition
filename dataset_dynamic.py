@@ -52,7 +52,7 @@ class DynamicDataset:
                 return img
 
             '''main image'''
-            img = self._do_augment(img)
+            # img = self._do_augment(img)
             ''''''
             return img
 
