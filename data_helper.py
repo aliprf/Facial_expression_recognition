@@ -1353,9 +1353,9 @@ class DataHelper:
                     img_filenames.append(img_path + str(file))
                     exp_filenames.append(annotation_path + exp_lbl_file)
 
-                    spm_up_filenames.append(annotation_path + '/spm/' + spm_up_file)
-                    spm_md_filenames.append(annotation_path + '/spm/' + spm_md_file)
-                    spm_bo_filenames.append(annotation_path + '/spm/' + spm_bo_file)
+                    spm_up_filenames.append(annotation_path + 'spm/' + spm_up_file)
+                    spm_md_filenames.append(annotation_path + 'spm/' + spm_md_file)
+                    spm_bo_filenames.append(annotation_path + 'spm/' + spm_bo_file)
 
         return np.array(img_filenames), np.array(exp_filenames), \
                np.array(spm_up_filenames), np.array(spm_md_filenames), np.array(spm_bo_filenames)
