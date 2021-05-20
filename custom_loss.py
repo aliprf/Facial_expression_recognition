@@ -159,5 +159,5 @@ class CustomLosses:
         # loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         # loss_cross_entropy = loss_object(y_gt, y_pr)
 
-        return 5*loss, accuracy
+        return loss, accuracy
         # return 10 * loss_cross_entropy
