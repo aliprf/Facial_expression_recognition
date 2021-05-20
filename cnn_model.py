@@ -328,11 +328,12 @@ class CNNModel:
 
         '''concat'''
         concat_globs = tf.keras.layers.Concatenate(axis=1)([face_global_avg_pool,
-                                                                 eyes_global_avg_pool,
-                                                                 nose_global_avg_pool,
-                                                                 mouth_global_avg_pool])
+                                                            eyes_global_avg_pool,
+                                                            nose_global_avg_pool,
+                                                            mouth_global_avg_pool])
 
         '''out'''
+        concat_globs = Dropout(0.3)(concat_globs)
         out_categorical = Dense(num_of_classes,
                                 activation='softmax',
                                 name='out')(concat_globs)
