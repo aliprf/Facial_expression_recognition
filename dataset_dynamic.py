@@ -115,7 +115,7 @@ class DynamicDataset:
         #     .prefetch(10)
         dataset = dataset.map(wrap_get_img, num_parallel_calls=32)\
             .batch(LearningConfig.batch_size)\
-            .prefetch(10)
+            .prefetch(1)
         return dataset
 
     def _do_augment(self, img):
