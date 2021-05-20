@@ -84,7 +84,7 @@ if __name__ == '__main__':
     #
 
     """train online"""
-    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-3)
+    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=5e-4)
     trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
 
