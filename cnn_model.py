@@ -333,7 +333,7 @@ class CNNModel:
                                                             mouth_global_avg_pool])
 
         '''out'''
-        concat_globs = Dropout(0.3)(concat_globs)
+        concat_globs = Dropout(0.4)(concat_globs)
         out_categorical = Dense(num_of_classes,
                                 activation='softmax',
                                 name='out')(concat_globs)
