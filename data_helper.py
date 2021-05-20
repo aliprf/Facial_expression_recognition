@@ -859,16 +859,21 @@ class DataHelper:
         return up_mask, mid_mask, bot_mask
 
     def create_spatial_mask_path(self, img_path, anno_path, file, test_print=False):
-        lnd = np.load(os.path.join(anno_path + 'exp_slnd/', file[:-4] + "_slnd.npy"))
+        lnd = np.load(os.path.join(anno_path, file[:-4] + "_slnd.npy"))
         img_file_name = os.path.join(img_path, file)
         img = np.float32(Image.open(img_file_name)) / 255.0
         '''create mask'''
         up_mask, mid_mask, bot_mask = self._spatial_masks(landmarks=lnd, img=img)
-        img_mean = np.mean(img, axis=-1)
 
-        up_mask_inverted = (1 - up_mask) * img_mean
-        md_mask_inverted = (1 - mid_mask) * img_mean
-        bo_mask_inverted = (1 - bot_mask) * img_mean
+        up_mask = np.stack([up_mask, up_mask, up_mask], axis=2) * img
+        mid_mask = np.stack([mid_mask, mid_mask, mid_mask], axis=2) * img
+        bot_mask = np.stack([bot_mask, bot_mask, bot_mask], axis=2) * img
+
+        # img_mean = np.mean(img, axis=-1)
+
+        # up_mask_inverted = (1 - up_mask) * img_mean
+        # md_mask_inverted = (1 - mid_mask) * img_mean
+        # bo_mask_inverted = (1 - bot_mask) * img_mean
 
         # up_fused_img = 0.1 * img_mean + 0.9 * (up_mask * img_mean)
         # mid_fused_img = 0.1 * img_mean + 0.9 * (mid_mask * img_mean)
@@ -891,14 +896,11 @@ class DataHelper:
 
         '''test mask '''
         if test_print:
-            up_fused_img = (up_mask * img_mean) + 0.1 * up_mask_inverted
-            mid_fused_img = (mid_mask * img_mean) + 0.1 * md_mask_inverted
-            bot_fused_img = (bot_mask * img_mean) + 0.1 * bo_mask_inverted
-            self.test_image_print(img_name='z_up_mask_' + str(file) + '_fused_img', img=up_fused_img,
+            self.test_image_print(img_name='z_up_mask_' + str(file) + '_fused_img', img=up_mask,
                                   landmarks=lnd, cmap='gray')
-            self.test_image_print(img_name='z_mid_mask_' + str(file) + '_fused_img', img=mid_fused_img,
+            self.test_image_print(img_name='z_mid_mask_' + str(file) + '_fused_img', img=mid_mask,
                                   landmarks=lnd, cmap='gray')
-            self.test_image_print(img_name='z_bot_mask_' + str(file) + '_fused_img', img=bot_fused_img,
+            self.test_image_print(img_name='z_bot_mask_' + str(file) + '_fused_img', img=bot_mask,
                                   landmarks=lnd, cmap='gray')
 
     def create_AU_mask(self, img, lnd):
@@ -1314,8 +1316,6 @@ class DataHelper:
         img_filenames, exp_filenames, lnd_filenames = self._create_image_and_labels_name_full_path(img_path=img_path,
                                                                                                    annotation_path=annotation_path,
                                                                                                    label=label)
-        # '''shuffle'''
-        # img_filenames, exp_filenames = shuffle(img_filenames, exp_filenames)
         return img_filenames, exp_filenames, lnd_filenames
 
     def _create_image_and_labels_name_full_path(self, img_path, annotation_path, label):

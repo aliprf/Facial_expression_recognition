@@ -32,7 +32,7 @@ if __name__ == '__main__':
     '''pre-processing'''
     # affect_net.create_derivative_mask()
     # affect_net.create_au_mask()
-    # affect_net.create_spatial_masks()
+    affect_net.create_spatial_masks()
 
     # affect_net.report()
 
@@ -49,6 +49,8 @@ if __name__ == '__main__':
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
+
+    # raf_db.create_spatial_masks()
 
     # raf_db = RafDB(ds_type=DatasetType.train)
     # raf_db.relabel()
@@ -79,9 +81,9 @@ if __name__ == '__main__':
     #
 
     """train online"""
-    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-3)
+    # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-3)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
 
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)

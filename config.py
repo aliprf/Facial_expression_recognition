@@ -34,9 +34,9 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 75
+    # batch_size = 75
     # batch_size = 30
-    # batch_size = 3
+    batch_size = 3
     virtual_batch_size = 100
     epochs = 70
     # expression_output_len = 8 # we generated five classes
@@ -116,6 +116,7 @@ class AffectnetConf:
     eval_img_path_7 = _prefix_path + '/eval_set_7/images/'
     eval_annotation_path_7 = _prefix_path + '/eval_set_7/annotations/'
     eval_masked_img_path_7 = _prefix_path + '/eval_set_7/masked_images/'
+
     '''------'''
     # revised_test_img_path = _prefix_path + '/test_set/images/'
     # revised_test_annotation_path = _prefix_path + '/test_set/annotations/'

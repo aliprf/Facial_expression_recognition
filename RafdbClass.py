@@ -284,6 +284,19 @@ class RafDB:
                     savez_compressed(self.masked_img_path + file[:-4] + "_nose", nose_fused)
                     savez_compressed(self.masked_img_path + file[:-4] + "_mouth", mouth_fused)
 
+    def create_spatial_masks(self):
+        dhl = DataHelper()
+        for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
+            if file.endswith(".jpg") or file.endswith(".png"):
+                if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
+                        and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
+                    if os.path.exists(os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_up.jpg")) and \
+                            os.path.exists(os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_md.jpg")) and \
+                            os.path.exists(
+                                os.path.join(self.anno_path_aug + 'spm/', file[:-4] + "_spm_bo.jpg")): continue
+                    dhl.create_spatial_mask_path(img_path=self.img_path_aug,
+                                                 anno_path=self.anno_path_aug, file=file, test_print=False)
+
     def test_accuracy(self, model):
         dhp = DataHelper()
         batch_size = LearningConfig.batch_size

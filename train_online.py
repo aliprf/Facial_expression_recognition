@@ -94,8 +94,7 @@ class TrainOnline:
                                                                                      annotation_path=self.annotation_path)
         dds = DynamicDataset()
         ds = dds.create_dataset(img_filenames=img_filenames,
-                                anno_names=exp_filenames,
-                                lnd_filenames=lnd_filenames)
+                                anno_names=exp_filenames)
 
         # global_accuracy, conf_mat = self._eval_model(model=model)
 
