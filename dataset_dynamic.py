@@ -99,9 +99,12 @@ class DynamicDataset:
 
         dataset = tf.data.Dataset.from_tensor_slices((img_filenames, anno_names, lnd_filenames))
         dataset = dataset.shuffle(epoch_size)
-        dataset = dataset.map(wrap_get_img, num_parallel_calls=32)\
-            .batch(LearningConfig.batch_size)\
+        dataset = dataset.batch(LearningConfig.batch_size)\
+            .map(wrap_get_img, num_parallel_calls=32)\
             .prefetch(10)
+        # dataset = dataset.map(wrap_get_img, num_parallel_calls=32)\
+        #     .batch(LearningConfig.batch_size)\
+        #     .prefetch(10)
         return dataset
 
     def _do_augment(self, img):
