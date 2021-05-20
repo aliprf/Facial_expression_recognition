@@ -54,6 +54,8 @@ if __name__ == '__main__':
     # raf_db.create_masked_image()
 
     # raf_db.create_spatial_masks()
+    raf_db = RafDB(ds_type=DatasetType.test)
+    raf_db.create_spatial_masks()
 
     # raf_db = RafDB(ds_type=DatasetType.train)
     # raf_db.relabel()
@@ -84,10 +86,12 @@ if __name__ == '__main__':
     #
 
     """train online"""
-    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-3)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-3)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./last.h5')
 
+    # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
 
     """TrainSingle"""
     # trainer = TrainSingle(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train)
