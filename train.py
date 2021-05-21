@@ -110,16 +110,11 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-
+        optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
+        # optimizer = tf.keras.optimizers.Adam(self.lr)
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
             batch_index = 0
-
-            '''calculate Learning rate'''
-            # _lr = self.calc_learning_rate(iterations=epoch, step_size=5, base_lr=5e-5, max_lr=5e-3)
-            # # _lr = self.calc_learning_rate(iterations=epoch, step_size=10, base_lr=1e-4, max_lr=1e-2)
-            # optimizer = tf.keras.optimizers.Adam(_lr)
-
             for global_bunch, upper_bunch, middle_bunch, bottom_bunch, exp_batch in ds:
                 '''load annotation and images'''
                 # print('load data...')
@@ -148,6 +143,11 @@ class Train:
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer,
                                                  conf_mat=conf_mat)
+                '''revise lr'''
+                if batch_index > 0 and batch_index % self.epochs_drop == 0:
+                    self.lr *= self.drop
+                    optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
+
                 '''apply gradients'''
                 # print('gradients->')
                 # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
@@ -199,13 +199,13 @@ class Train:
 
             '''calculate loss'''
             '''CE loss'''
-            loss_exp, accuracy = c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr, y_gt=anno_exp,
-                                                                             num_classes=self.num_of_classes,
-                                                                             ds_name=self.dataset_name,
-                                                                             conf_mat=conf_mat)
-            # loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
-            #                                                num_classes=self.num_of_classes,
-            #                                                ds_name=self.dataset_name)
+            # loss_exp, accuracy = c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr, y_gt=anno_exp,
+            #                                                                  num_classes=self.num_of_classes,
+            #                                                                  ds_name=self.dataset_name,
+            #                                                                  conf_mat=conf_mat)
+            loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+                                                           num_classes=self.num_of_classes,
+                                                           ds_name=self.dataset_name)
             '''embedding loss'''
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
