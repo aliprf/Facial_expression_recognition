@@ -37,7 +37,7 @@ class LearningConfig:
     batch_size = 75
     # batch_size = 30
     # batch_size = 3
-    virtual_batch_size = 100
+    virtual_batch_size = 375
     epochs = 70
     # expression_output_len = 8 # we generated five classes
     embedding_size = 256

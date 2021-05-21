@@ -135,23 +135,24 @@ class TrainOnline:
                                                  anno_exp=exp_batch,
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
+
+
+                '''apply gradients'''
+                if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
+                    '''apply gradient'''
+                    print("===============apply gradient================= ")
+                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                    gradients = None
+                else:
+                    '''accumulate gradient'''
+                    if gradients is None:
+                        gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
+                                     step_gradients]
+                    else:
+                        for i, g in enumerate(step_gradients):
+                            gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
+
                 batch_index += 1
-
-                # '''apply gradients'''
-                # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
-                #     '''apply gradient'''
-                #     print("===============apply gradient================= ")
-                #     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                #     gradients = None
-                # else:
-                #     '''accumulate gradient'''
-                #     if gradients is None:
-                #         gradients = [self._flat_gradients(g) / LearningConfig.virtual_batch_size for g in
-                #                      step_gradients]
-                #     else:
-                #         for i, g in enumerate(step_gradients):
-                #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
-
             '''evaluating part'''
             global_accuracy, conf_mat = self._eval_model(model=model)
             '''save weights'''
@@ -199,7 +200,7 @@ class TrainOnline:
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
-        optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
+        # optimizer.apply_gradients(zip(gradients_of_model, model.trainable_variables))
         '''printing loss Values: '''
         tf.print("->EPOCH: ", str(epoch), "->STEP: ", str(step) + '/' + str(total_steps),
                  ' -> : loss_total: ', loss_total,
