@@ -255,7 +255,7 @@ class CNNModel:
 
         return revised_model
 
-    def _create_MobileNet_with_embedding(self, num_of_classes, input_shape):
+    def _3_create_MobileNet_with_embedding(self, num_of_classes, input_shape):
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
             input_shape=input_shape,
             alpha=1.0,
@@ -356,7 +356,7 @@ class CNNModel:
 
         return revised_model
 
-    def pre_create_MobileNet_with_embedding(self, num_of_classes, input_shape):
+    def _create_MobileNet_with_embedding(self, num_of_classes, input_shape):
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
             input_shape=input_shape,
             alpha=1.0,
@@ -474,31 +474,31 @@ class CNNModel:
         x_l = Dense(LearningConfig.embedding_size,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(fused_global_avg_pool)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.3)(x_l)
+        x_l = Dropout(rate=0.4)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 2,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.3)(x_l)
+        x_l = Dropout(rate=0.4)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 4,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.3)(x_l)
+        x_l = Dropout(rate=0.4)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 8,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.3)(x_l)
+        x_l = Dropout(rate=0.4)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 16,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.3)(x_l)
+        x_l = Dropout(rate=0.4)(x_l)
         x_l = ELU()(x_l)
 
         '''out'''
