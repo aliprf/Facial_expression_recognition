@@ -46,14 +46,15 @@ if __name__ == '__main__':
     # raf_db.create_from_orig(ds_type=DatasetType.train)
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # # raf_db.upsample_data()
-    # raf_db.upsample_data_fix_rate()
-    # raf_db.create_masked_image()
+    raf_db.upsample_data_fix_rate()
+    raf_db.create_masked_image()
     # #
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
 
-    # raf_db.create_spatial_masks()
+    raf_db.create_spatial_masks()
+
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.create_spatial_masks()
 
@@ -86,8 +87,8 @@ if __name__ == '__main__':
     #
 
     """train online"""
-    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=5e-4)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=5e-4)
+    # trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./last_7_may_60.h5')
 
     # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
