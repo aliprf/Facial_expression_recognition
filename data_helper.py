@@ -61,7 +61,6 @@ class DataHelper:
                 np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
 
                 _aug_factor = int(_aug_factor)
-                if _aug_factor == 1: continue
 
                 for aug_inx in range(_aug_factor):
                     '''rotate and rescale the image'''

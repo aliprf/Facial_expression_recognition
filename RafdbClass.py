@@ -163,13 +163,13 @@ class RafDB:
     def upsample_data_fix_rate(self):
         """ [1290.  281.  717.  4772.   1982.  705.  2524.]
             Augmentation: sample_count_by_category: ====>>
-            [2,      8,     5,    2,      3,    5,     3] + 1 which i original
-           [3870.  2529.  4302. 14316.  7928.  4230. 10096.] => 47271
+            [5,      20,     11,    1,    4,    11,     3] + 1 which i original
+            [7740,  5901,   8604,  9544,  9910, 8460,  10096]
         """
 
         dhl = DataHelper()
         ''''''
-        aug_factor_by_class = [2, 8, 5, 2, 3, 5, 3]
+        aug_factor_by_class = [5, 20, 11, 1, 4, 11, 3]
         sample_count_by_class = np.zeros([7])
         img_addr_by_class = [[] for i in range(7)]
         anno_addr_by_class = [[] for i in range(7)]
