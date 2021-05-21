@@ -99,10 +99,12 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        if weight_path is not None:
-            global_accuracy, conf_mat = self._eval_model(model=model)
-        else:
-            conf_mat = np.ones_like([7*7])
+        global_accuracy, conf_mat = self._eval_model(model=model)
+
+        # if weight_path is not None:
+        #     global_accuracy, conf_mat = self._eval_model(model=model)
+        # else:
+        #     conf_mat = np.ones_like([7*7])
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size

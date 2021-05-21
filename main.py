@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     """train"""
     '''affectNet'''
-    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7)
+    trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7,  lr=1e-4)
     # trainer.train(arch='mobileNetV2', weight_path=None)
     trainer.train(arch='mobileNetV2', weight_path='./last_11_may_60.h5')
 
