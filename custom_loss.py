@@ -140,13 +140,15 @@ class CustomLosses:
             # weight_map = [3, 6, 4, 1, 2, 4, 2]
             weight_map = [1.41, 1, 1.80, 3.7, 5.66, 3.32, 3.38]
 
-
         y_pred = y_pr
         y_pred /= tf.reduce_sum(y_pred, axis=-1, keepdims=True)
         # clip
         y_pred = K.clip(y_pred, K.epsilon(), 1)
         # calc
         loss = tf.reduce_mean(-tf.reduce_sum(y_gt_oh * tf.math.log(y_pred) * weight_map, axis=1))
+
+        print(y_pr[0,:])
+        print(y_gt_oh[0,:])
 
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
