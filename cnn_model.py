@@ -355,7 +355,7 @@ class CNNModel:
 
         return revised_model
 
-    def _2_create_MobileNet_with_embedding(self, num_of_classes, input_shape):
+    def _create_MobileNet_with_embedding(self, num_of_classes, input_shape):
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
             input_shape=input_shape,
             alpha=1.0,
@@ -521,7 +521,7 @@ class CNNModel:
 
         return revised_model
 
-    def _create_MobileNet_with_embedding(self, num_of_classes, input_shape):
+    def _1_create_MobileNet_with_embedding(self, num_of_classes, input_shape):
         # mnv3 = mobilenet_v3.
 
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
