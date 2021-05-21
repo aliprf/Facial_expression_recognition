@@ -153,8 +153,8 @@ class CustomLosses:
         '''focal lost'''
         y_gt = tf.one_hot(y_gt, depth=num_classes)
         loss_object = tfa.losses.SigmoidFocalCrossEntropy(reduction=tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE)
-        loss = loss_object(y_gt, y_pr)
-        accuracy = 10*tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt))
+        loss = 10*loss_object(y_gt, y_pr)
+        accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt))
 
         '''CategoricalCrossentropy'''
         # loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
