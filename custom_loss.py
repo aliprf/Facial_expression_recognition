@@ -147,9 +147,6 @@ class CustomLosses:
         # calc
         loss = tf.reduce_mean(-tf.reduce_sum(y_gt_oh * tf.math.log(y_pred) * weight_map, axis=1))
 
-        print(y_pr[0,:])
-        print(y_gt_oh[0,:])
-
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
         '''focal lost'''
