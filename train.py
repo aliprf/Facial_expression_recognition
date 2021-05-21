@@ -110,9 +110,6 @@ class Train:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         '''create optimizer'''
-        learning_rate = MyLRSchedule(initial_learning_rate=self.lr, drop=self.drop, epochs_drop=self.epochs_drop)
-        optimizer = tf.keras.optimizers.SGD(learning_rate, momentum=0.9)
-        # optimizer = tf.keras.optimizers.Adam(learning_rate)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):

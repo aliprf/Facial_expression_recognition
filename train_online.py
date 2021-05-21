@@ -101,7 +101,7 @@ class TrainOnline:
                                 spm_bo_filenames=spm_bo_filenames,
                                 anno_names=exp_filenames)
 
-        # global_accuracy, conf_mat = self._eval_model(model=model)
+        global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
@@ -109,6 +109,7 @@ class TrainOnline:
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
         optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
+        # optimizer = tf.keras.optimizers.Adam(self.lr)
         '''create optimizer'''
         # learning_rate = MyLRSchedule(initial_learning_rate=self.lr, drop=self.drop, epochs_drop=self.epochs_drop)
         # optimizer = tf.keras.optimizers.SGD(learning_rate, momentum=0.9)
@@ -152,6 +153,12 @@ class TrainOnline:
                 #         for i, g in enumerate(step_gradients):
                 #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
 
+                '''revise lr'''
+                if batch_index > 0 and batch_index % self.epochs_drop == 0:
+                    self.lr *= self.drop
+                    optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
+
+                ''''''
                 batch_index += 1
             '''evaluating part'''
             global_accuracy, conf_mat = self._eval_model(model=model)

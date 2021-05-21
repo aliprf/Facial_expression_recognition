@@ -435,11 +435,17 @@ class AffectNet:
 
             probab_exp_pr_b, _, _, _, _ = model.predict_on_batch([global_bunch, upper_bunch,
                                                                   middle_bunch, bottom_bunch])
-            exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+            scores_b = np.array([tf.nn.softmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
+            exp_pr_b = np.array([np.argmax(scores_b[i]) for i in range(len(probab_exp_pr_b))])
+
+            # exp_pr_b = np.array([np.argmax(probab_exp_pr_b[i]) for i in range(len(probab_exp_pr_b))])
 
             exp_pr_lbl += np.array(exp_pr_b).tolist()
             exp_gt_lbl += np.array(exp_gt_b).tolist()
             batch_index += 1
+            print('exp_pr_b:' + str(exp_pr_b))
+            print('exp_gt_lbl:' + str(exp_gt_lbl))
+
         exp_pr_lbl = np.int64(np.array(exp_pr_lbl))
         exp_gt_lbl = np.int64(np.array(exp_gt_lbl))
 
