@@ -101,10 +101,10 @@ class Train:
 
         global_accuracy, conf_mat = self._eval_model(model=model)
 
-        # if weight_path is not None:
-        #     global_accuracy, conf_mat = self._eval_model(model=model)
-        # else:
-        #     conf_mat = np.ones_like([7*7])
+        if weight_path is not None:
+            global_accuracy, conf_mat = self._eval_model(model=model)
+        else:
+            conf_mat = np.ones_like([7 * 7])
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -145,11 +145,6 @@ class Train:
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer,
                                                  conf_mat=conf_mat)
-                '''revise lr'''
-                if batch_index > 0 and batch_index % self.epochs_drop == 0:
-                    self.lr *= self.drop
-                    optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
-
                 '''apply gradients'''
                 # print('gradients->')
                 # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
@@ -172,6 +167,11 @@ class Train:
             model.save(save_path + '_' + str(epoch) + '_' + self.dataset_name +
                        '_AC_' + str(global_accuracy) +
                        '.h5')
+
+            '''revise lr'''
+            if epoch > 0 and epoch % self.epochs_drop == 0:
+                self.lr *= self.drop
+                optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""
@@ -201,13 +201,16 @@ class Train:
 
             '''calculate loss'''
             '''CE loss'''
-            # loss_exp, accuracy = c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr, y_gt=anno_exp,
-            #                                                                  num_classes=self.num_of_classes,
-            #                                                                  ds_name=self.dataset_name,
-            #                                                                  conf_mat=conf_mat)
-            loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
-                                                           num_classes=self.num_of_classes,
-                                                           ds_name=self.dataset_name)
+            categorical_loss, inv_categorical_loss, accuracy = \
+                c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr,
+                                                            y_gt=anno_exp,
+                                                            num_classes=self.num_of_classes,
+                                                            ds_name=self.dataset_name,
+                                                            conf_mat=conf_mat)
+            loss_exp = categorical_loss + inv_categorical_loss
+            # loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+            #                                                num_classes=self.num_of_classes,
+            #                                                ds_name=self.dataset_name)
             '''embedding loss'''
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
@@ -216,7 +219,7 @@ class Train:
             '''correlation loss'''
             # c_loss.correlation_loss(exp_gt=anno_exp, exp_v=exp_pr, face_fv=emb_face, eye_fv=emb_eyes, nose_fv=emb_nose, mouth_fv=emb_mouth)
             '''total:'''
-            loss_total = loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
+            loss_total = 5 * loss_exp + loss_face + loss_eyes + loss_nose + loss_mouth
         '''calculate gradient'''
         gradients_of_model = tape.gradient(loss_total, model.trainable_variables)
         # '''apply Gradients:'''
@@ -226,6 +229,8 @@ class Train:
                  ' -> : accuracy: ', accuracy,
                  ' -> : loss_total: ', loss_total,
                  ' -> : loss_exp: ', loss_exp,
+                 ' -> : categorical_loss: ', categorical_loss,
+                 ' -> : inv_categorical_loss: ', inv_categorical_loss,
                  ' -> : loss_face: ', loss_face,
                  ' -> : loss_eyes: ', loss_eyes,
                  ' -> : loss_nose: ', loss_nose,
@@ -297,9 +302,12 @@ class Train:
 
         bs = np.array(global_bunch).shape[0]
         for i in range(bs):
-            dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_img', img=global_bunch[i, :, :, :3], landmarks=[])
-            dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_au', img=global_bunch[i, :, :, 3], landmarks=[])
-            dhl.test_image_print(img_name=str((_index+1) * (i + 1)) + '_g_dr', img=global_bunch[i, :, :, 4], landmarks=[])
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_g_img', img=global_bunch[i, :, :, :3],
+                                 landmarks=[])
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_g_au', img=global_bunch[i, :, :, 3],
+                                 landmarks=[])
+            dhl.test_image_print(img_name=str((_index + 1) * (i + 1)) + '_g_dr', img=global_bunch[i, :, :, 4],
+                                 landmarks=[])
         pass
 
 
