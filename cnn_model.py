@@ -474,31 +474,31 @@ class CNNModel:
         x_l = Dense(LearningConfig.embedding_size,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(fused_global_avg_pool)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.4)(x_l)
+        x_l = Dropout(rate=0.2)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 2,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.4)(x_l)
+        x_l = Dropout(rate=0.2)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 4,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.4)(x_l)
+        x_l = Dropout(rate=0.2)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 8,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.4)(x_l)
+        x_l = Dropout(rate=0.2)(x_l)
         x_l = ELU()(x_l)
 
         x_l = Dense(LearningConfig.embedding_size // 16,
                     kernel_regularizer=tf.keras.regularizers.l2(0.0001), )(x_l)
         x_l = BatchNormalization()(x_l)
-        x_l = Dropout(rate=0.4)(x_l)
+        x_l = Dropout(rate=0.2)(x_l)
         x_l = ELU()(x_l)
 
         '''out'''
