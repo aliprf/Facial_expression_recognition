@@ -230,10 +230,10 @@ class TrainOnline:
                 affn = AffectNet(ds_type=DatasetType.eval)
             else:
                 affn = AffectNet(ds_type=DatasetType.eval_7)
-            global_accuracy, conf_mat, avg_accuracy = affn.test_accuracy_dynamic(model=model)
+            global_accuracy, conf_mat = affn.test_accuracy_dynamic(model=model)
         if self.dataset_name == DatasetName.rafdb:
             rafdb = RafDB(ds_type=DatasetType.test)
-            global_accuracy, conf_mat, avg_accuracy = rafdb.test_accuracy_dynamic(model=model)
+            global_accuracy, conf_mat = rafdb.test_accuracy_dynamic(model=model)
 
         # else:
         #     predictions = model(img_batch_eval)

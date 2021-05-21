@@ -459,7 +459,7 @@ class AffectNet:
         bottom_bunch = None
 
         avg_accuracy = global_accuracy# the class numbers are the same in the validation
-        return global_accuracy, conf_mat, avg_accuracy
+        return global_accuracy, conf_mat
 
     def test_accuracy(self, model):
         dhp = DataHelper()
