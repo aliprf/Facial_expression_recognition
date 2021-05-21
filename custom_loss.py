@@ -156,7 +156,7 @@ class CustomLosses:
 
         '''CategoricalCrossentropy'''
         loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-        loss = loss_object(y_gt, y_pr)
+        loss = loss_object(y_gt_oh, y_pr)
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh))
 
         '''sparse CategoricalCrossentropy'''
