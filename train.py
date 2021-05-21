@@ -99,12 +99,12 @@ class Train:
                                 file_names_mouth=mouth_img_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, conf_mat = self._eval_model(model=model)
+        # global_accuracy, conf_mat = self._eval_model(model=model)
 
-        if weight_path is not None:
-            global_accuracy, conf_mat = self._eval_model(model=model)
-        else:
-            conf_mat = np.ones_like([7 * 7])
+        # if weight_path is not None:
+        #     global_accuracy, conf_mat = self._eval_model(model=model)
+        # else:
+        #     conf_mat = np.ones_like([7 * 7])
 
         '''create train configuration'''
         step_per_epoch = len(face_img_filenames) // LearningConfig.batch_size
@@ -201,16 +201,15 @@ class Train:
 
             '''calculate loss'''
             '''CE loss'''
-            categorical_loss, inv_categorical_loss, accuracy = \
-                c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr,
-                                                            y_gt=anno_exp,
-                                                            num_classes=self.num_of_classes,
-                                                            ds_name=self.dataset_name,
-                                                            conf_mat=conf_mat)
-            loss_exp = categorical_loss + inv_categorical_loss
-            # loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
-            #                                                num_classes=self.num_of_classes,
-            #                                                ds_name=self.dataset_name)
+            # loss_exp, accuracy = \
+            #     c_loss.cross_entropy_loss_with_dynamic_loss(y_pr=exp_pr,
+            #                                                 y_gt=anno_exp,
+            #                                                 num_classes=self.num_of_classes,
+            #                                                 ds_name=self.dataset_name,
+            #                                                 conf_mat=conf_mat)
+            loss_exp, accuracy = c_loss.cross_entropy_loss(y_pr=exp_pr, y_gt=anno_exp,
+                                                           num_classes=self.num_of_classes,
+                                                           ds_name=self.dataset_name)
             '''embedding loss'''
             loss_face = c_loss.triplet_loss(y_pr=emb_face, y_gt=anno_exp)
             loss_eyes = c_loss.triplet_loss(y_pr=emb_eyes, y_gt=anno_exp)
@@ -229,8 +228,6 @@ class Train:
                  ' -> : accuracy: ', accuracy,
                  ' -> : loss_total: ', loss_total,
                  ' -> : loss_exp: ', loss_exp,
-                 ' -> : categorical_loss: ', categorical_loss,
-                 ' -> : inv_categorical_loss: ', inv_categorical_loss,
                  ' -> : loss_face: ', loss_face,
                  ' -> : loss_eyes: ', loss_eyes,
                  ' -> : loss_nose: ', loss_nose,

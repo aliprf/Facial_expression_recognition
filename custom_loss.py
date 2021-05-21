@@ -110,15 +110,15 @@ class CustomLosses:
 
         accuracy = tf.reduce_mean(tf.keras.metrics.categorical_accuracy(y_pr, y_gt_oh)) * 100.0
 
-        return categorical_loss, inv_categorical_loss, accuracy
+        return categorical_loss, accuracy
 
     def cross_entropy_loss(self, y_gt, y_pr, num_classes, ds_name):
         y_gt_oh = tf.one_hot(y_gt, depth=num_classes)
         if ds_name == DatasetName.affectnet:
             # neutral happy sad surprise fear disgust anger
             # weight_map = [2, 1, 3, 5, 7, 10, 3]
-            weight_map = [5, 1, 3, 8, 7, 10, 9]
-            # weight_map = [1.19,  1.0, 1.76,  1+1.06, 2+1.40, 4+1.68, 1.80]
+            # weight_map = [5, 1, 3, 8, 7, 10, 9]
+            weight_map = [1.19,  1.0, 1.76,  1+1.06, 2+1.40, 4+1.68, 1.80]
         elif ds_name == DatasetName.rafdb:
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717. 4772. 1982.  705. 2524.]
