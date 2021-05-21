@@ -62,10 +62,10 @@ class DynamicDataset:
             return lbl
 
         def wrap_get_img(img_filename, spm_up_name, spm_md_name, spm_bo_name, anno_name):
-            img = tf.numpy_function(get_img,[img_filename], [tf.float32])
-            up_mask = tf.numpy_function(get_img,[spm_up_name], [tf.float32])
-            mid_mask = tf.numpy_function(get_img,[spm_md_name], [tf.float32])
-            bot_mask = tf.numpy_function(get_img,[spm_bo_name], [tf.float32])
+            img = tf.numpy_function(get_img, [img_filename], [tf.float32])
+            up_mask = tf.numpy_function(get_img, [spm_up_name], [tf.float32])
+            mid_mask = tf.numpy_function(get_img, [spm_md_name], [tf.float32])
+            bot_mask = tf.numpy_function(get_img, [spm_bo_name], [tf.float32])
 
             if is_validation and ds == DatasetName.affectnet:
                 lbl = tf.numpy_function(get_lbl, [anno_name], [tf.string])
