@@ -48,7 +48,7 @@ class DynamicDataset:
             '''as we don't flip or rotate the landmark points, we should first create the mask.
                 then we augment all independently. I know if we rotate or flip the parts independently,
                  they might not be the same as the main image, but we want each branch to be trained independently.'''
-            if is_validation or tf.random.uniform([]) <= 0.5:
+            if True or is_validation or tf.random.uniform([]) <= 0.5:
                 return img
 
             '''main image'''
