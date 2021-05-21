@@ -100,7 +100,7 @@ class Train:
                                 anno_names=exp_filenames)
 
         # global_accuracy, conf_mat = self._eval_model(model=model)
-
+        conf_mat = None
         # if weight_path is not None:
         #     global_accuracy, conf_mat = self._eval_model(model=model)
         # else:
