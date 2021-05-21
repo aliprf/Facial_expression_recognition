@@ -153,11 +153,10 @@ class TrainOnline:
                 #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
 
             '''evaluating part'''
-            global_accuracy, avg_accuracy, acc_per_label, conf_mat = self._eval_model(model=model)
+            global_accuracy, conf_mat = self._eval_model(model=model)
             '''save weights'''
             model.save(save_path + '_' + str(epoch) + '_' + self.dataset_name +
-                       '_ACglob-' + str(global_accuracy) +
-                       '_ACavg-' + str(avg_accuracy) +
+                       '_AC_' + str(global_accuracy) +
                        '.h5')
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
@@ -231,10 +230,10 @@ class TrainOnline:
                 affn = AffectNet(ds_type=DatasetType.eval)
             else:
                 affn = AffectNet(ds_type=DatasetType.eval_7)
-            global_accuracy, conf_mat = affn.test_accuracy_dynamic(model=model)
+            global_accuracy, conf_mat, avg_accuracy = affn.test_accuracy_dynamic(model=model)
         if self.dataset_name == DatasetName.rafdb:
             rafdb = RafDB(ds_type=DatasetType.test)
-            global_accuracy, conf_mat = rafdb.test_accuracy_dynamic(model=model)
+            global_accuracy, conf_mat, avg_accuracy = rafdb.test_accuracy_dynamic(model=model)
 
         # else:
         #     predictions = model(img_batch_eval)

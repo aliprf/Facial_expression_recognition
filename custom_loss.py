@@ -74,7 +74,7 @@ class CustomLosses:
             # neutral happy sad surprise fear disgust anger
             # 10096  14316   7928   3870  2529  4302   4230 => 47271
             # 4.68   3.30    5.96  12.21  18.69 10.98  11.17 =>
-            # 1.41   1       1.80  3.7    5.66  3.32  3.38 =>
+            # [1.41,   1,       1.80,  3.7,    5.66, 3.32,  3.38] =>
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717.    4772.   1982.  705.   2524.]
             # [3870.  2529.  4302. 14316.   7928.  4230. 10096.]
@@ -133,11 +133,12 @@ class CustomLosses:
             # neutral happy sad surprise fear disgust anger
             # weight_map = [2, 1, 3, 5, 7, 10, 3]
             # weight_map = [5, 1, 3, 8, 7, 10, 9]
-            weight_map = [1.19,  1.0, 1.76,  1.06, 3 + 1.40, 4 + 1.68, 2 + 1.80]
+            weight_map = [1.19,  1.0, 1.76,  1.06, 1.40, 1.68, 1.80]
         elif ds_name == DatasetName.rafdb:
             # Surprise Fear Disgust Happiness Sadness Anger Neutral
             # [1290.  281.  717. 4772. 1982.  705. 2524.]
-            weight_map = [3, 6, 4, 1, 2, 4, 2]
+            # weight_map = [3, 6, 4, 1, 2, 4, 2]
+            weight_map = [1.41, 1, 1.80, 3.7, 5.66, 3.32, 3.38]
 
         y_pred = y_pr
         y_pred /= tf.reduce_sum(y_pred, axis=-1, keepdims=True)
