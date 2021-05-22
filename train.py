@@ -66,7 +66,6 @@ class Train:
 
     def train(self, arch, weight_path):
         """"""
-
         '''create loss'''
         c_loss = CustomLosses()
 
