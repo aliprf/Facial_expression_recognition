@@ -20,7 +20,8 @@ class CNNModel:
                                                             input_shape=[InputDataSize.image_input_size,
                                                                          InputDataSize.image_input_size, 5])
         elif arch == 'mobileNetV2_3':
-            model = self._create_MobileNet_with_embedding_3(num_of_classes,
+            # model = self._create_MobileNet_with_embedding_3(num_of_classes,
+            model = self._create_MobileNet_with_embedding_3_v2(num_of_classes,
                                                             input_shape=[InputDataSize.image_input_size,
                                                                          InputDataSize.image_input_size, 3])
 
@@ -261,6 +262,122 @@ class CNNModel:
 
 
     '''uses for 3 layer'''
+    def _create_MobileNet_with_embedding_3_v2(self, num_of_classes, input_shape):
+        mobilenet_model_face = mobilenet_v2.MobileNetV2(
+            input_shape=input_shape,
+            alpha=1.0,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        mobilenet_model_face.layers.pop()
+
+        '''eyes'''
+        mobilenet_model_eyes = mobilenet_v2.MobileNetV2(
+            input_shape=input_shape,
+            alpha=1.0,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        mobilenet_model_eyes.layers.pop()
+
+        '''nose'''
+        mobilenet_model_nose = mobilenet_v2.MobileNetV2(
+            input_shape=input_shape,
+            alpha=1.0,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        mobilenet_model_nose.layers.pop()
+
+        '''mouth'''
+        mobilenet_model_mouth = mobilenet_v2.MobileNetV2(
+            input_shape=input_shape,
+            alpha=1.0,
+            include_top=True,
+            weights=None,
+            input_tensor=None,
+            pooling=None)
+        mobilenet_model_mouth.layers.pop()
+
+        for layer in mobilenet_model_face.layers:
+            layer._name = 'face_' + layer.name
+        for layer in mobilenet_model_eyes.layers:
+            layer._name = 'eyes_' + layer.name
+        for layer in mobilenet_model_nose.layers:
+            layer._name = 'nose_' + layer.name
+        for layer in mobilenet_model_mouth.layers:
+            layer._name = 'mouth_' + layer.name
+
+        # mobilenet_model_mouth.summary()
+        ''''''
+        g_x_l_face = mobilenet_model_face.get_layer('face_global_average_pooling2d').output  # 1280
+        g_x_l_eyes = mobilenet_model_eyes.get_layer('eyes_global_average_pooling2d_1').output  # 1280
+        g_x_l_nose = mobilenet_model_nose.get_layer('nose_global_average_pooling2d_2').output  # 1280
+        g_x_l_mouth = mobilenet_model_mouth.get_layer('mouth_global_average_pooling2d_3').output  # 1280
+
+        embedding_layer_face = tf.keras.layers.Dense(LearningConfig.embedding_size,
+                                                     activation='relu')(g_x_l_face)
+        embedding_layer_eyes = tf.keras.layers.Dense(LearningConfig.embedding_size,
+                                                     activation='relu')(g_x_l_eyes)
+        embedding_layer_nose = tf.keras.layers.Dense(LearningConfig.embedding_size,
+                                                     activation='relu')(g_x_l_nose)
+        embedding_layer_mouth = tf.keras.layers.Dense(LearningConfig.embedding_size,
+                                                      activation='relu')(g_x_l_mouth)
+
+        '''concat'''
+        concat_globs = tf.keras.layers.Concatenate(axis=1)([embedding_layer_face,
+                                                            embedding_layer_eyes,
+                                                            embedding_layer_nose,
+                                                            embedding_layer_mouth])
+        '''FC layer for out'''
+        x_l = Dense(LearningConfig.embedding_size)(concat_globs)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.5)(x_l)
+        x_l = ELU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 2)(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.5)(x_l)
+        x_l = ELU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 4)(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.5)(x_l)
+        x_l = ELU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 8)(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.5)(x_l)
+        x_l = ELU()(x_l)
+
+        x_l = Dense(LearningConfig.embedding_size // 16)(x_l)
+        x_l = BatchNormalization()(x_l)
+        x_l = Dropout(rate=0.5)(x_l)
+        x_l = ELU()(x_l)
+
+        out_categorical = Dense(num_of_classes,
+                                activation='softmax',
+                                name='out')(x_l)
+
+        inp = [mobilenet_model_face.input, mobilenet_model_eyes.input,
+               mobilenet_model_nose.input, mobilenet_model_mouth.input]
+        revised_model = Model(inp, [out_categorical,
+                                    embedding_layer_face,
+                                    embedding_layer_eyes,
+                                    embedding_layer_nose,
+                                    embedding_layer_mouth])
+        revised_model.summary()
+        '''save json'''
+        model_json = revised_model.to_json()
+
+        with open("./model_archs/mn_v2_cat_emb_3_v2.json", "w") as json_file:
+            json_file.write(model_json)
+
+        return revised_model
+
     def _create_MobileNet_with_embedding_3(self, num_of_classes, input_shape):
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
             input_shape=input_shape,
@@ -349,7 +466,7 @@ class CNNModel:
         '''save json'''
         model_json = revised_model.to_json()
 
-        with open("./model_archs/mn_v2_cat_emb.json", "w") as json_file:
+        with open("./model_archs/mn_v2_cat_emb_3.json", "w") as json_file:
             json_file.write(model_json)
 
         return revised_model

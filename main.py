@@ -62,8 +62,8 @@ if __name__ == '__main__':
 
     # raf_db = RafDB(ds_type=DatasetType.train)
     # raf_db.relabel()
-    raf_db = RafDB(ds_type=DatasetType.test)
-    raf_db.relabel()
+    # raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db.relabel()
 
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.report()
@@ -89,11 +89,12 @@ if __name__ == '__main__':
     #
 
     """train online"""
-    # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-2)
-    # trainer.train(arch='mobileNetV2_3', weight_path=None)
+    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=5e-3)
+    trainer.train(arch='mobileNetV2_3', weight_path=None)
+
     # trainer.train(arch='mobileNetV2_3', weight_path='./ac_0.14.h5')
 
-    # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=1e-2)
+    # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
     # trainer.train(arch='mobileNetV2_3', weight_path=None)
 
     '''test'''
