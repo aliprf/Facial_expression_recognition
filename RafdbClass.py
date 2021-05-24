@@ -244,13 +244,15 @@ class RafDB:
                                   )
 
     def relabel(self):
-        affectnet_like_lbls = [3, 4, 5, 1, 2, 6, 0]
+        # affectnet_like_lbls = [3, 4, 5, 1, 2, 6, 0]
+        raf_lbls = [6, 3, 4, 0, 1, 2, 5]
         for i, file in tqdm(enumerate(os.listdir(self.img_path_aug))):
             if file.endswith(".jpg") or file.endswith(".png"):
                 if os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")) \
                         and os.path.exists(os.path.join(self.anno_path_aug, file[:-4] + "_slnd.npy")):
                     lbl = np.int64(np.load(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy")))
-                    lbl = affectnet_like_lbls[lbl]
+                    # lbl = affectnet_like_lbls[lbl]
+                    lbl = raf_lbls[lbl]
                     save(os.path.join(self.anno_path_aug, file[:-4] + "_exp.npy"), lbl)
 
 
