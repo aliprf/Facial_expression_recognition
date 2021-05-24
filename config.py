@@ -34,8 +34,8 @@ class DatasetType:
 
 
 class LearningConfig:
-    batch_size = 75
-    # batch_size = 30
+    # batch_size = 75
+    batch_size = 30
     # batch_size = 3
     virtual_batch_size = 375
     epochs = 70
