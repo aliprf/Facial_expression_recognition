@@ -72,28 +72,28 @@ if __name__ == '__main__':
     """train"""
     '''affectNet'''
     # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7,  lr=1e-4)
-    # trainer.train(arch='mobileNetV2', weight_path=None)
-    # trainer.train(arch='mobileNetV2', weight_path='./last_11_may_60.h5')
+    # trainer.train(arch='mobileNetV2_5', weight_path=None)
+    # trainer.train(arch='mobileNetV2_5', weight_path='./last_11_may_60.h5')
 
     # trainer.train(arch='mobileNetV2', weight_path=None)
     # trainer.train(arch='efn-b3', weight_path=None)
     #
     '''rafdb'''
-    trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=1e-2)
+    # trainer = Train(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=1e-2)
     # trainer.train(arch='efn-b0', weight_path=None)
-    trainer.train(arch='mobileNetV2', weight_path=None)
+    # trainer.train(arch='mobileNetV2_5', weight_path=None)
 
     # trainer.train(arch='mobileNetV2', weight_path='./last_3_may.h5')
     # trainer.train(arch='efn-b3', weight_path=None)
     #
 
     """train online"""
-    # trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=5e-3)
-    # # trainer.train(arch='mobileNetV2', weight_path=None)
+    trainer = TrainOnline(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7, lr=1e-2)
+    trainer.train(arch='mobileNetV2_3', weight_path=None)
     # trainer.train(arch='mobileNetV2', weight_path='./ac_0.14.h5')
 
     # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
-    # trainer.train(arch='mobileNetV2', weight_path='./last_14.h5')
+    # trainer.train(arch='mobileNetV2', weight_path=None)
 
     '''test'''
     # tester = Test(dataset_name=DatasetName.affectnet)

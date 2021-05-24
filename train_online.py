@@ -30,7 +30,7 @@ class TrainOnline:
         self.lr = lr
 
         if dataset_name == DatasetName.rafdb:
-            self.drop = 0.5
+            self.drop = 0.1
             self.epochs_drop = 20
 
             self.img_path = RafDBConf.aug_train_img_path
@@ -43,7 +43,7 @@ class TrainOnline:
             self.num_of_samples = None
 
         elif dataset_name == DatasetName.affectnet:
-            self.drop = 0.5
+            self.drop = 0.1
             self.epochs_drop = 5
             if ds_type == DatasetType.train:
                 self.img_path = AffectnetConf.aug_train_img_path
@@ -101,19 +101,16 @@ class TrainOnline:
                                 spm_bo_filenames=spm_bo_filenames,
                                 anno_names=exp_filenames)
 
-        global_accuracy, conf_mat = self._eval_model(model=model)
+        # global_accuracy, conf_mat = self._eval_model(model=model)
 
         '''create train configuration'''
         step_per_epoch = len(img_filenames) // LearningConfig.batch_size
         gradients = None
         virtual_step_per_epoch = LearningConfig.virtual_batch_size // LearningConfig.batch_size
 
+        '''create optimizer'''
         optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
         # optimizer = tf.keras.optimizers.Adam(self.lr)
-        '''create optimizer'''
-        # learning_rate = MyLRSchedule(initial_learning_rate=self.lr, drop=self.drop, epochs_drop=self.epochs_drop)
-        # optimizer = tf.keras.optimizers.SGD(learning_rate, momentum=0.9)
-        # optimizer = tf.keras.optimizers.Adam(learning_rate)
 
         '''start train:'''
         for epoch in range(LearningConfig.epochs):
@@ -126,7 +123,6 @@ class TrainOnline:
                 bottom_bunch = bottom_bunch[:, -1, :, :]
 
                 # self.test_print_batch(global_bunch, upper_bunch, middle_bunch, bottom_bunch, batch_index)
-
                 '''train step'''
                 step_gradients = self.train_step(epoch=epoch, step=batch_index, total_steps=step_per_epoch,
                                                  global_bunch=global_bunch,
@@ -136,8 +132,6 @@ class TrainOnline:
                                                  anno_exp=exp_batch,
                                                  model=model, optimizer=optimizer, c_loss=c_loss,
                                                  summary_writer=summary_writer)
-
-
                 # '''apply gradients'''
                 # if batch_index > 0 and batch_index % virtual_step_per_epoch == 0:
                 #     '''apply gradient'''
@@ -152,12 +146,6 @@ class TrainOnline:
                 #     else:
                 #         for i, g in enumerate(step_gradients):
                 #             gradients[i] += self._flat_gradients(g) / LearningConfig.virtual_batch_size
-
-                '''revise lr'''
-                if batch_index > 0 and batch_index % self.epochs_drop == 0:
-                    self.lr *= self.drop
-                    optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
-
                 ''''''
                 batch_index += 1
             '''evaluating part'''
@@ -166,6 +154,12 @@ class TrainOnline:
             model.save(save_path + '_' + str(epoch) + '_' + self.dataset_name +
                        '_AC_' + str(global_accuracy) +
                        '.h5')
+
+            '''revise lr'''
+            if epoch > 0 and epoch % self.epochs_drop == 0:
+                self.lr *= self.drop
+                optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9)
+                print(self.lr)
 
     def calc_learning_rate(self, iterations, step_size, base_lr, max_lr, gamma=0.99994):
         """"""

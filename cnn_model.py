@@ -15,10 +15,14 @@ import efficientnet.tfkeras as efn
 
 class CNNModel:
     def get_model(self, arch, num_of_classes):
-        if arch == 'mobileNetV2':
-            model = self._create_MobileNet_with_embedding(num_of_classes,
-                                                          input_shape=[InputDataSize.image_input_size,
-                                                                       InputDataSize.image_input_size, 5])
+        if arch == 'mobileNetV2_5':
+            model = self._create_MobileNet_with_embedding_5(num_of_classes,
+                                                            input_shape=[InputDataSize.image_input_size,
+                                                                         InputDataSize.image_input_size, 5])
+        elif arch == 'mobileNetV2_3':
+            model = self._create_MobileNet_with_embedding_3(num_of_classes,
+                                                            input_shape=[InputDataSize.image_input_size,
+                                                                         InputDataSize.image_input_size, 3])
 
         elif arch == 'efn-b3':
             model = self._create_efnb3_with_embedding(num_of_classes,
@@ -255,7 +259,9 @@ class CNNModel:
 
         return revised_model
 
-    def _3_create_MobileNet_with_embedding(self, num_of_classes, input_shape):
+
+    '''uses for 3 layer'''
+    def _create_MobileNet_with_embedding_3(self, num_of_classes, input_shape):
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
             input_shape=input_shape,
             alpha=1.0,
@@ -306,35 +312,27 @@ class CNNModel:
 
         # mobilenet_model_mouth.summary()
         ''''''
-        face_out_relu = mobilenet_model_face.get_layer('face_out_relu').output  # 1280
-        face_global_avg_pool = GlobalAveragePooling2D()(face_out_relu)
+        g_x_l_face = mobilenet_model_face.get_layer('face_global_average_pooling2d').output  # 1280
+        g_x_l_eyes = mobilenet_model_eyes.get_layer('eyes_global_average_pooling2d_1').output  # 1280
+        g_x_l_nose = mobilenet_model_nose.get_layer('nose_global_average_pooling2d_2').output  # 1280
+        g_x_l_mouth = mobilenet_model_mouth.get_layer('mouth_global_average_pooling2d_3').output  # 1280
+
         embedding_layer_face = tf.keras.layers.Dense(LearningConfig.embedding_size,
-                                                     activation='relu')(face_global_avg_pool)
-
-        eyes_out_relu = mobilenet_model_eyes.get_layer('eyes_out_relu').output  # 1280
-        eyes_global_avg_pool = GlobalAveragePooling2D()(eyes_out_relu)
+                                                     activation='relu')(g_x_l_face)
         embedding_layer_eyes = tf.keras.layers.Dense(LearningConfig.embedding_size,
-                                                     activation='relu')(eyes_global_avg_pool)
-
-        nose_out_relu = mobilenet_model_nose.get_layer('nose_out_relu').output  # 1280
-        nose_global_avg_pool = GlobalAveragePooling2D()(nose_out_relu)
+                                                     activation='relu')(g_x_l_eyes)
         embedding_layer_nose = tf.keras.layers.Dense(LearningConfig.embedding_size,
-                                                     activation='relu')(nose_global_avg_pool)
-
-        mouth_out_relu = mobilenet_model_mouth.get_layer('mouth_out_relu').output  # 1280
-        mouth_global_avg_pool = GlobalAveragePooling2D()(mouth_out_relu)
+                                                     activation='relu')(g_x_l_nose)
         embedding_layer_mouth = tf.keras.layers.Dense(LearningConfig.embedding_size,
-                                                      activation='relu')(mouth_global_avg_pool)
+                                                      activation='relu')(g_x_l_mouth)
 
         '''concat'''
-        concat_globs = tf.keras.layers.Concatenate(axis=1)([face_out_relu,
-                                                            eyes_out_relu,
-                                                            nose_out_relu,
-                                                            mouth_out_relu])
-        global_avg_pool = GlobalAveragePooling2D()(concat_globs)
-
+        concat_globs = tf.keras.layers.Concatenate(axis=1)([embedding_layer_face,
+                                                            embedding_layer_eyes,
+                                                            embedding_layer_nose,
+                                                            embedding_layer_mouth])
         '''out'''
-        x = Dropout(0.4)(global_avg_pool)
+        x = Dropout(0.5)(concat_globs)
 
         out_categorical = Dense(num_of_classes,
                                 activation='softmax',
@@ -356,7 +354,9 @@ class CNNModel:
 
         return revised_model
 
-    def _create_MobileNet_with_embedding(self, num_of_classes, input_shape):
+
+    '''this is the main we use for 5 class'''
+    def _create_MobileNet_with_embedding_5(self, num_of_classes, input_shape):
         mobilenet_model_face = mobilenet_v2.MobileNetV2(
             input_shape=input_shape,
             alpha=1.0,
