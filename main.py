@@ -5,10 +5,14 @@ from train_online import TrainOnline
 from test import Test
 from AffectNetClass import AffectNet
 from RafdbClass import RafDB
-
+from visualize_feature_maps import FeatureMapVisualizer
 
 from data_helper import DataHelper
 if __name__ == '__main__':
+
+    # fm_vis = FeatureMapVisualizer(dataset_name=DatasetName.affectnet, weight_path='./3_v2_0.57.h5')
+    # fm_vis.visualize()
+    ''''''
 
     dhl = DataHelper()
 
@@ -53,7 +57,7 @@ if __name__ == '__main__':
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
     ''''''
-    # raf_db.upsample_data_fix_rate()
+    raf_db.upsample_data_fix_rate()
     # raf_db.create_spatial_masks()
     # raf_db.create_masked_image()
 
@@ -70,7 +74,9 @@ if __name__ == '__main__':
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
-    """train"""
+    """train single branch"""
+
+    """train 3 branch model"""
     '''affectNet'''
     # trainer = Train(dataset_name=DatasetName.affectnet, ds_type=DatasetType.train_7,  lr=1e-4)
     # trainer.train(arch='mobileNetV2_5', weight_path=None)
@@ -94,8 +100,8 @@ if __name__ == '__main__':
 
     # trainer.train(arch='mobileNetV2_3', weight_path='./ac_0.14.h5')
 
-    trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
-    trainer.train(arch='mobileNetV2_3', weight_path=None)
+    # trainer = TrainOnline(dataset_name=DatasetName.rafdb, ds_type=DatasetType.train, lr=5e-3)
+    # trainer.train(arch='mobileNetV2_3', weight_path=None)
 
     '''test'''
     # tester = Test(dataset_name=DatasetName.affectnet)

@@ -31,7 +31,7 @@ class TrainOnline:
 
         if dataset_name == DatasetName.rafdb:
             self.drop = 0.5
-            self.epochs_drop = 10
+            self.epochs_drop = 20
 
             self.img_path = RafDBConf.aug_train_img_path
             self.annotation_path = RafDBConf.aug_train_annotation_path

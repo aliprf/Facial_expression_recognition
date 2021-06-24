@@ -60,6 +60,8 @@ class DataHelper:
                 np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_exp', exp)
                 np.save(anno_save_path + str(class_index) + '_' + str(i) + '_0' + '_slnd', landmark_orig)
 
+                if _aug_factor == 1: continue
+
                 _aug_factor = int(_aug_factor)
 
                 for aug_inx in range(_aug_factor):

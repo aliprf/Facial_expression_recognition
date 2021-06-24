@@ -161,10 +161,10 @@ class RafDB:
 
 
     def upsample_data_fix_rate(self):
-        """ [1290.  281.  717.  4772.   1982.  705.  2524.]
-            Augmentation: sample_count_by_category: ====>>
+        """ [1290.  281.    717.  4772.   1982.  705.  2524.]
+            Augmentation: sample_count_by_category:      ====>>
             [5,      20,     11,    1,    4,    11,     3] + 1 which i original
-            [7740,  5901,   8604,  9544,  9910, 8460,  10096]
+            [6450,  5620,   7887,  4772,  7928, 7755,  7572]
         """
 
         dhl = DataHelper()
