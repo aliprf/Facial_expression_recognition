@@ -30,36 +30,7 @@ from shutil import copyfile
 from dataset_class import CustomDataset
 from dataset_dynamic import DynamicDataset
 
-'''
- [410   8 110  55  18  27  52] 680      => 60
- [122 747 109  84  18  96   9] 1185     => 63
- [ 62   9 301  24  30  36  16] 478      => 62
- [ 26   3  33 188  55  17   7] 329      => 62
- [  2   3  11  17  33   3   5] 74       => 44
- [ 22   3  42   5   3  54  31] 160      => 33
- [  5   5   6   9   8  63  66]] 162     => 40
- 
- [[ 347   36    8   48    0  237    4]
- [  37 1063    4   18    1   59    3]
- [  56   52  250   11    0  105    4]
- [  11    9    2  288    4   15    0]
- [   1    6    6   23   30    7    1]
- [   3   12    8    6    2  128    1]
- [   1   15    1   12    7   38   88]]
 
-[[  18  597   32   16    1    0   16]
- [   0 1177    3    2    1    0    2]
- [   4  302  156    6    5    0    5]
- [   1  190    4  124    6    0    4]
- [   0   41    4   12   10    0    7]
- [   0  112   14    1    2    0   31]
- [   0   92    2    2    2    0   64]]
-
-
-680 1185 478 329 74 160 162
-testset : [ 329.  74.  160. 1185.  478.  162.  680.]
-
-'''
 class RafDB:
     def __init__(self, ds_type):
         """we set the parameters needed during the whole class:
@@ -80,6 +51,7 @@ class RafDB:
             self.masked_img_path = RafDBConf.test_masked_img_path
 
     def create_from_orig(self, ds_type):
+        print('create_from_orig & relabel to affectNetLike--->')
         """
         labels are from 1-7, but we save them from 0 to 6
 
@@ -104,6 +76,7 @@ class RafDB:
         '''read the text file, and save exp, and image'''
         file1 = open(txt_path, 'r')
         dhl = DataHelper()
+        affectnet_like_lbls = [3, 4, 5, 1, 2, 6, 0]
         while True:
             line = file1.readline()
             if not line:
@@ -115,6 +88,9 @@ class RafDB:
             img_dest_address = save_img_path + f_name
 
             exp = int(line.split(' ')[1]) - 1
+            '''relabel to affectNet'''
+            exp = affectnet_like_lbls[exp]
+
             img = np.array(Image.open(img_source_address))
 
             '''padd, resize image and save'''
@@ -127,7 +103,6 @@ class RafDB:
             im.save(img_dest_address)
             '''save annotation'''
             np.save(save_anno_path + f_name[:-4] + '_exp', exp)
-
         file1.close()
 
     def create_synthesized_landmarks(self, model_file, test_print=False):

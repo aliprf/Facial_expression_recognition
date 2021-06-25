@@ -2,15 +2,30 @@ class DatasetName:
     affectnet = 'affectnet'
     rafdb = 'rafdb'
 
+class ExpressionCodesRafdb:
+    neutral = 0
+    happy = 1
+    sad = 2
+    surprise = 3
+    fear = 4
+    disgust = 5
+    anger = 6
 
 class ExpressionCodesRafdb:
-    Surprise = 1
-    Fear = 2
-    Disgust = 3
-    Happiness = 4
-    Sadness = 5
-    Anger = 6
-    Neutral = 7
+    Surprise = 0
+    Fear = 1
+    Disgust = 2
+    Happiness = 3
+    Sadness = 4
+    Anger = 5
+    Neutral = 6
+    # Surprise = 1
+    # Fear = 2
+    # Disgust = 3
+    # Happiness = 4
+    # Sadness = 5
+    # Anger = 6
+    # Neutral = 7
 
 class ExpressionCodesAffectnet:
     neutral = 0
@@ -45,6 +60,31 @@ class LearningConfig:
 
 class InputDataSize:
     image_input_size = 224
+
+class FerPlusConf:
+    # _prefix_path = '/media/data3/ali/FER_DS/FER_plus'  # --> zeue
+    # _prefix_path = '/media/data2/alip/FER_DS/RAF-DB'  # --> Atlas
+    _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
+
+    orig_annotation_txt_path = _prefix_path + '/orig/RAFDB-NEED/list_patition_label.txt'
+    orig_image_path = _prefix_path + '/orig/RAFDB-NEED/original/'
+    orig_bounding_box = _prefix_path + '/orig/RAFDB-NEED/boundingbox/'
+
+    '''only 7 labels'''
+    no_aug_train_img_path = _prefix_path + '/train_set/images/'
+    no_aug_train_annotation_path = _prefix_path + '/train_set/annotations/'
+
+    aug_train_img_path = _prefix_path + '/train_set_aug/images/'
+    aug_train_annotation_path = _prefix_path + '/train_set_aug/annotations/'
+    aug_train_masked_img_path = _prefix_path + '/train_set_aug/masked_images/'
+
+    test_img_path = _prefix_path + '/test_set/images/'
+    test_annotation_path = _prefix_path + '/test_set/annotations/'
+    test_masked_img_path = _prefix_path + '/test_set/masked_images/'
+
+    augmentation_factor = 5
+
+    weight_save_path = _prefix_path + '/weight_saving_path/'
 
 class RafDBConf:
     _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue
