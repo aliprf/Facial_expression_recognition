@@ -83,7 +83,7 @@ if __name__ == '__main__':
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.report()
 
-    '''<><><><><><><>FERPLUS<><><><><><><>'''
+    '''<><><><><><><>FER2013<><><><><><><>'''
     fer_2013 = FerPlus(ds_type=DatasetType.train)
     fer_2013.create_from_orig()  # here we change the labels to be consistent to AffectNet
     fer_2013.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
