@@ -121,13 +121,19 @@ class RafDB:
         file1.close()
         return int(float(x_min)), int(float(y_min)), int(float(x_max)), int(float(y_max))
 
-    def report(self):
+    def report(self, aug=True):
         dhl = DataHelper()
+        if aug:
+            anno_path = self.anno_path_aug
+            img_path = self.img_path_aug
+        else:
+            anno_path = self.anno_path
+            img_path = self.img_path
+
         sample_count_by_class = np.zeros([7])
-        for i, file in tqdm(enumerate(os.listdir(self.anno_path_aug))):
+        for i, file in tqdm(enumerate(os.listdir(anno_path))):
             if file.endswith("_exp.npy"):
-                exp = np.load(os.path.join(self.anno_path_aug, file))
-                # exp = np.load(os.path.join(self.anno_path_aug, file))
+                exp = np.load(os.path.join(anno_path, file))
                 sample_count_by_class[exp] += 1
                 # print(exp, end="-")
         print("sample_count_by_category: ====>>")
