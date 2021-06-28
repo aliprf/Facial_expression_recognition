@@ -88,7 +88,7 @@ class RafDB:
             img_dest_address = save_img_path + f_name
 
             exp = int(line.split(' ')[1]) - 1
-            '''relabel to affectNet'''
+            # '''relabel to affectNet'''
             exp = affectnet_like_lbls[exp]
 
             img = np.array(Image.open(img_source_address))
@@ -132,6 +132,7 @@ class RafDB:
                 # print(exp, end="-")
         print("sample_count_by_category: ====>>")
         '''testset : [ 329.   74.  160. 1185.  478.  162.  680.]'''
+        '''train : [ 15,144. 100,212.  23,784.   4,772.   9,910.   8,604.  10,096.]'''
         print(sample_count_by_class)
 
 

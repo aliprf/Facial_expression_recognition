@@ -8,8 +8,8 @@ from RafdbClass import RafDB
 from visualize_feature_maps import FeatureMapVisualizer
 
 from data_helper import DataHelper
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # fm_vis = FeatureMapVisualizer(dataset_name=DatasetName.affectnet, weight_path='./3_v2_0.57.h5')
     # fm_vis.visualize()
     ''''''
@@ -47,11 +47,11 @@ if __name__ == '__main__':
 
     '''<><><><><><><>RAF-DB<><><><><><><>'''
     # train
-    # raf_db = RafDB(ds_type=DatasetType.train)
-    # raf_db.create_from_orig(ds_type=DatasetType.train) # here we change the labels to be consistent to AffectNet
-    #test:
-    # raf_db = RafDB(ds_type=DatasetType.test)
-    # raf_db.create_from_orig(ds_type=DatasetType.test) # here we change the labels to be consistent to AffectNet
+    raf_db = RafDB(ds_type=DatasetType.train)
+    raf_db.create_from_orig(ds_type=DatasetType.train)  # here we change the labels to be consistent to AffectNet
+    # test:
+    raf_db = RafDB(ds_type=DatasetType.test)
+    raf_db.create_from_orig(ds_type=DatasetType.test)  # here we change the labels to be consistent to AffectNet
 
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # # raf_db.upsample_data()
