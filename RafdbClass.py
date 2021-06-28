@@ -137,21 +137,21 @@ class RafDB:
                 sample_count_by_class[exp] += 1
                 # print(exp, end="-")
         print("sample_count_by_category: ====>>")
-        '''testset : [ 329.   74.  160. 1185.  478.  162.  680.]'''
-        '''train : [ 15,144. 100,212.  23,784.   4,772.   9,910.   8,604.  10,096.]'''
+        '''testset : [ 680. 1185.  478.  329.   74.  160.  162.]'''
+        '''train :   [2524. 4772. 1982. 1290.  281.  717.  705.]'''
         print(sample_count_by_class)
 
 
     def upsample_data_fix_rate(self):
-        """ [1290.  281.    717.  4772.   1982.  705.  2524.]
+        """  [2524. 4772.   1982.  1290.   281.   717.  705.]
             Augmentation: sample_count_by_category:      ====>>
-            [5,      20,     11,    1,    4,    11,     3] + 1 which i original
-            [6450,  5620,   7887,  4772,  7928, 7755,  7572]
+            [2,      1,     3,    4,       17,      7,     8]
+            [5048,  4772,   5946,  5160,  4777, 5019,  5640]
         """
 
         dhl = DataHelper()
         ''''''
-        aug_factor_by_class = [5, 20, 11, 1, 4, 11, 3]
+        aug_factor_by_class = [2, 1, 3, 4, 17, 7, 8]
         sample_count_by_class = np.zeros([7])
         img_addr_by_class = [[] for i in range(7)]
         anno_addr_by_class = [[] for i in range(7)]
