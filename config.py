@@ -3,6 +3,15 @@ class DatasetName:
     rafdb = 'rafdb'
 
 class ExpressionCodesRafdb:
+    '''original'''
+    Surprise = 0
+    Fear = 1
+    Disgust = 2
+    Happiness = 3
+    Sadness = 4
+    Anger = 5
+    Neutral = 6
+    '''coverted'''
     neutral = 0
     happy = 1
     sad = 2
@@ -10,6 +19,7 @@ class ExpressionCodesRafdb:
     fear = 4
     disgust = 5
     anger = 6
+
 
 class ExpressionCodesRafdb:
     Surprise = 0
@@ -62,13 +72,11 @@ class InputDataSize:
     image_input_size = 224
 
 class FerPlusConf:
-    # _prefix_path = '/media/data3/ali/FER_DS/FER_plus'  # --> zeue
-    # _prefix_path = '/media/data2/alip/FER_DS/RAF-DB'  # --> Atlas
-    _prefix_path = '/media/ali/data/FER/RAF-DB'  # --> local
+    _prefix_path = '/media/data3/ali/FER_DS/FER_plus'  # --> zeue
+    # _prefix_path = '/media/ali/data/FER/FER_plus'  # --> local
 
-    orig_annotation_txt_path = _prefix_path + '/orig/RAFDB-NEED/list_patition_label.txt'
-    orig_image_path = _prefix_path + '/orig/RAFDB-NEED/original/'
-    orig_bounding_box = _prefix_path + '/orig/RAFDB-NEED/boundingbox/'
+    orig_image_path_train = _prefix_path + '/orig/train/'
+    orig_image_path_test = _prefix_path + '/orig/test/'
 
     '''only 7 labels'''
     no_aug_train_img_path = _prefix_path + '/train_set/images/'
@@ -82,9 +90,8 @@ class FerPlusConf:
     test_annotation_path = _prefix_path + '/test_set/annotations/'
     test_masked_img_path = _prefix_path + '/test_set/masked_images/'
 
-    augmentation_factor = 5
-
     weight_save_path = _prefix_path + '/weight_saving_path/'
+
 
 class RafDBConf:
     _prefix_path = '/media/data3/ali/FER_DS/RAF-DB'  # --> zeue

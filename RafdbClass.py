@@ -138,7 +138,7 @@ class RafDB:
                 # print(exp, end="-")
         print("sample_count_by_category: ====>>")
         '''testset : [ 680. 1185.  478.  329.   74.  160.  162.]'''
-        '''train :   [2524. 4772. 1982. 1290.  281.  717.  705.]'''
+        '''train :   [7,572. 4,772. 7,928. 6,450. 5,058. 5,736. 6,345.] '''
         print(sample_count_by_class)
 
 

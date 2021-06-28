@@ -5,6 +5,7 @@ from train_online import TrainOnline
 from test import Test
 from AffectNetClass import AffectNet
 from RafdbClass import RafDB
+from FerPlusClass import FerPlus
 from visualize_feature_maps import FeatureMapVisualizer
 
 from data_helper import DataHelper
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.create_from_orig(ds_type=DatasetType.test)  # here we change the labels to be consistent to AffectNet
 
-    raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
+    # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # # raf_db.upsample_data()
     # raf_db.upsample_data_fix_rate()
     # raf_db.create_masked_image()
@@ -62,8 +63,8 @@ if __name__ == '__main__':
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
     ''''''
-    raf_db = RafDB(ds_type=DatasetType.train)
-    raf_db.upsample_data_fix_rate()
+    # raf_db = RafDB(ds_type=DatasetType.train)
+    # raf_db.upsample_data_fix_rate()
 
     # raf_db.create_spatial_masks()
     # raf_db.create_masked_image()
@@ -83,6 +84,21 @@ if __name__ == '__main__':
     # raf_db.report()
 
     '''<><><><><><><>FERPLUS<><><><><><><>'''
+    fer_2013 = FerPlus(ds_type=DatasetType.train)
+    fer_2013.create_from_orig()  # here we change the labels to be consistent to AffectNet
+    fer_2013.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
+    fer_2013.upsample_data_fix_rate()
+
+    fer_2013 = FerPlus(ds_type=DatasetType.test)
+    fer_2013.create_from_orig()
+
+    fer_2013 = RafDB(ds_type=DatasetType.train)
+    fer_2013.report(aug=False)
+
+    fer_2013 = RafDB(ds_type=DatasetType.test)
+    fer_2013.report()
+
+
     '''<><><><><><><>SFEW<><><><><><><>'''
 
     """train single branch"""

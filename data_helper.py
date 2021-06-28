@@ -62,7 +62,7 @@ class DataHelper:
 
                 if _aug_factor == 1: continue
 
-                _aug_factor = int(_aug_factor)
+                _aug_factor = int(_aug_factor) - 1  # we count original as well
 
                 for aug_inx in range(_aug_factor):
                     '''rotate and rescale the image'''
