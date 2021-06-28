@@ -47,11 +47,11 @@ if __name__ == '__main__':
 
     '''<><><><><><><>RAF-DB<><><><><><><>'''
     # train
-    raf_db = RafDB(ds_type=DatasetType.train)
-    raf_db.create_from_orig(ds_type=DatasetType.train) # here we change the labels to be consistent to AffectNet
+    # raf_db = RafDB(ds_type=DatasetType.train)
+    # raf_db.create_from_orig(ds_type=DatasetType.train) # here we change the labels to be consistent to AffectNet
     #test:
-    raf_db = RafDB(ds_type=DatasetType.test)
-    raf_db.create_from_orig(ds_type=DatasetType.test) # here we change the labels to be consistent to AffectNet
+    # raf_db = RafDB(ds_type=DatasetType.test)
+    # raf_db.create_from_orig(ds_type=DatasetType.test) # here we change the labels to be consistent to AffectNet
 
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # # raf_db.upsample_data()
@@ -62,8 +62,8 @@ if __name__ == '__main__':
     # raf_db.create_synthesized_landmarks(model_file='./ds_136_ef.h5', test_print=False)
     # raf_db.create_masked_image()
     ''''''
-    raf_db = RafDB(ds_type=DatasetType.train)
-    raf_db.upsample_data_fix_rate()
+    # raf_db = RafDB(ds_type=DatasetType.train)
+    # raf_db.upsample_data_fix_rate()
 
     # raf_db.create_spatial_masks()
     # raf_db.create_masked_image()
@@ -76,8 +76,8 @@ if __name__ == '__main__':
     # raf_db = RafDB(ds_type=DatasetType.test)
     # raf_db.relabel()
 
-    # raf_db = RafDB(ds_type=DatasetType.test)
-    # raf_db.report()
+    raf_db = RafDB(ds_type=DatasetType.train)
+    raf_db.report()
     '''<><><><><><><>FERPLUS<><><><><><><>'''
     '''<><><><><><><>SFEW<><><><><><><>'''
 
