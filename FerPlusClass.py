@@ -51,7 +51,7 @@ class FerPlus:
             self.img_path_aug = FerPlusConf.test_img_path
             self.anno_path_aug = FerPlusConf.test_annotation_path
             self.masked_img_path = FerPlusConf.test_masked_img_path
-            self.orig_image_path = FerPlusConf.orig_image_path_train
+            self.orig_image_path = FerPlusConf.orig_image_path_test
 
     def create_from_orig(self):
         print('create_from_orig & relabel to affectNetLike--->')
@@ -155,5 +155,6 @@ class FerPlus:
         3068it [00:00, 5255.57it/s]
         sample_count_by_category: ====>>
         [ 680. 1185.  478.  329.   74.  160.  162.]
+        [2, 1, 4, 1, 4, 8, 1]
         '''
         print(sample_count_by_class)
