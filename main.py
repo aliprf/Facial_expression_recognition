@@ -89,11 +89,11 @@ if __name__ == '__main__':
     # fer_2013.create_synthesized_landmarks(model_file='./ds_136_ef.h5')
     # fer_2013.upsample_data_fix_rate()
     #
-    fer_2013 = FerPlus(ds_type=DatasetType.test)
-    fer_2013.create_from_orig()
+    # fer_2013 = FerPlus(ds_type=DatasetType.test)
+    # fer_2013.create_from_orig()
     #
-    # fer_2013 = RafDB(ds_type=DatasetType.train)
-    # fer_2013.report(aug=False)
+    fer_2013 = RafDB(ds_type=DatasetType.train)
+    fer_2013.report()
     #
     # fer_2013 = RafDB(ds_type=DatasetType.test)
     # fer_2013.report()
