@@ -150,4 +150,10 @@ class FerPlus:
                 exp = np.load(os.path.join(anno_path, file))
                 sample_count_by_class[exp] += 1
         print("sample_count_by_category: ====>>")
+        '''
+        [2524. 4772. 1982. 1290.  281.  717.  705.]
+        3068it [00:00, 5255.57it/s]
+        sample_count_by_category: ====>>
+        [ 680. 1185.  478.  329.   74.  160.  162.]
+        '''
         print(sample_count_by_class)
