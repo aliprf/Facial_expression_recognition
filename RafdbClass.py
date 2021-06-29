@@ -125,10 +125,8 @@ class RafDB:
         dhl = DataHelper()
         if aug:
             anno_path = self.anno_path_aug
-            img_path = self.img_path_aug
         else:
             anno_path = self.anno_path
-            img_path = self.img_path
 
         sample_count_by_class = np.zeros([7])
         for i, file in tqdm(enumerate(os.listdir(anno_path))):
@@ -137,8 +135,11 @@ class RafDB:
                 sample_count_by_class[exp] += 1
                 # print(exp, end="-")
         print("sample_count_by_category: ====>>")
-        '''testset : [ 680. 1185.  478.  329.   74.  160.  162.]'''
-        '''train :   [7,572. 4,772. 7,928. 6,450. 5,058. 5,736. 6,345.] '''
+        ''' testset : [ 680. 1185.  478.  329.   74.  160.  162.]
+            train :   [7,572. 4,772. 7,928. 6,450. 5,058. 5,736. 6,345.]
+                      [7572. 4772. 7928. 6450. 5058. 5736. 6345.]
+             '''
+
         print(sample_count_by_class)
 
 
