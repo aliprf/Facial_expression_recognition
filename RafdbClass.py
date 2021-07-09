@@ -135,7 +135,7 @@ class RafDB:
                 sample_count_by_class[exp] += 1
                 # print(exp, end="-")
         print("sample_count_by_category: ====>>")
-        ''' testset : [ 680. 1185.  478.  329.   74.  160.  162.]
+        ''' testset : [ 680. 1185.  478.  329.   74.  160.  162.]`
             train :   [2,524. 47,72. 1,982. 1,290.  281.  717.  705.]
                       [7,572. 4,772. 7,928. 6,450. 5,058. 5,736. 6,345.]
              '''
@@ -384,7 +384,7 @@ class RafDB:
         exp_gt_lbl = np.float64(np.array(exp_gt_lbl))
 
         global_accuracy = accuracy_score(exp_gt_lbl, exp_pr_lbl)
-        conf_mat = confusion_matrix(exp_gt_lbl, exp_pr_lbl)
+        conf_mat = confusion_matrix(y_true=exp_gt_lbl, y_pred=exp_pr_lbl, normalize=True)
         # conf_mat = tf.math.confusion_matrix(exp_gt_lbl, exp_pr_lbl, num_classes=7)
 
         ds = None
