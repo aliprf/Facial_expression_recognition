@@ -92,11 +92,11 @@ if __name__ == '__main__':
     # fer_2013 = FerPlus(ds_type=DatasetType.test)
     # fer_2013.create_from_orig()
     #
-    fer_2013 = RafDB(ds_type=DatasetType.train)
+    fer_2013 = FerPlus(ds_type=DatasetType.train)
     fer_2013.report()
     #
-    # fer_2013 = RafDB(ds_type=DatasetType.test)
-    # fer_2013.report()
+    fer_2013 = FerPlus(ds_type=DatasetType.test)
+    fer_2013.report()
 
 
     '''<><><><><><><>SFEW<><><><><><><>'''
