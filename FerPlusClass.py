@@ -106,7 +106,7 @@ class FerPlus:
 
         dhl = DataHelper()
         ''''''
-        aug_factor_by_class = [2, 1, 3, 4, 17, 7, 8]
+        aug_factor_by_class = [2, 1, 2, 3, 2, 16, 3]
         sample_count_by_class = np.zeros([7])
         img_addr_by_class = [[] for i in range(7)]
         anno_addr_by_class = [[] for i in range(7)]
@@ -151,7 +151,7 @@ class FerPlus:
                 sample_count_by_class[exp] += 1
         print("sample_count_by_category: ====>>")
         '''
-        
+        [4964. 7215. 4830. 3171. 4097.  436. 3994.]
         test: sample_count_by_category: ====>>
         [1233. 1774. 1247.  831. 1024.  111.  958.]
         '''
